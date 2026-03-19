@@ -1,455 +1,239 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>地域探検型コンテンツ 試作1</title>
-  <style>
-    :root {
-      --bg: #f6f7fb;
-      --card: #ffffff;
-      --text: #1f2937;
-      --muted: #6b7280;
-      --line: #e5e7eb;
-      --accent: #2563eb;
-      --accent-2: #dbeafe;
-      --ok: #15803d;
-      --warn: #b45309;
-      --shadow: 0 10px 25px rgba(0,0,0,0.08);
-      --radius: 18px;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>観光プロトタイプ</title>
 
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: var(--bg);
-      color: var(--text);
-    }
+<!-- Leaflet -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-    .wrap {
-      max-width: 760px;
-      margin: 0 auto;
-      padding: 20px 16px 80px;
-    }
+<style>
+body { margin:0; font-family: sans-serif; }
+#map { height: 60vh; }
+#info { padding:10px; }
+button { padding:10px; margin:5px 0; }
 
-    .card {
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 18px;
-      margin-bottom: 16px;
-    }
-
-    h1 {
-      margin: 0 0 10px;
-      font-size: 1.5rem;
-      line-height: 1.35;
-    }
-
-    h2 {
-      margin: 0 0 10px;
-      font-size: 1.15rem;
-    }
-
-    p {
-      margin: 0 0 10px;
-      line-height: 1.7;
-    }
-
-    .muted {
-      color: var(--muted);
-      font-size: 0.95rem;
-    }
-
-    .pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: var(--accent-2);
-      color: var(--accent);
-      border-radius: 999px;
-      padding: 8px 12px;
-      font-weight: 700;
-      margin-top: 8px;
-    }
-
-    .status {
-      font-size: 0.95rem;
-      line-height: 1.7;
-      white-space: pre-line;
-    }
-
-    button {
-      appearance: none;
-      border: none;
-      background: var(--accent);
-      color: white;
-      font-size: 1rem;
-      font-weight: 700;
-      padding: 12px 16px;
-      border-radius: 14px;
-      cursor: pointer;
-    }
-
-    button.secondary {
-      background: #eef2ff;
-      color: #3730a3;
-    }
-
-    button.ghost {
-      background: transparent;
-      color: var(--accent);
-      border: 1px solid var(--line);
-    }
-
-    .btns {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-top: 12px;
-    }
-
-    .chip {
-      display: none;
-      position: sticky;
-      top: 10px;
-      z-index: 20;
-      margin-bottom: 12px;
-      background: #111827;
-      color: white;
-      border-radius: 999px;
-      padding: 12px 16px;
-      box-shadow: var(--shadow);
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-    }
-
-    .chip.visible {
-      display: flex;
-    }
-
-    .chip button {
-      background: white;
-      color: #111827;
-      padding: 10px 14px;
-      border-radius: 999px;
-      font-size: 0.95rem;
-    }
-
-    .slider-card {
-      display: none;
-    }
-
-    .slider-card.visible {
-      display: block;
-    }
-
-    .compare {
-      position: relative;
-      width: 100%;
-      aspect-ratio: 4 / 3;
-      overflow: hidden;
-      border-radius: 18px;
-      background: #ddd;
-      border: 1px solid var(--line);
-      margin-top: 12px;
-    }
-
-    .compare img {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      user-select: none;
-      pointer-events: none;
-    }
-
-    .compare .new-wrap {
-      position: absolute;
-      inset: 0;
-      width: 50%;
-      overflow: hidden;
-      border-right: 3px solid white;
-    }
-
-    .compare .label {
-      position: absolute;
-      top: 10px;
-      padding: 6px 10px;
-      border-radius: 999px;
-      background: rgba(17,24,39,0.8);
-      color: white;
-      font-size: 0.85rem;
-      font-weight: 700;
-    }
-
-    .compare .label.old { left: 10px; }
-    .compare .label.new { right: 10px; }
-
-    .range-wrap {
-      margin-top: 14px;
-    }
-
-    input[type="range"] {
-      width: 100%;
-    }
-
-    textarea {
-      width: 100%;
-      min-height: 120px;
-      resize: vertical;
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      padding: 14px;
-      font-size: 1rem;
-      line-height: 1.6;
-      margin-top: 10px;
-    }
-
-    .small {
-      font-size: 0.88rem;
-      color: var(--muted);
-      margin-top: 8px;
-    }
-
-    .kv {
-      display: grid;
-      grid-template-columns: 140px 1fr;
-      gap: 8px 12px;
-      margin-top: 10px;
-      font-size: 0.96rem;
-    }
-
-    .kv div:nth-child(odd) {
-      color: var(--muted);
-    }
-
-    .ok { color: var(--ok); font-weight: 700; }
-    .warn { color: var(--warn); font-weight: 700; }
-
-    @media (max-width: 560px) {
-      .kv {
-        grid-template-columns: 1fr;
-        gap: 4px;
-      }
-    }
-  </style>
+.modal {
+  position: fixed;
+  top:0; left:0;
+  width:100%; height:100%;
+  background: rgba(0,0,0,0.7);
+  display:none;
+  justify-content:center;
+  align-items:center;
+}
+.modal-content {
+  background:#fff;
+  padding:20px;
+  width:90%;
+  max-width:400px;
+}
+#rewardBtn {
+  position: fixed;
+  top:10px;
+  right:10px;
+  font-size:24px;
+  display:none;
+}
+</style>
 </head>
+
 <body>
-  <div class="wrap">
-    <div id="chip" class="chip" aria-live="polite">
-      <div>
-        <strong>近くにスポットがあります</strong><br>
-        <span id="chipText">鬼橋の比較コンテンツを開けます</span>
-      </div>
-      <button id="openSpotBtn" type="button">開く</button>
-    </div>
 
-    <section class="card">
-      <h1>地域探検型コンテンツ 試作1</h1>
-      <p>まずは1スポットだけ動かす実験版です。現在地を取得し、設定した地点の半径10m以内に入ると、スポットのチップが表示されます。</p>
-      <p class="muted">これはテスト用です。今回はご自宅の座標で確認する想定にしています。現地スポットに置き換えるのは、動作確認後で大丈夫です。</p>
-      <div class="pill">スポット名: 鬼橋（テスト中）</div>
-      <div class="btns">
-        <button id="startBtn" type="button">位置情報を許可して開始</button>
-        <button id="checkBtn" class="secondary" type="button">いまの距離を確認</button>
-      </div>
-      <div class="card" style="margin-top:14px; margin-bottom:0; box-shadow:none;">
-        <h2>現在の状態</h2>
-        <div id="status" class="status">まだ開始していません。</div>
-        <div class="kv">
-          <div>設定座標</div><div id="targetCoords"></div>
-          <div>解放半径</div><div>10m</div>
-          <div>判定状態</div><div id="gateState">未判定</div>
-        </div>
-      </div>
-    </section>
+<div id="map"></div>
 
-    <section id="spotCard" class="card slider-card">
-      <h2>鬼橋の比較</h2>
-      <p class="muted">この場所で昔と今を見比べてください。スライダーを左右に動かすと切り替わります。</p>
+<div id="info">
+  <button onclick="getLocation()">現在地取得</button>
+  <div id="progress">回答数: 0</div>
+</div>
 
-      <div class="compare" id="compareBox">
-        <img src="old.jpg" alt="昔の写真" />
-        <div class="new-wrap" id="newWrap">
-          <img src="new.jpg" alt="現在の写真" />
-        </div>
-        <div class="label old">昔</div>
-        <div class="label new">今</div>
-      </div>
+<button id="rewardBtn" onclick="openReward()">🎁</button>
 
-      <div class="range-wrap">
-        <input id="slider" type="range" min="0" max="100" value="50" />
-      </div>
+<div id="modal" class="modal">
+  <div class="modal-content">
+    <h3 id="spotName"></h3>
+    <p id="description"></p>
 
-      <div style="margin-top:16px;">
-        <strong>質問</strong>
-        <p style="margin-top:8px;">この場所で昔と今を比べて最も大きく変わったものは何ですか。</p>
-        <textarea id="answerBox" placeholder="ここに回答を書いてください。まずは自由記述で大丈夫です。"></textarea>
-        <div class="small">いまは端末内に一時保存するだけです。送信機能は次の段階で追加します。</div>
-      </div>
+    <img id="oldImg" width="100%">
+    <img id="newImg" width="100%">
 
-      <div class="btns">
-        <button id="saveBtn" type="button">回答を保存</button>
-        <button id="closeBtn" class="ghost" type="button">閉じる</button>
-      </div>
-      <div id="saveMsg" class="small"></div>
-    </section>
+    <p id="question"></p>
+    <textarea id="answer" style="width:100%; height:80px;"></textarea>
+
+    <button onclick="saveAnswer()">保存</button>
+    <button onclick="closeModal()">閉じる</button>
   </div>
+</div>
 
-  <script>
-    const SPOT = {
-      name: '鬼橋',
-      lat: 35.506855,
-      lng: 138.744967,
-      radiusMeters: 10,
-      question: 'この場所で昔と今を比べて最も大きく変わったものは何ですか。'
-    };
+<script>
 
-    const els = {
-      startBtn: document.getElementById('startBtn'),
-      checkBtn: document.getElementById('checkBtn'),
-      status: document.getElementById('status'),
-      chip: document.getElementById('chip'),
-      chipText: document.getElementById('chipText'),
-      openSpotBtn: document.getElementById('openSpotBtn'),
-      spotCard: document.getElementById('spotCard'),
-      slider: document.getElementById('slider'),
-      newWrap: document.getElementById('newWrap'),
-      closeBtn: document.getElementById('closeBtn'),
-      saveBtn: document.getElementById('saveBtn'),
-      answerBox: document.getElementById('answerBox'),
-      saveMsg: document.getElementById('saveMsg'),
-      targetCoords: document.getElementById('targetCoords'),
-      gateState: document.getElementById('gateState')
-    };
+// ===== データ =====
+const spots = [
+  {spot_id:"spot01",spot_name:"スポット1",latitude:35.506855,longitude:138.744967,radius_m:50,
+    images:{old:"https://via.placeholder.com/300?text=OLD",new:"https://via.placeholder.com/300?text=NEW"},
+    content:{question:"違いは？",description:"観察してください"}
+  },
+  {spot_id:"spot02",spot_name:"スポット2",latitude:35.506900,longitude:138.745050,radius_m:50,
+    images:{old:"https://via.placeholder.com/300?text=OLD",new:"https://via.placeholder.com/300?text=NEW"},
+    content:{question:"何が変わった？",description:"よく見てください"}
+  },
+  {spot_id:"spot03",spot_name:"スポット3",latitude:35.507000,longitude:138.745200,radius_m:50,
+    images:{old:"https://via.placeholder.com/300?text=OLD",new:"https://via.placeholder.com/300?text=NEW"},
+    content:{question:"特徴は？",description:"周囲に注目"}
+  },
+  {spot_id:"spot04",spot_name:"スポット4",latitude:35.507100,longitude:138.745300,radius_m:50,
+    images:{old:"https://via.placeholder.com/300?text=OLD",new:"https://via.placeholder.com/300?text=NEW"},
+    content:{question:"違いは？",description:"比較してください"}
+  },
+  {spot_id:"spot05",spot_name:"スポット5",latitude:35.507200,longitude:138.745400,radius_m:50,
+    images:{old:"https://via.placeholder.com/300?text=OLD",new:"https://via.placeholder.com/300?text=NEW"},
+    content:{question:"意味は？",description:"考えてください"}
+  }
+];
 
-    let watchId = null;
-    let lastPosition = null;
+const config = { rewardUnlockCount: 4 };
 
-    const storageKey = 'spot_answer_onibashi_test';
-    els.targetCoords.textContent = `${SPOT.lat}, ${SPOT.lng}`;
-    els.chipText.textContent = `${SPOT.name} の比較コンテンツを開けます`;
-    els.answerBox.value = localStorage.getItem(storageKey) || '';
+// ===== 状態 =====
+let answers = JSON.parse(localStorage.getItem("answers")||"{}");
+let unlocked = JSON.parse(localStorage.getItem("unlocked")||"{}");
+let rewardUnlocked = JSON.parse(localStorage.getItem("rewardUnlocked")||"false");
 
-    function setStatus(message) {
-      els.status.textContent = message;
+let map = L.map('map').setView([35.506855,138.744967],17);
+L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+let markers = {};
+let currentSpot = null;
+
+// ===== マーカー生成 =====
+spots.forEach(spot=>{
+  let marker = L.circleMarker([spot.latitude,spot.longitude],{
+    radius:10,
+    color:"gray"
+  }).addTo(map);
+
+  marker.on('click',()=>{
+    if(!unlocked[spot.spot_id]){
+      alert("近づいてください");
+      return;
+    }
+    openSpot(spot);
+  });
+
+  markers[spot.spot_id]=marker;
+});
+
+// ===== GPS取得 =====
+function getLocation(){
+  navigator.geolocation.getCurrentPosition(pos=>{
+    let lat = pos.coords.latitude;
+    let lon = pos.coords.longitude;
+
+    map.setView([lat,lon],17);
+
+    checkDistance(lat,lon);
+
+  },()=>alert("GPS取得失敗"));
+}
+
+// ===== 距離判定 =====
+function getDistance(lat1,lon1,lat2,lon2){
+  const R=6371000;
+  const dLat=(lat2-lat1)*Math.PI/180;
+  const dLon=(lon2-lon1)*Math.PI/180;
+  const a=Math.sin(dLat/2)**2+
+  Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*
+  Math.sin(dLon/2)**2;
+  return R*(2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a)));
+}
+
+function checkDistance(lat,lon){
+  spots.forEach(spot=>{
+    let d = getDistance(lat,lon,spot.latitude,spot.longitude);
+
+    if(d <= spot.radius_m){
+      unlocked[spot.spot_id]=true;
+      localStorage.setItem("unlocked",JSON.stringify(unlocked));
     }
 
-    function toRad(v) {
-      return (v * Math.PI) / 180;
-    }
+    updateMarker(spot);
+  });
+}
 
-    function distanceMeters(lat1, lng1, lat2, lng2) {
-      const R = 6371000;
-      const dLat = toRad(lat2 - lat1);
-      const dLng = toRad(lng2 - lng1);
-      const a =
-        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
-        Math.sin(dLng / 2) * Math.sin(dLng / 2);
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-      return R * c;
-    }
+// ===== マーカー更新 =====
+function updateMarker(spot){
+  let marker = markers[spot.spot_id];
 
-    function updateGate(position) {
-      const { latitude, longitude, accuracy } = position.coords;
-      lastPosition = position;
+  if(answers[spot.spot_id]){
+    marker.setStyle({color:"green"});
+  }else if(unlocked[spot.spot_id]){
+    marker.setStyle({color:"blue"});
+  }else{
+    marker.setStyle({color:"gray"});
+  }
+}
 
-      const dist = distanceMeters(latitude, longitude, SPOT.lat, SPOT.lng);
-      const isOpen = dist <= SPOT.radiusMeters;
+// ===== モーダル =====
+function openSpot(spot){
+  currentSpot = spot;
 
-      const lines = [
-        `現在地: ${latitude.toFixed(6)}, ${longitude.toFixed(6)}`,
-        `目標地点までの距離: ${dist.toFixed(1)}m`,
-        `位置情報の精度目安: ±${accuracy.toFixed(1)}m`
-      ];
+  document.getElementById("spotName").innerText = spot.spot_name;
+  document.getElementById("description").innerText = spot.content.description;
+  document.getElementById("question").innerText = spot.content.question;
 
-      if (isOpen) {
-        lines.push('判定: 範囲内です。スポットを開けます。');
-        els.gateState.innerHTML = '<span class="ok">解放中</span>';
-        els.chip.classList.add('visible');
-      } else {
-        lines.push('判定: まだ範囲外です。');
-        els.gateState.innerHTML = '<span class="warn">未解放</span>';
-        els.chip.classList.remove('visible');
-      }
+  document.getElementById("oldImg").src = spot.images.old;
+  document.getElementById("newImg").src = spot.images.new;
 
-      setStatus(lines.join('\n'));
-    }
+  document.getElementById("answer").value = answers[spot.spot_id] || "";
 
-    function handlePositionError(error) {
-      let msg = '位置情報を取得できませんでした。';
-      if (error.code === 1) msg += '\n権限が拒否されています。ブラウザで位置情報を許可してください。';
-      if (error.code === 2) msg += '\n位置が取得できません。屋外や電波状態を確認してください。';
-      if (error.code === 3) msg += '\n取得がタイムアウトしました。もう一度試してください。';
-      setStatus(msg);
-    }
+  document.getElementById("modal").style.display="flex";
+}
 
-    function startWatching() {
-      if (!('geolocation' in navigator)) {
-        setStatus('このブラウザは位置情報に対応していません。');
-        return;
-      }
+function closeModal(){
+  document.getElementById("modal").style.display="none";
+}
 
-      if (watchId !== null) {
-        navigator.geolocation.clearWatch(watchId);
-      }
+// ===== 保存 =====
+function saveAnswer(){
+  let val = document.getElementById("answer").value;
+  if(!val){ alert("入力してください"); return; }
 
-      setStatus('位置情報の取得を開始しています...');
-      watchId = navigator.geolocation.watchPosition(
-        updateGate,
-        handlePositionError,
-        {
-          enableHighAccuracy: true,
-          timeout: 10000,
-          maximumAge: 0
-        }
-      );
-    }
+  answers[currentSpot.spot_id]=val;
+  localStorage.setItem("answers",JSON.stringify(answers));
 
-    function manualCheck() {
-      if (!('geolocation' in navigator)) {
-        setStatus('このブラウザは位置情報に対応していません。');
-        return;
-      }
-      setStatus('現在地を1回だけ確認しています...');
-      navigator.geolocation.getCurrentPosition(
-        updateGate,
-        handlePositionError,
-        {
-          enableHighAccuracy: true,
-          timeout: 10000,
-          maximumAge: 0
-        }
-      );
-    }
+  updateProgress();
+  updateMarker(currentSpot);
 
-    els.startBtn.addEventListener('click', startWatching);
-    els.checkBtn.addEventListener('click', manualCheck);
-    els.openSpotBtn.addEventListener('click', () => {
-      els.spotCard.classList.add('visible');
-      els.spotCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    });
+  closeModal();
+}
 
-    els.closeBtn.addEventListener('click', () => {
-      els.spotCard.classList.remove('visible');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
+// ===== 進捗 =====
+function updateProgress(){
+  let count = Object.keys(answers).length;
+  document.getElementById("progress").innerText = "回答数: "+count;
 
-    els.slider.addEventListener('input', (e) => {
-      els.newWrap.style.width = `${e.target.value}%`;
-    });
+  if(count >= config.rewardUnlockCount && !rewardUnlocked){
+    rewardUnlocked=true;
+    localStorage.setItem("rewardUnlocked","true");
+    alert("特典が解放されました！");
+  }
 
-    els.saveBtn.addEventListener('click', () => {
-      localStorage.setItem(storageKey, els.answerBox.value);
-      const now = new Date();
-      els.saveMsg.textContent = `保存しました: ${now.toLocaleString('ja-JP')}`;
-    });
-  </script>
+  if(rewardUnlocked){
+    document.getElementById("rewardBtn").style.display="block";
+  }
+}
+
+// ===== 特典 =====
+function openReward(){
+  alert("ここに特典動画を表示");
+}
+
+// 初期化
+updateProgress();
+spots.forEach(updateMarker);
+
+</script>
+
 </body>
 </html>
