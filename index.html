@@ -1,116 +1,64 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>観光プロトタイプ</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>複数スポット対応プロトタイプ</title>
 
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
       font-family: sans-serif;
       background: #f7f7f7;
+      color: #222;
     }
 
     #map {
-      height: 60vh;
       width: 100%;
+      height: 60vh;
     }
 
     #info {
-      padding: 12px;
-      background: #ffffff;
+      background: #fff;
+      padding: 14px;
+      border-top: 1px solid #ddd;
+    }
+
+    .top-row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
     }
 
     button {
       padding: 10px 14px;
-      margin: 6px 6px 6px 0;
       font-size: 16px;
+      border: 1px solid #999;
+      border-radius: 8px;
+      background: #fff;
       cursor: pointer;
     }
 
     #progress {
-      margin-top: 8px;
       font-size: 18px;
       font-weight: bold;
+      margin-top: 10px;
     }
 
     #statusText {
       margin-top: 8px;
-      color: #444;
       font-size: 14px;
       line-height: 1.5;
-    }
-
-    .modal {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.7);
-      display: none;
-      justify-content: center;
-      align-items: flex-start;
-      overflow-y: auto;
-      padding: 20px 0;
-      z-index: 9999;
-    }
-
-    .modal-content {
-      background: #fff;
-      padding: 16px;
-      width: 92%;
-      max-width: 420px;
-      border-radius: 12px;
-      box-sizing: border-box;
-      margin: 0 auto;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
-    }
-
-    .modal-content h3 {
-      margin-top: 0;
-      margin-bottom: 10px;
-      font-size: 22px;
-    }
-
-    .modal-content p {
-      line-height: 1.6;
-    }
-
-    .modal-content img {
-      width: 100%;
-      max-height: 220px;
-      object-fit: contain;
-      display: block;
-      margin-bottom: 10px;
-      background: #f3f3f3;
-      border: 1px solid #ddd;
-    }
-
-    .modal-content textarea {
-      width: 100%;
-      height: 100px;
-      box-sizing: border-box;
-      margin-top: 8px;
-      margin-bottom: 12px;
-      font-size: 16px;
-      padding: 8px;
-    }
-
-    #rewardBtn {
-      position: fixed;
-      top: 10px;
-      right: 10px;
-      font-size: 24px;
-      display: none;
-      z-index: 10000;
-      border-radius: 999px;
-      border: none;
-      background: #ffcc00;
+      color: #555;
+      white-space: pre-line;
     }
 
     .legend {
@@ -127,17 +75,124 @@
       margin-right: 6px;
       vertical-align: middle;
     }
+
+    #rewardBtn {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      z-index: 3000;
+      display: none;
+      border-radius: 999px;
+      border: none;
+      background: #ffd54f;
+      font-size: 22px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+
+    /* 詳細パネル */
+    #sheetBackdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.45);
+      z-index: 4000;
+    }
+
+    #sheet {
+      display: none;
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      width: 100%;
+      max-height: 85vh;
+      background: #fff;
+      border-top-left-radius: 16px;
+      border-top-right-radius: 16px;
+      box-shadow: 0 -4px 20px rgba(0,0,0,0.25);
+      z-index: 5000;
+      overflow: hidden;
+    }
+
+    #sheetInner {
+      padding: 16px;
+      overflow-y: auto;
+      max-height: 85vh;
+    }
+
+    #sheet h2 {
+      margin: 0 0 10px 0;
+      font-size: 22px;
+    }
+
+    #spotDescription,
+    #spotQuestion {
+      line-height: 1.6;
+      margin: 10px 0;
+    }
+
+    .imgLabel {
+      font-weight: bold;
+      margin: 14px 0 8px;
+    }
+
+    .spotImage {
+      width: 100%;
+      display: block;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      background: #f2f2f2;
+      margin-bottom: 8px;
+    }
+
+    #answerBox {
+      width: 100%;
+      min-height: 100px;
+      resize: vertical;
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #bbb;
+      border-radius: 8px;
+      margin-top: 8px;
+    }
+
+    #formMessage {
+      margin-top: 8px;
+      font-size: 14px;
+      color: #b00020;
+      min-height: 20px;
+    }
+
+    .sheetButtons {
+      display: flex;
+      gap: 10px;
+      margin-top: 14px;
+      padding-bottom: 10px;
+    }
+
+    .primaryBtn {
+      background: #1976d2;
+      color: white;
+      border: none;
+    }
+
+    .secondaryBtn {
+      background: #f1f1f1;
+    }
   </style>
 </head>
-
 <body>
 
   <div id="map"></div>
 
   <div id="info">
-    <button onclick="getLocation()">現在地取得</button>
+    <div class="top-row">
+      <button onclick="getLocation()">現在地取得</button>
+    </div>
+
     <div id="progress">回答数: 0</div>
-    <div id="statusText">地図上の丸はすべてスポットです。灰色は未解放、青は解放済み、緑は回答済みです。</div>
+    <div id="statusText">地図上の丸はすべてスポットです。
+灰色 = 未解放、青 = 解放済み、緑 = 回答済み</div>
 
     <div class="legend">
       <div><span style="background: gray;"></span>未解放</div>
@@ -148,22 +203,31 @@
 
   <button id="rewardBtn" onclick="openReward()">🎁</button>
 
-  <div id="modal" class="modal">
-    <div class="modal-content">
-      <h3 id="spotName"></h3>
-      <p id="description"></p>
+  <!-- 背景 -->
+  <div id="sheetBackdrop" onclick="closeSheet()"></div>
 
-      <p><strong>昔の画像</strong></p>
-      <img id="oldImg" alt="昔の画像">
+  <!-- 詳細パネル -->
+  <div id="sheet">
+    <div id="sheetInner">
+      <h2 id="spotTitle">スポット</h2>
 
-      <p><strong>今の画像</strong></p>
-      <img id="newImg" alt="今の画像">
+      <div id="spotDescription"></div>
 
-      <p id="question"></p>
-      <textarea id="answer" placeholder="ここに回答を書いてください"></textarea>
+      <div class="imgLabel">昔の画像</div>
+      <img id="oldImg" class="spotImage" alt="昔の画像" src="" />
 
-      <button onclick="saveAnswer()">保存</button>
-      <button onclick="closeModal()">閉じる</button>
+      <div class="imgLabel">今の画像</div>
+      <img id="newImg" class="spotImage" alt="今の画像" src="" />
+
+      <div id="spotQuestion"></div>
+
+      <textarea id="answerBox" placeholder="ここに回答を書いてください"></textarea>
+      <div id="formMessage"></div>
+
+      <div class="sheetButtons">
+        <button class="primaryBtn" onclick="saveAnswer()">保存</button>
+        <button class="secondaryBtn" onclick="closeSheet()">閉じる</button>
+      </div>
     </div>
   </div>
 
@@ -176,8 +240,8 @@
         longitude: 138.744967,
         radius_m: 30,
         images: {
-          old: "https://via.placeholder.com/400x300?text=OLD",
-          new: "https://via.placeholder.com/400x300?text=NEW"
+          old: "https://via.placeholder.com/400x250?text=OLD+1",
+          new: "https://via.placeholder.com/400x250?text=NEW+1"
         },
         content: {
           question: "この場所で昔と今の違いは何だと思いますか？",
@@ -191,8 +255,8 @@
         longitude: 138.745050,
         radius_m: 30,
         images: {
-          old: "https://via.placeholder.com/400x300?text=OLD",
-          new: "https://via.placeholder.com/400x300?text=NEW"
+          old: "https://via.placeholder.com/400x250?text=OLD+2",
+          new: "https://via.placeholder.com/400x250?text=NEW+2"
         },
         content: {
           question: "ここで変わったと感じるものは何ですか？",
@@ -206,8 +270,8 @@
         longitude: 138.745200,
         radius_m: 30,
         images: {
-          old: "https://via.placeholder.com/400x300?text=OLD",
-          new: "https://via.placeholder.com/400x300?text=NEW"
+          old: "https://via.placeholder.com/400x250?text=OLD+3",
+          new: "https://via.placeholder.com/400x250?text=NEW+3"
         },
         content: {
           question: "この場所の特徴は何だと思いますか？",
@@ -221,8 +285,8 @@
         longitude: 138.745300,
         radius_m: 30,
         images: {
-          old: "https://via.placeholder.com/400x300?text=OLD",
-          new: "https://via.placeholder.com/400x300?text=NEW"
+          old: "https://via.placeholder.com/400x250?text=OLD+4",
+          new: "https://via.placeholder.com/400x250?text=NEW+4"
         },
         content: {
           question: "昔と比べて変化した部分は？",
@@ -236,8 +300,8 @@
         longitude: 138.745400,
         radius_m: 30,
         images: {
-          old: "https://via.placeholder.com/400x300?text=OLD",
-          new: "https://via.placeholder.com/400x300?text=NEW"
+          old: "https://via.placeholder.com/400x250?text=OLD+5",
+          new: "https://via.placeholder.com/400x250?text=NEW+5"
         },
         content: {
           question: "この場所の意味は何だと思いますか？",
@@ -255,13 +319,13 @@
     let rewardUnlocked = JSON.parse(localStorage.getItem("rewardUnlocked") || "false");
 
     let currentSpot = null;
-    let markers = {};
+    const markers = {};
 
     const map = L.map("map").setView([35.506855, 138.744967], 17);
 
     L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
       maxZoom: 19,
-      attribution: '&copy; OpenStreetMap contributors'
+      attribution: "&copy; OpenStreetMap contributors"
     }).addTo(map);
 
     spots.forEach((spot) => {
@@ -308,7 +372,6 @@
           const accuracy = pos.coords.accuracy;
 
           map.setView([lat, lon], 17);
-
           checkDistance(lat, lon);
 
           document.getElementById("statusText").innerText =
@@ -363,27 +426,30 @@
     function openSpot(spot) {
       currentSpot = spot;
 
-      document.getElementById("spotName").innerText = spot.spot_name;
-      document.getElementById("description").innerText = spot.content.description;
-      document.getElementById("question").innerText = spot.content.question;
+      document.getElementById("spotTitle").innerText = spot.spot_name;
+      document.getElementById("spotDescription").innerText = spot.content.description;
+      document.getElementById("spotQuestion").innerText = spot.content.question;
       document.getElementById("oldImg").src = spot.images.old;
       document.getElementById("newImg").src = spot.images.new;
-      document.getElementById("answer").value = answers[spot.spot_id] || "";
+      document.getElementById("answerBox").value = answers[spot.spot_id] || "";
+      document.getElementById("formMessage").innerText = "";
 
-      document.getElementById("modal").style.display = "flex";
+      document.getElementById("sheetBackdrop").style.display = "block";
+      document.getElementById("sheet").style.display = "block";
     }
 
-    function closeModal() {
-      document.getElementById("modal").style.display = "none";
+    function closeSheet() {
+      document.getElementById("sheetBackdrop").style.display = "none";
+      document.getElementById("sheet").style.display = "none";
     }
 
     function saveAnswer() {
       if (!currentSpot) return;
 
-      const val = document.getElementById("answer").value.trim();
+      const val = document.getElementById("answerBox").value.trim();
 
       if (!val) {
-        alert("入力してください");
+        document.getElementById("formMessage").innerText = "回答を入力してください。";
         return;
       }
 
@@ -392,8 +458,7 @@
 
       updateProgress();
       updateMarker(currentSpot);
-
-      closeModal();
+      closeSheet();
     }
 
     function updateProgress() {
@@ -418,6 +483,5 @@
     updateProgress();
     spots.forEach(updateMarker);
   </script>
-
 </body>
 </html>
