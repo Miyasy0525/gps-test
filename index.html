@@ -22,7 +22,7 @@
 
     #map {
       width: 100%;
-      height: 60vh;
+      height: 58vh;
     }
 
     #info {
@@ -45,6 +45,12 @@
       border-radius: 8px;
       background: #fff;
       cursor: pointer;
+    }
+
+    .primaryBtn {
+      background: #1976d2;
+      color: white;
+      border: none;
     }
 
     #progress {
@@ -76,6 +82,40 @@
       vertical-align: middle;
     }
 
+    .sectionTitle {
+      margin-top: 18px;
+      margin-bottom: 8px;
+      font-size: 16px;
+      font-weight: bold;
+    }
+
+    #unlockedList {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .spotRow {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      background: #fafafa;
+    }
+
+    .spotRowTitle {
+      font-weight: bold;
+    }
+
+    .spotRowMeta {
+      font-size: 13px;
+      color: #666;
+      margin-top: 4px;
+    }
+
     #rewardBtn {
       position: fixed;
       top: 10px;
@@ -105,7 +145,7 @@
       right: 0;
       bottom: 0;
       width: 100%;
-      max-height: 85vh;
+      max-height: 88vh;
       background: #fff;
       border-top-left-radius: 16px;
       border-top-right-radius: 16px;
@@ -117,7 +157,7 @@
     #sheetInner {
       padding: 16px;
       overflow-y: auto;
-      max-height: 85vh;
+      max-height: 88vh;
     }
 
     #sheet h2 {
@@ -136,13 +176,65 @@
       margin: 14px 0 8px;
     }
 
-    .spotImage {
+    /* 比較スライダー */
+    .compareWrap {
+      position: relative;
       width: 100%;
-      display: block;
-      border: 1px solid #ddd;
-      border-radius: 8px;
+      aspect-ratio: 4 / 3;
       background: #f2f2f2;
-      margin-bottom: 8px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+
+    .compareBase,
+    .compareOverlay img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      background: #f7f7f7;
+    }
+
+    .compareOverlay {
+      position: absolute;
+      inset: 0;
+      width: 50%;
+      overflow: hidden;
+      border-right: 2px solid #ffffff;
+    }
+
+    .compareLabel {
+      position: absolute;
+      top: 10px;
+      padding: 4px 8px;
+      font-size: 12px;
+      font-weight: bold;
+      color: white;
+      background: rgba(0,0,0,0.65);
+      border-radius: 999px;
+      z-index: 5;
+    }
+
+    .compareLabel.old {
+      left: 10px;
+    }
+
+    .compareLabel.new {
+      right: 10px;
+    }
+
+    #compareRange {
+      width: 100%;
+      margin: 6px 0 2px;
+    }
+
+    .compareHint {
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 12px;
     }
 
     #answerBox {
@@ -169,16 +261,6 @@
       margin-top: 14px;
       padding-bottom: 10px;
     }
-
-    .primaryBtn {
-      background: #1976d2;
-      color: white;
-      border: none;
-    }
-
-    .secondaryBtn {
-      background: #f1f1f1;
-    }
   </style>
 </head>
 <body>
@@ -199,25 +281,38 @@
       <div><span style="background: blue;"></span>解放済み</div>
       <div><span style="background: green;"></span>回答済み</div>
     </div>
+
+    <div class="sectionTitle">開放済みスポット</div>
+    <div id="unlockedList">
+      <div style="color:#666; font-size:14px;">まだ開放されたスポットはありません。</div>
+    </div>
   </div>
 
   <button id="rewardBtn" onclick="openReward()">🎁</button>
 
-  <!-- 背景 -->
   <div id="sheetBackdrop" onclick="closeSheet()"></div>
 
-  <!-- 詳細パネル -->
   <div id="sheet">
     <div id="sheetInner">
       <h2 id="spotTitle">スポット</h2>
 
       <div id="spotDescription"></div>
 
-      <div class="imgLabel">昔の画像</div>
-      <img id="oldImg" class="spotImage" alt="昔の画像" src="" />
+      <div class="imgLabel">昔と今の比較</div>
 
-      <div class="imgLabel">今の画像</div>
-      <img id="newImg" class="spotImage" alt="今の画像" src="" />
+      <div class="compareWrap">
+        <div class="compareLabel old">昔</div>
+        <div class="compareLabel new">今</div>
+
+        <img id="oldImg" class="compareBase" alt="昔の画像" src="" />
+
+        <div id="compareOverlay" class="compareOverlay">
+          <img id="newImg" alt="今の画像" src="" />
+        </div>
+      </div>
+
+      <input id="compareRange" type="range" min="0" max="100" value="50" oninput="updateCompareSlider(this.value)" />
+      <div class="compareHint">スライダーを動かすと、昔と今の画像を見比べられます。</div>
 
       <div id="spotQuestion"></div>
 
@@ -226,7 +321,7 @@
 
       <div class="sheetButtons">
         <button class="primaryBtn" onclick="saveAnswer()">保存</button>
-        <button class="secondaryBtn" onclick="closeSheet()">閉じる</button>
+        <button onclick="closeSheet()">閉じる</button>
       </div>
     </div>
   </div>
@@ -240,8 +335,8 @@
         longitude: 138.744967,
         radius_m: 30,
         images: {
-          old: "https://via.placeholder.com/400x250?text=OLD+1",
-          new: "https://via.placeholder.com/400x250?text=NEW+1"
+          old: "images/old_sample.jpg",
+          new: "images/new_sample.jpg"
         },
         content: {
           question: "この場所で昔と今の違いは何だと思いますか？",
@@ -255,8 +350,8 @@
         longitude: 138.745050,
         radius_m: 30,
         images: {
-          old: "https://via.placeholder.com/400x250?text=OLD+2",
-          new: "https://via.placeholder.com/400x250?text=NEW+2"
+          old: "images/old_sample.jpg",
+          new: "images/new_sample.jpg"
         },
         content: {
           question: "ここで変わったと感じるものは何ですか？",
@@ -270,8 +365,8 @@
         longitude: 138.745200,
         radius_m: 30,
         images: {
-          old: "https://via.placeholder.com/400x250?text=OLD+3",
-          new: "https://via.placeholder.com/400x250?text=NEW+3"
+          old: "images/old_sample.jpg",
+          new: "images/new_sample.jpg"
         },
         content: {
           question: "この場所の特徴は何だと思いますか？",
@@ -285,8 +380,8 @@
         longitude: 138.745300,
         radius_m: 30,
         images: {
-          old: "https://via.placeholder.com/400x250?text=OLD+4",
-          new: "https://via.placeholder.com/400x250?text=NEW+4"
+          old: "images/old_sample.jpg",
+          new: "images/new_sample.jpg"
         },
         content: {
           question: "昔と比べて変化した部分は？",
@@ -300,8 +395,8 @@
         longitude: 138.745400,
         radius_m: 30,
         images: {
-          old: "https://via.placeholder.com/400x250?text=OLD+5",
-          new: "https://via.placeholder.com/400x250?text=NEW+5"
+          old: "images/old_sample.jpg",
+          new: "images/new_sample.jpg"
         },
         content: {
           question: "この場所の意味は何だと思いますか？",
@@ -336,6 +431,8 @@
         fillOpacity: 0.8,
         weight: 2
       }).addTo(map);
+
+      marker.bindTooltip(spot.spot_name);
 
       marker.on("click", () => {
         if (!unlocked[spot.spot_id]) {
@@ -389,10 +486,15 @@
     }
 
     function checkDistance(lat, lon) {
+      let newlyUnlocked = false;
+
       spots.forEach((spot) => {
         const d = getDistance(lat, lon, spot.latitude, spot.longitude);
 
         if (d <= spot.radius_m) {
+          if (!unlocked[spot.spot_id]) {
+            newlyUnlocked = true;
+          }
           unlocked[spot.spot_id] = true;
         }
 
@@ -400,6 +502,11 @@
       });
 
       localStorage.setItem("unlocked", JSON.stringify(unlocked));
+      renderUnlockedList();
+
+      if (newlyUnlocked) {
+        document.getElementById("statusText").innerText += "\n新しいスポットが開放されました。下の一覧からも開けます。";
+      }
     }
 
     function updateMarker(spot) {
@@ -433,9 +540,15 @@
       document.getElementById("newImg").src = spot.images.new;
       document.getElementById("answerBox").value = answers[spot.spot_id] || "";
       document.getElementById("formMessage").innerText = "";
+      document.getElementById("compareRange").value = 50;
+      updateCompareSlider(50);
 
       document.getElementById("sheetBackdrop").style.display = "block";
       document.getElementById("sheet").style.display = "block";
+    }
+
+    function updateCompareSlider(value) {
+      document.getElementById("compareOverlay").style.width = value + "%";
     }
 
     function closeSheet() {
@@ -458,6 +571,7 @@
 
       updateProgress();
       updateMarker(currentSpot);
+      renderUnlockedList();
       closeSheet();
     }
 
@@ -480,8 +594,46 @@
       alert("ここに特典動画や特典ページを表示します。");
     }
 
+    function renderUnlockedList() {
+      const container = document.getElementById("unlockedList");
+      const unlockedSpots = spots.filter(spot => unlocked[spot.spot_id]);
+
+      if (unlockedSpots.length === 0) {
+        container.innerHTML = '<div style="color:#666; font-size:14px;">まだ開放されたスポットはありません。</div>';
+        return;
+      }
+
+      container.innerHTML = "";
+
+      unlockedSpots.forEach(spot => {
+        const row = document.createElement("div");
+        row.className = "spotRow";
+
+        const left = document.createElement("div");
+        const title = document.createElement("div");
+        title.className = "spotRowTitle";
+        title.textContent = spot.spot_name;
+
+        const meta = document.createElement("div");
+        meta.className = "spotRowMeta";
+        meta.textContent = answers[spot.spot_id] ? "回答済み" : "未回答";
+
+        left.appendChild(title);
+        left.appendChild(meta);
+
+        const btn = document.createElement("button");
+        btn.textContent = "開く";
+        btn.onclick = () => openSpot(spot);
+
+        row.appendChild(left);
+        row.appendChild(btn);
+        container.appendChild(row);
+      });
+    }
+
     updateProgress();
     spots.forEach(updateMarker);
+    renderUnlockedList();
   </script>
 </body>
 </html>
