@@ -65,6 +65,14 @@
       white-space: pre-line;
     }
 
+    #debugText {
+      margin-top: 8px;
+      font-size: 13px;
+      line-height: 1.5;
+      color: #8b0000;
+      white-space: pre-line;
+    }
+
     .legend {
       margin-top: 10px;
       font-size: 14px;
@@ -286,6 +294,8 @@
 灰色 = 未解放、青 = 解放済み、緑 = 回答済み
 現在地取得を押すと、あなたの位置が青い丸と薄い青い円で表示されます。</div>
 
+    <div id="debugText">デバッグ: まだ操作ログはありません。</div>
+
     <div class="legend">
       <div><span style="background: gray;"></span>未解放</div>
       <div><span style="background: blue;"></span>解放済み</div>
@@ -340,71 +350,24 @@
     const NEW_URL = "https://miyasy0525.github.io/gps-test/images/new.jpg?v=5";
 
     const spots = [
-      {
-        spot_id: "spot01",
-        spot_name: "スポット1",
-        latitude: 35.506855,
-        longitude: 138.744967,
-        radius_m: 100,
-        images: { old: OLD_URL, new: NEW_URL },
-        content: {
-          question: "この場所で昔と今の違いは何だと思いますか？",
-          description: "周囲をよく観察してください。"
-        }
-      },
-      {
-        spot_id: "spot02",
-        spot_name: "スポット2",
-        latitude: 35.506900,
-        longitude: 138.745050,
-        radius_m: 100,
-        images: { old: OLD_URL, new: NEW_URL },
-        content: {
-          question: "ここで変わったと感じるものは何ですか？",
-          description: "景色の違いに注目してください。"
-        }
-      },
-      {
-        spot_id: "spot03",
-        spot_name: "スポット3",
-        latitude: 35.507000,
-        longitude: 138.745200,
-        radius_m: 100,
-        images: { old: OLD_URL, new: NEW_URL },
-        content: {
-          question: "この場所の特徴は何だと思いますか？",
-          description: "周辺の構造を見てください。"
-        }
-      },
-      {
-        spot_id: "spot04",
-        spot_name: "スポット4",
-        latitude: 35.507100,
-        longitude: 138.745300,
-        radius_m: 100,
-        images: { old: OLD_URL, new: NEW_URL },
-        content: {
-          question: "昔と比べて変化した部分は？",
-          description: "細かい違いを見てください。"
-        }
-      },
-      {
-        spot_id: "spot05",
-        spot_name: "スポット5",
-        latitude: 35.507200,
-        longitude: 138.745400,
-        radius_m: 100,
-        images: { old: OLD_URL, new: NEW_URL },
-        content: {
-          question: "この場所の意味は何だと思いますか？",
-          description: "全体の流れを意識してください。"
-        }
-      }
+      { spot_id:"spot01", spot_name:"スポット1", latitude:35.506855, longitude:138.744967, radius_m:100,
+        images:{ old:OLD_URL, new:NEW_URL },
+        content:{ question:"この場所で昔と今の違いは何だと思いますか？", description:"周囲をよく観察してください。" } },
+      { spot_id:"spot02", spot_name:"スポット2", latitude:35.506900, longitude:138.745050, radius_m:100,
+        images:{ old:OLD_URL, new:NEW_URL },
+        content:{ question:"ここで変わったと感じるものは何ですか？", description:"景色の違いに注目してください。" } },
+      { spot_id:"spot03", spot_name:"スポット3", latitude:35.507000, longitude:138.745200, radius_m:100,
+        images:{ old:OLD_URL, new:NEW_URL },
+        content:{ question:"この場所の特徴は何だと思いますか？", description:"周辺の構造を見てください。" } },
+      { spot_id:"spot04", spot_name:"スポット4", latitude:35.507100, longitude:138.745300, radius_m:100,
+        images:{ old:OLD_URL, new:NEW_URL },
+        content:{ question:"昔と比べて変化した部分は？", description:"細かい違いを見てください。" } },
+      { spot_id:"spot05", spot_name:"スポット5", latitude:35.507200, longitude:138.745400, radius_m:100,
+        images:{ old:OLD_URL, new:NEW_URL },
+        content:{ question:"この場所の意味は何だと思いますか？", description:"全体の流れを意識してください。" } }
     ];
 
-    const config = {
-      rewardUnlockCount: 4
-    };
+    const config = { rewardUnlockCount: 4 };
 
     let answers = JSON.parse(localStorage.getItem("answers") || "{}");
     let unlocked = JSON.parse(localStorage.getItem("unlocked") || "{}");
@@ -424,7 +387,7 @@
 
     spots.forEach((spot) => {
       const marker = L.circleMarker([spot.latitude, spot.longitude], {
-        radius: 10,
+        radius: 14,
         color: "gray",
         fillColor: "gray",
         fillOpacity: 0.8,
@@ -434,15 +397,19 @@
       marker.bindTooltip(spot.spot_name);
 
       marker.on("click", () => {
-        if (!unlocked[spot.spot_id]) {
-          alert("このスポットの近くに移動すると情報が開放されます。");
-          return;
-        }
-        openSpot(spot);
+        openSpotFromMarker(spot);
+      });
+
+      marker.on("mouseup", () => {
+        openSpotFromMarker(spot);
       });
 
       markers[spot.spot_id] = marker;
     });
+
+    function logDebug(text) {
+      document.getElementById("debugText").innerText = "デバッグ: " + text;
+    }
 
     function getDistance(lat1, lon1, lat2, lon2) {
       const R = 6371000;
@@ -469,12 +436,8 @@
 
           map.setView([lat, lon], 17);
 
-          if (userMarker) {
-            map.removeLayer(userMarker);
-          }
-          if (userCircle) {
-            map.removeLayer(userCircle);
-          }
+          if (userMarker) map.removeLayer(userMarker);
+          if (userCircle) map.removeLayer(userCircle);
 
           userMarker = L.circleMarker([lat, lon], {
             radius: 8,
@@ -496,6 +459,8 @@
 
           document.getElementById("statusText").innerText =
             `現在地を取得しました。\n緯度: ${lat.toFixed(6)} / 経度: ${lon.toFixed(6)} / 精度目安: ±${Math.round(accuracy)}m\n青い丸が現在地です。`;
+
+          logDebug("現在地を地図上に表示しました。");
         },
         () => {
           alert("GPS取得に失敗しました。位置情報の許可を確認してください。");
@@ -544,6 +509,16 @@
       }
     }
 
+    function openSpotFromMarker(spot) {
+      if (!unlocked[spot.spot_id]) {
+        logDebug(`${spot.spot_name} をタップしましたが、まだ未解放です。`);
+        alert("このスポットの近くに移動すると情報が開放されます。");
+        return;
+      }
+      logDebug(`${spot.spot_name} をタップして開きました。`);
+      openSpot(spot);
+    }
+
     function openSpot(spot) {
       currentSpot = spot;
 
@@ -561,13 +536,6 @@
 
       const oldImg = document.getElementById("oldImg");
       const newImg = document.getElementById("newImg");
-
-      oldImg.onload = () => {
-        imageError.style.display = "none";
-      };
-      newImg.onload = () => {
-        imageError.style.display = "none";
-      };
 
       oldImg.onerror = () => {
         imageError.style.display = "block";
@@ -611,6 +579,7 @@
       updateMarker(currentSpot);
       renderUnlockedList();
       closeSheet();
+      logDebug(`${currentSpot.spot_name} に回答を保存しました。`);
     }
 
     function updateProgress() {
@@ -661,7 +630,10 @@
 
         const btn = document.createElement("button");
         btn.textContent = "開く";
-        btn.onclick = () => openSpot(spot);
+        btn.onclick = () => {
+          logDebug(`${spot.spot_name} を一覧から開きました。`);
+          openSpot(spot);
+        };
 
         row.appendChild(left);
         row.appendChild(btn);
