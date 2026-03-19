@@ -623,16 +623,16 @@
 
    function postToSheet(payload) {
   const params = new URLSearchParams(payload);
-  const url = API_URL + "?" + params.toString() + "&_t=" + Date.now();
+  const url = API_URL + "&" + params.toString() + "&_t=" + Date.now();
 
   logDebug("送信URL: " + url);
 
   const img = new Image();
   img.onload = function () {
-    logDebug("送信画像ロード成功");
+    logDebug("送信実行: onload");
   };
   img.onerror = function () {
-    logDebug("送信画像ロード失敗");
+    logDebug("送信実行: onerror");
   };
   img.src = url;
 }
