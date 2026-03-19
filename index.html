@@ -228,6 +228,14 @@
       margin-bottom: 12px;
     }
 
+    #imageError {
+      display: none;
+      margin-bottom: 12px;
+      color: #b00020;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
     #answerBox {
       width: 100%;
       min-height: 100px;
@@ -252,6 +260,41 @@
       margin-top: 14px;
       padding-bottom: 10px;
     }
+
+    /* 現在地マーカー */
+    .user-dot-wrap {
+      width: 24px;
+      height: 24px;
+      position: relative;
+    }
+
+    .user-dot-pulse {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: rgba(25,118,210,0.28);
+      animation: pulse 1.8s infinite;
+    }
+
+    .user-dot-core {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 12px;
+      height: 12px;
+      margin-left: -6px;
+      margin-top: -6px;
+      border-radius: 50%;
+      background: #1976d2;
+      border: 2px solid #ffffff;
+      box-shadow: 0 0 0 1px rgba(0,0,0,0.18);
+    }
+
+    @keyframes pulse {
+      0%   { transform: scale(0.6); opacity: 0.9; }
+      70%  { transform: scale(1.6); opacity: 0; }
+      100% { transform: scale(1.6); opacity: 0; }
+    }
   </style>
 </head>
 <body>
@@ -265,12 +308,14 @@
 
     <div id="progress">回答数: 0</div>
     <div id="statusText">地図上の丸はすべてスポットです。
-灰色 = 未解放、青 = 解放済み、緑 = 回答済み</div>
+灰色 = 未解放、青 = 解放済み、緑 = 回答済み
+現在地取得を押すと、あなたの位置が青い点と円で表示されます。</div>
 
     <div class="legend">
       <div><span style="background: gray;"></span>未解放</div>
       <div><span style="background: blue;"></span>解放済み</div>
       <div><span style="background: green;"></span>回答済み</div>
+      <div><span style="background: #1976d2;"></span>現在地</div>
     </div>
 
     <div class="sectionTitle">開放済みスポット</div>
@@ -304,6 +349,7 @@
 
       <input id="compareRange" type="range" min="0" max="100" value="50" oninput="updateCompareSlider(this.value)" />
       <div class="compareHint">スライダーを動かすと、昔と今の画像を見比べられます。</div>
+      <div id="imageError"></div>
 
       <div id="spotQuestion"></div>
 
@@ -318,6 +364,9 @@
   </div>
 
   <script>
+    const OLD_URL = "https://miyasy0525.github.io/gps-test/images/old.jpg?v=3";
+    const NEW_URL = "https://miyasy0525.github.io/gps-test/images/new.jpg?v=3";
+
     const spots = [
       {
         spot_id: "spot01",
@@ -325,10 +374,7 @@
         latitude: 35.506855,
         longitude: 138.744967,
         radius_m: 30,
-        images: {
-          old: "images/old.jpg",
-          new: "images/new.jpg"
-        },
+        images: { old: OLD_URL, new: NEW_URL },
         content: {
           question: "この場所で昔と今の違いは何だと思いますか？",
           description: "周囲をよく観察してください。"
@@ -340,10 +386,7 @@
         latitude: 35.506900,
         longitude: 138.745050,
         radius_m: 30,
-        images: {
-          old: "images/old.jpg",
-          new: "images/new.jpg"
-        },
+        images: { old: OLD_URL, new: NEW_URL },
         content: {
           question: "ここで変わったと感じるものは何ですか？",
           description: "景色の違いに注目してください。"
@@ -355,10 +398,7 @@
         latitude: 35.507000,
         longitude: 138.745200,
         radius_m: 30,
-        images: {
-          old: "images/old.jpg",
-          new: "images/new.jpg"
-        },
+        images: { old: OLD_URL, new: NEW_URL },
         content: {
           question: "この場所の特徴は何だと思いますか？",
           description: "周辺の構造を見てください。"
@@ -370,10 +410,7 @@
         latitude: 35.507100,
         longitude: 138.745300,
         radius_m: 30,
-        images: {
-          old: "images/old.jpg",
-          new: "images/new.jpg"
-        },
+        images: { old: OLD_URL, new: NEW_URL },
         content: {
           question: "昔と比べて変化した部分は？",
           description: "細かい違いを見てください。"
@@ -385,10 +422,7 @@
         latitude: 35.507200,
         longitude: 138.745400,
         radius_m: 30,
-        images: {
-          old: "images/old.jpg",
-          new: "images/new.jpg"
-        },
+        images: { old: OLD_URL, new: NEW_URL },
         content: {
           question: "この場所の意味は何だと思いますか？",
           description: "全体の流れを意識してください。"
@@ -406,6 +440,8 @@
 
     let currentSpot = null;
     const markers = {};
+    let userMarker = null;
+    let userCircle = null;
 
     const map = L.map("map").setView([35.506855, 138.744967], 17);
 
@@ -413,6 +449,18 @@
       maxZoom: 19,
       attribution: "&copy; OpenStreetMap contributors"
     }).addTo(map);
+
+    const userIcon = L.divIcon({
+      className: "",
+      html: `
+        <div class="user-dot-wrap">
+          <div class="user-dot-pulse"></div>
+          <div class="user-dot-core"></div>
+        </div>
+      `,
+      iconSize: [24, 24],
+      iconAnchor: [12, 12]
+    });
 
     spots.forEach((spot) => {
       const marker = L.circleMarker([spot.latitude, spot.longitude], {
@@ -459,11 +507,24 @@
           const lon = pos.coords.longitude;
           const accuracy = pos.coords.accuracy;
 
-          map.setView([lat, lon], 17);
+          map.setView([lat, lon], 18);
+
+          if (userMarker) map.removeLayer(userMarker);
+          if (userCircle) map.removeLayer(userCircle);
+
+          userMarker = L.marker([lat, lon], { icon: userIcon }).addTo(map);
+          userCircle = L.circle([lat, lon], {
+            radius: accuracy,
+            color: "#1976d2",
+            fillColor: "#1976d2",
+            fillOpacity: 0.12,
+            weight: 1
+          }).addTo(map);
+
           checkDistance(lat, lon);
 
           document.getElementById("statusText").innerText =
-            `現在地を取得しました。\n緯度: ${lat.toFixed(6)} / 経度: ${lon.toFixed(6)} / 精度目安: ±${Math.round(accuracy)}m`;
+            `現在地を取得しました。\n緯度: ${lat.toFixed(6)} / 経度: ${lon.toFixed(6)} / 精度目安: ±${Math.round(accuracy)}m\n青い点が現在地です。`;
         },
         () => {
           alert("GPS取得に失敗しました。位置情報の許可を確認してください。");
@@ -483,9 +544,7 @@
         const d = getDistance(lat, lon, spot.latitude, spot.longitude);
 
         if (d <= spot.radius_m) {
-          if (!unlocked[spot.spot_id]) {
-            newlyUnlocked = true;
-          }
+          if (!unlocked[spot.spot_id]) newlyUnlocked = true;
           unlocked[spot.spot_id] = true;
         }
 
@@ -504,20 +563,11 @@
       const marker = markers[spot.spot_id];
 
       if (answers[spot.spot_id]) {
-        marker.setStyle({
-          color: "green",
-          fillColor: "green"
-        });
+        marker.setStyle({ color: "green", fillColor: "green" });
       } else if (unlocked[spot.spot_id]) {
-        marker.setStyle({
-          color: "blue",
-          fillColor: "blue"
-        });
+        marker.setStyle({ color: "blue", fillColor: "blue" });
       } else {
-        marker.setStyle({
-          color: "gray",
-          fillColor: "gray"
-        });
+        marker.setStyle({ color: "gray", fillColor: "gray" });
       }
     }
 
@@ -527,12 +577,48 @@
       document.getElementById("spotTitle").innerText = spot.spot_name;
       document.getElementById("spotDescription").innerText = spot.content.description;
       document.getElementById("spotQuestion").innerText = spot.content.question;
-      document.getElementById("oldImg").src = spot.images.old;
-      document.getElementById("newImg").src = spot.images.new;
       document.getElementById("answerBox").value = answers[spot.spot_id] || "";
       document.getElementById("formMessage").innerText = "";
       document.getElementById("compareRange").value = 50;
       updateCompareSlider(50);
+
+      const imageError = document.getElementById("imageError");
+      imageError.style.display = "none";
+      imageError.innerText = "";
+
+      const oldImg = document.getElementById("oldImg");
+      const newImg = document.getElementById("newImg");
+
+      let oldLoaded = false;
+      let newLoaded = false;
+
+      oldImg.onload = () => {
+        oldLoaded = true;
+        checkImageLoadState();
+      };
+      newImg.onload = () => {
+        newLoaded = true;
+        checkImageLoadState();
+      };
+
+      oldImg.onerror = () => {
+        imageError.style.display = "block";
+        imageError.innerText = "昔画像の読み込みに失敗しました。画像URLまたはファイル名を確認してください。";
+      };
+      newImg.onerror = () => {
+        imageError.style.display = "block";
+        imageError.innerText = "今画像の読み込みに失敗しました。画像URLまたはファイル名を確認してください。";
+      };
+
+      oldImg.src = spot.images.old;
+      newImg.src = spot.images.new;
+
+      function checkImageLoadState() {
+        if (oldLoaded && newLoaded) {
+          imageError.style.display = "none";
+          imageError.innerText = "";
+        }
+      }
 
       document.getElementById("sheetBackdrop").style.display = "block";
       document.getElementById("sheet").style.display = "block";
