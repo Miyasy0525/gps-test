@@ -18,11 +18,8 @@
       color: #222;
     }
 
-    .hidden {
-      display: none !important;
-    }
+    .hidden { display: none !important; }
 
-    /* トップページ */
     #startScreen {
       min-height: 100vh;
       padding: 24px 18px 40px;
@@ -115,7 +112,6 @@
       line-height: 1.7;
     }
 
-    /* 地図画面 */
     #appScreen {
       background: #f7f7f7;
     }
@@ -378,7 +374,6 @@
 </head>
 <body>
 
-  <!-- トップ画面 -->
   <div id="startScreen">
     <div class="startCard">
       <div class="startTitle">忍野八海の歴史と文化のストーリーを知る旅へ</div>
@@ -495,7 +490,6 @@
     </div>
   </div>
 
-  <!-- 本編画面 -->
   <div id="appScreen" class="hidden">
     <div id="map"></div>
 
@@ -562,6 +556,8 @@
   </div>
 
   <script>
+    const API_URL = "https://script.google.com/macros/s/AKfycbw-QM5h5ecEcbF3QLWE-o2WBN9Em3w8-OPc62ySkBv4XYLylHDHmbbjySkLtIPoUfZ8/exec";
+
     const OLD_URL = "https://miyasy0525.github.io/gps-test/images/old.jpg?v=6";
     const NEW_URL = "https://miyasy0525.github.io/gps-test/images/new.jpg?v=6";
 
@@ -588,6 +584,7 @@
     let answers = JSON.parse(localStorage.getItem("answers") || "{}");
     let unlocked = JSON.parse(localStorage.getItem("unlocked") || "{}");
     let rewardUnlocked = JSON.parse(localStorage.getItem("rewardUnlocked") || "false");
+    let sessionId = localStorage.getItem("sessionId") || "";
     let userProfile = JSON.parse(localStorage.getItem("userProfile") || "null");
 
     let currentSpot = null;
@@ -620,15 +617,59 @@
       }
     });
 
-    function startExperience() {
+    function createSessionId() {
+      return "sess_" + Date.now() + "_" + Math.random().toString(36).slice(2, 10);
+    }
+
+    async function postToSheet(payload) {
+      try {
+        await fetch(API_URL, {
+          method: "POST",
+          mode: "no-cors",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8"
+          },
+          body: new URLSearchParams(payload)
+        });
+      } catch (error) {
+        logDebug("シート送信でエラーが起きました。");
+      }
+    }
+
+    async function sendSessionToSheet(profile) {
+      await postToSheet({
+        action: "session",
+        session_id: sessionId,
+        started_at: profile.startedAt,
+        gender: profile.gender,
+        age_group: profile.age,
+        companion_type: profile.companion,
+        region: profile.region
+      });
+      logDebug("sessions シートへ送信しました。");
+    }
+
+    async function sendAnswerToSheet(spotId, answerText) {
+      await postToSheet({
+        action: "answer",
+        session_id: sessionId,
+        timestamp: new Date().toISOString(),
+        spot_id: spotId,
+        answer_text: answerText
+      });
+      logDebug("answers シートへ送信しました。");
+    }
+
+    async function startExperience() {
       const gender = document.getElementById("genderSelect").value;
       const age = document.getElementById("ageSelect").value;
       const region = document.getElementById("regionSelect").value;
       const companion = document.getElementById("companionSelect").value;
 
-      if (!gender || !age || !region || !companion) {
-        return;
-      }
+      if (!gender || !age || !region || !companion) return;
+
+      sessionId = createSessionId();
+      localStorage.setItem("sessionId", sessionId);
 
       userProfile = {
         gender,
@@ -639,6 +680,8 @@
       };
 
       localStorage.setItem("userProfile", JSON.stringify(userProfile));
+
+      await sendSessionToSheet(userProfile);
 
       document.getElementById("startScreen").classList.add("hidden");
       document.getElementById("appScreen").classList.remove("hidden");
@@ -684,7 +727,8 @@
     }
 
     function logDebug(text) {
-      document.getElementById("debugText").innerText = "デバッグ: " + text;
+      const el = document.getElementById("debugText");
+      if (el) el.innerText = "デバッグ: " + text;
     }
 
     function getDistance(lat1, lon1, lat2, lon2) {
@@ -856,7 +900,7 @@
       document.getElementById("sheet").style.display = "none";
     }
 
-    function saveAnswer() {
+    async function saveAnswer() {
       if (!currentSpot) return;
 
       const val = document.getElementById("answerBox").value.trim();
@@ -868,6 +912,8 @@
 
       answers[currentSpot.spot_id] = val;
       localStorage.setItem("answers", JSON.stringify(answers));
+
+      await sendAnswerToSheet(currentSpot.spot_id, val);
 
       updateProgress();
       updateMarker(currentSpot);
@@ -935,8 +981,7 @@
       });
     }
 
-    // 以前入力済みならトップ画面をスキップ
-    if (userProfile) {
+    if (userProfile && sessionId) {
       document.getElementById("startScreen").classList.add("hidden");
       document.getElementById("appScreen").classList.remove("hidden");
       initMap();
