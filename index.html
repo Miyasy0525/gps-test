@@ -1,239 +1,423 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>観光プロトタイプ</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>観光プロトタイプ</title>
 
-<!-- Leaflet -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-<style>
-body { margin:0; font-family: sans-serif; }
-#map { height: 60vh; }
-#info { padding:10px; }
-button { padding:10px; margin:5px 0; }
+  <style>
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      background: #f7f7f7;
+    }
 
-.modal {
-  position: fixed;
-  top:0; left:0;
-  width:100%; height:100%;
-  background: rgba(0,0,0,0.7);
-  display:none;
-  justify-content:center;
-  align-items:center;
-}
-.modal-content {
-  background:#fff;
-  padding:20px;
-  width:90%;
-  max-width:400px;
-}
-#rewardBtn {
-  position: fixed;
-  top:10px;
-  right:10px;
-  font-size:24px;
-  display:none;
-}
-</style>
+    #map {
+      height: 60vh;
+      width: 100%;
+    }
+
+    #info {
+      padding: 12px;
+      background: #ffffff;
+    }
+
+    button {
+      padding: 10px 14px;
+      margin: 6px 6px 6px 0;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    #progress {
+      margin-top: 8px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    #statusText {
+      margin-top: 8px;
+      color: #444;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      display: none;
+      justify-content: center;
+      align-items: flex-start;
+      overflow-y: auto;
+      padding: 20px 0;
+      z-index: 9999;
+    }
+
+    .modal-content {
+      background: #fff;
+      padding: 16px;
+      width: 92%;
+      max-width: 420px;
+      border-radius: 12px;
+      box-sizing: border-box;
+      margin: 0 auto;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    }
+
+    .modal-content h3 {
+      margin-top: 0;
+      margin-bottom: 10px;
+      font-size: 22px;
+    }
+
+    .modal-content p {
+      line-height: 1.6;
+    }
+
+    .modal-content img {
+      width: 100%;
+      max-height: 220px;
+      object-fit: contain;
+      display: block;
+      margin-bottom: 10px;
+      background: #f3f3f3;
+      border: 1px solid #ddd;
+    }
+
+    .modal-content textarea {
+      width: 100%;
+      height: 100px;
+      box-sizing: border-box;
+      margin-top: 8px;
+      margin-bottom: 12px;
+      font-size: 16px;
+      padding: 8px;
+    }
+
+    #rewardBtn {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      font-size: 24px;
+      display: none;
+      z-index: 10000;
+      border-radius: 999px;
+      border: none;
+      background: #ffcc00;
+    }
+
+    .legend {
+      margin-top: 10px;
+      font-size: 14px;
+      line-height: 1.8;
+    }
+
+    .legend span {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      margin-right: 6px;
+      vertical-align: middle;
+    }
+  </style>
 </head>
 
 <body>
 
-<div id="map"></div>
+  <div id="map"></div>
 
-<div id="info">
-  <button onclick="getLocation()">現在地取得</button>
-  <div id="progress">回答数: 0</div>
-</div>
+  <div id="info">
+    <button onclick="getLocation()">現在地取得</button>
+    <div id="progress">回答数: 0</div>
+    <div id="statusText">地図上の丸はすべてスポットです。灰色は未解放、青は解放済み、緑は回答済みです。</div>
 
-<button id="rewardBtn" onclick="openReward()">🎁</button>
-
-<div id="modal" class="modal">
-  <div class="modal-content">
-    <h3 id="spotName"></h3>
-    <p id="description"></p>
-
-    <img id="oldImg" width="100%">
-    <img id="newImg" width="100%">
-
-    <p id="question"></p>
-    <textarea id="answer" style="width:100%; height:80px;"></textarea>
-
-    <button onclick="saveAnswer()">保存</button>
-    <button onclick="closeModal()">閉じる</button>
+    <div class="legend">
+      <div><span style="background: gray;"></span>未解放</div>
+      <div><span style="background: blue;"></span>解放済み</div>
+      <div><span style="background: green;"></span>回答済み</div>
+    </div>
   </div>
-</div>
 
-<script>
+  <button id="rewardBtn" onclick="openReward()">🎁</button>
 
-// ===== データ =====
-const spots = [
-  {spot_id:"spot01",spot_name:"スポット1",latitude:35.506855,longitude:138.744967,radius_m:50,
-    images:{old:"https://via.placeholder.com/300?text=OLD",new:"https://via.placeholder.com/300?text=NEW"},
-    content:{question:"違いは？",description:"観察してください"}
-  },
-  {spot_id:"spot02",spot_name:"スポット2",latitude:35.506900,longitude:138.745050,radius_m:50,
-    images:{old:"https://via.placeholder.com/300?text=OLD",new:"https://via.placeholder.com/300?text=NEW"},
-    content:{question:"何が変わった？",description:"よく見てください"}
-  },
-  {spot_id:"spot03",spot_name:"スポット3",latitude:35.507000,longitude:138.745200,radius_m:50,
-    images:{old:"https://via.placeholder.com/300?text=OLD",new:"https://via.placeholder.com/300?text=NEW"},
-    content:{question:"特徴は？",description:"周囲に注目"}
-  },
-  {spot_id:"spot04",spot_name:"スポット4",latitude:35.507100,longitude:138.745300,radius_m:50,
-    images:{old:"https://via.placeholder.com/300?text=OLD",new:"https://via.placeholder.com/300?text=NEW"},
-    content:{question:"違いは？",description:"比較してください"}
-  },
-  {spot_id:"spot05",spot_name:"スポット5",latitude:35.507200,longitude:138.745400,radius_m:50,
-    images:{old:"https://via.placeholder.com/300?text=OLD",new:"https://via.placeholder.com/300?text=NEW"},
-    content:{question:"意味は？",description:"考えてください"}
-  }
-];
+  <div id="modal" class="modal">
+    <div class="modal-content">
+      <h3 id="spotName"></h3>
+      <p id="description"></p>
 
-const config = { rewardUnlockCount: 4 };
+      <p><strong>昔の画像</strong></p>
+      <img id="oldImg" alt="昔の画像">
 
-// ===== 状態 =====
-let answers = JSON.parse(localStorage.getItem("answers")||"{}");
-let unlocked = JSON.parse(localStorage.getItem("unlocked")||"{}");
-let rewardUnlocked = JSON.parse(localStorage.getItem("rewardUnlocked")||"false");
+      <p><strong>今の画像</strong></p>
+      <img id="newImg" alt="今の画像">
 
-let map = L.map('map').setView([35.506855,138.744967],17);
-L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+      <p id="question"></p>
+      <textarea id="answer" placeholder="ここに回答を書いてください"></textarea>
 
-let markers = {};
-let currentSpot = null;
+      <button onclick="saveAnswer()">保存</button>
+      <button onclick="closeModal()">閉じる</button>
+    </div>
+  </div>
 
-// ===== マーカー生成 =====
-spots.forEach(spot=>{
-  let marker = L.circleMarker([spot.latitude,spot.longitude],{
-    radius:10,
-    color:"gray"
-  }).addTo(map);
+  <script>
+    const spots = [
+      {
+        spot_id: "spot01",
+        spot_name: "スポット1",
+        latitude: 35.506855,
+        longitude: 138.744967,
+        radius_m: 30,
+        images: {
+          old: "https://via.placeholder.com/400x300?text=OLD",
+          new: "https://via.placeholder.com/400x300?text=NEW"
+        },
+        content: {
+          question: "この場所で昔と今の違いは何だと思いますか？",
+          description: "周囲をよく観察してください。"
+        }
+      },
+      {
+        spot_id: "spot02",
+        spot_name: "スポット2",
+        latitude: 35.506900,
+        longitude: 138.745050,
+        radius_m: 30,
+        images: {
+          old: "https://via.placeholder.com/400x300?text=OLD",
+          new: "https://via.placeholder.com/400x300?text=NEW"
+        },
+        content: {
+          question: "ここで変わったと感じるものは何ですか？",
+          description: "景色の違いに注目してください。"
+        }
+      },
+      {
+        spot_id: "spot03",
+        spot_name: "スポット3",
+        latitude: 35.507000,
+        longitude: 138.745200,
+        radius_m: 30,
+        images: {
+          old: "https://via.placeholder.com/400x300?text=OLD",
+          new: "https://via.placeholder.com/400x300?text=NEW"
+        },
+        content: {
+          question: "この場所の特徴は何だと思いますか？",
+          description: "周辺の構造を見てください。"
+        }
+      },
+      {
+        spot_id: "spot04",
+        spot_name: "スポット4",
+        latitude: 35.507100,
+        longitude: 138.745300,
+        radius_m: 30,
+        images: {
+          old: "https://via.placeholder.com/400x300?text=OLD",
+          new: "https://via.placeholder.com/400x300?text=NEW"
+        },
+        content: {
+          question: "昔と比べて変化した部分は？",
+          description: "細かい違いを見てください。"
+        }
+      },
+      {
+        spot_id: "spot05",
+        spot_name: "スポット5",
+        latitude: 35.507200,
+        longitude: 138.745400,
+        radius_m: 30,
+        images: {
+          old: "https://via.placeholder.com/400x300?text=OLD",
+          new: "https://via.placeholder.com/400x300?text=NEW"
+        },
+        content: {
+          question: "この場所の意味は何だと思いますか？",
+          description: "全体の流れを意識してください。"
+        }
+      }
+    ];
 
-  marker.on('click',()=>{
-    if(!unlocked[spot.spot_id]){
-      alert("近づいてください");
-      return;
+    const config = {
+      rewardUnlockCount: 4
+    };
+
+    let answers = JSON.parse(localStorage.getItem("answers") || "{}");
+    let unlocked = JSON.parse(localStorage.getItem("unlocked") || "{}");
+    let rewardUnlocked = JSON.parse(localStorage.getItem("rewardUnlocked") || "false");
+
+    let currentSpot = null;
+    let markers = {};
+
+    const map = L.map("map").setView([35.506855, 138.744967], 17);
+
+    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    spots.forEach((spot) => {
+      const marker = L.circleMarker([spot.latitude, spot.longitude], {
+        radius: 10,
+        color: "gray",
+        fillColor: "gray",
+        fillOpacity: 0.8,
+        weight: 2
+      }).addTo(map);
+
+      marker.on("click", () => {
+        if (!unlocked[spot.spot_id]) {
+          alert("このスポットの近くに移動すると情報が開放されます。");
+          return;
+        }
+        openSpot(spot);
+      });
+
+      markers[spot.spot_id] = marker;
+    });
+
+    function getDistance(lat1, lon1, lat2, lon2) {
+      const R = 6371000;
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLon = (lon2 - lon1) * Math.PI / 180;
+      const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+      return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
     }
-    openSpot(spot);
-  });
 
-  markers[spot.spot_id]=marker;
-});
+    function getLocation() {
+      if (!navigator.geolocation) {
+        alert("この端末では位置情報が使えません。");
+        return;
+      }
 
-// ===== GPS取得 =====
-function getLocation(){
-  navigator.geolocation.getCurrentPosition(pos=>{
-    let lat = pos.coords.latitude;
-    let lon = pos.coords.longitude;
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const lat = pos.coords.latitude;
+          const lon = pos.coords.longitude;
+          const accuracy = pos.coords.accuracy;
 
-    map.setView([lat,lon],17);
+          map.setView([lat, lon], 17);
 
-    checkDistance(lat,lon);
+          checkDistance(lat, lon);
 
-  },()=>alert("GPS取得失敗"));
-}
-
-// ===== 距離判定 =====
-function getDistance(lat1,lon1,lat2,lon2){
-  const R=6371000;
-  const dLat=(lat2-lat1)*Math.PI/180;
-  const dLon=(lon2-lon1)*Math.PI/180;
-  const a=Math.sin(dLat/2)**2+
-  Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*
-  Math.sin(dLon/2)**2;
-  return R*(2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a)));
-}
-
-function checkDistance(lat,lon){
-  spots.forEach(spot=>{
-    let d = getDistance(lat,lon,spot.latitude,spot.longitude);
-
-    if(d <= spot.radius_m){
-      unlocked[spot.spot_id]=true;
-      localStorage.setItem("unlocked",JSON.stringify(unlocked));
+          document.getElementById("statusText").innerText =
+            `現在地を取得しました。\n緯度: ${lat.toFixed(6)} / 経度: ${lon.toFixed(6)} / 精度目安: ±${Math.round(accuracy)}m`;
+        },
+        () => {
+          alert("GPS取得に失敗しました。位置情報の許可を確認してください。");
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 30000,
+          maximumAge: 30000
+        }
+      );
     }
 
-    updateMarker(spot);
-  });
-}
+    function checkDistance(lat, lon) {
+      spots.forEach((spot) => {
+        const d = getDistance(lat, lon, spot.latitude, spot.longitude);
 
-// ===== マーカー更新 =====
-function updateMarker(spot){
-  let marker = markers[spot.spot_id];
+        if (d <= spot.radius_m) {
+          unlocked[spot.spot_id] = true;
+        }
 
-  if(answers[spot.spot_id]){
-    marker.setStyle({color:"green"});
-  }else if(unlocked[spot.spot_id]){
-    marker.setStyle({color:"blue"});
-  }else{
-    marker.setStyle({color:"gray"});
-  }
-}
+        updateMarker(spot);
+      });
 
-// ===== モーダル =====
-function openSpot(spot){
-  currentSpot = spot;
+      localStorage.setItem("unlocked", JSON.stringify(unlocked));
+    }
 
-  document.getElementById("spotName").innerText = spot.spot_name;
-  document.getElementById("description").innerText = spot.content.description;
-  document.getElementById("question").innerText = spot.content.question;
+    function updateMarker(spot) {
+      const marker = markers[spot.spot_id];
 
-  document.getElementById("oldImg").src = spot.images.old;
-  document.getElementById("newImg").src = spot.images.new;
+      if (answers[spot.spot_id]) {
+        marker.setStyle({
+          color: "green",
+          fillColor: "green"
+        });
+      } else if (unlocked[spot.spot_id]) {
+        marker.setStyle({
+          color: "blue",
+          fillColor: "blue"
+        });
+      } else {
+        marker.setStyle({
+          color: "gray",
+          fillColor: "gray"
+        });
+      }
+    }
 
-  document.getElementById("answer").value = answers[spot.spot_id] || "";
+    function openSpot(spot) {
+      currentSpot = spot;
 
-  document.getElementById("modal").style.display="flex";
-}
+      document.getElementById("spotName").innerText = spot.spot_name;
+      document.getElementById("description").innerText = spot.content.description;
+      document.getElementById("question").innerText = spot.content.question;
+      document.getElementById("oldImg").src = spot.images.old;
+      document.getElementById("newImg").src = spot.images.new;
+      document.getElementById("answer").value = answers[spot.spot_id] || "";
 
-function closeModal(){
-  document.getElementById("modal").style.display="none";
-}
+      document.getElementById("modal").style.display = "flex";
+    }
 
-// ===== 保存 =====
-function saveAnswer(){
-  let val = document.getElementById("answer").value;
-  if(!val){ alert("入力してください"); return; }
+    function closeModal() {
+      document.getElementById("modal").style.display = "none";
+    }
 
-  answers[currentSpot.spot_id]=val;
-  localStorage.setItem("answers",JSON.stringify(answers));
+    function saveAnswer() {
+      if (!currentSpot) return;
 
-  updateProgress();
-  updateMarker(currentSpot);
+      const val = document.getElementById("answer").value.trim();
 
-  closeModal();
-}
+      if (!val) {
+        alert("入力してください");
+        return;
+      }
 
-// ===== 進捗 =====
-function updateProgress(){
-  let count = Object.keys(answers).length;
-  document.getElementById("progress").innerText = "回答数: "+count;
+      answers[currentSpot.spot_id] = val;
+      localStorage.setItem("answers", JSON.stringify(answers));
 
-  if(count >= config.rewardUnlockCount && !rewardUnlocked){
-    rewardUnlocked=true;
-    localStorage.setItem("rewardUnlocked","true");
-    alert("特典が解放されました！");
-  }
+      updateProgress();
+      updateMarker(currentSpot);
 
-  if(rewardUnlocked){
-    document.getElementById("rewardBtn").style.display="block";
-  }
-}
+      closeModal();
+    }
 
-// ===== 特典 =====
-function openReward(){
-  alert("ここに特典動画を表示");
-}
+    function updateProgress() {
+      const count = Object.keys(answers).length;
+      document.getElementById("progress").innerText = "回答数: " + count;
 
-// 初期化
-updateProgress();
-spots.forEach(updateMarker);
+      if (count >= config.rewardUnlockCount && !rewardUnlocked) {
+        rewardUnlocked = true;
+        localStorage.setItem("rewardUnlocked", "true");
+        alert("おめでとうございます。特典が解放されました。🎁ボタンからアクセスできます。");
+      }
 
-</script>
+      if (rewardUnlocked) {
+        document.getElementById("rewardBtn").style.display = "block";
+      }
+    }
+
+    function openReward() {
+      alert("ここに特典動画や特典ページを表示します。");
+    }
+
+    updateProgress();
+    spots.forEach(updateMarker);
+  </script>
 
 </body>
 </html>
