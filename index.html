@@ -173,7 +173,6 @@
       margin: 14px 0 8px;
     }
 
-    /* 比較表示 */
     .compareWrap {
       position: relative;
       width: 100%;
@@ -197,7 +196,6 @@
       display: block;
     }
 
-    /* 画像サイズは固定、見える範囲だけ切り替える */
     .compareTop {
       clip-path: inset(0 0 0 var(--divider));
     }
@@ -272,41 +270,6 @@
       margin-top: 14px;
       padding-bottom: 10px;
     }
-
-    /* 現在地マーカー */
-    .user-dot-wrap {
-      width: 26px;
-      height: 26px;
-      position: relative;
-    }
-
-    .user-dot-pulse {
-      position: absolute;
-      inset: 0;
-      border-radius: 50%;
-      background: rgba(25,118,210,0.28);
-      animation: pulse 1.8s infinite;
-    }
-
-    .user-dot-core {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 12px;
-      height: 12px;
-      margin-left: -6px;
-      margin-top: -6px;
-      border-radius: 50%;
-      background: #1976d2;
-      border: 2px solid #ffffff;
-      box-shadow: 0 0 0 1px rgba(0,0,0,0.18);
-    }
-
-    @keyframes pulse {
-      0%   { transform: scale(0.6); opacity: 0.9; }
-      70%  { transform: scale(1.7); opacity: 0; }
-      100% { transform: scale(1.7); opacity: 0; }
-    }
   </style>
 </head>
 <body>
@@ -321,7 +284,7 @@
     <div id="progress">回答数: 0</div>
     <div id="statusText">地図上の丸はすべてスポットです。
 灰色 = 未解放、青 = 解放済み、緑 = 回答済み
-現在地取得を押すと、あなたの位置が青い点と円で表示されます。</div>
+現在地取得を押すと、あなたの位置が青い丸と薄い青い円で表示されます。</div>
 
     <div class="legend">
       <div><span style="background: gray;"></span>未解放</div>
@@ -373,8 +336,8 @@
   </div>
 
   <script>
-    const OLD_URL = "https://miyasy0525.github.io/gps-test/images/old.jpg?v=4";
-    const NEW_URL = "https://miyasy0525.github.io/gps-test/images/new.jpg?v=4";
+    const OLD_URL = "https://miyasy0525.github.io/gps-test/images/old.jpg?v=5";
+    const NEW_URL = "https://miyasy0525.github.io/gps-test/images/new.jpg?v=5";
 
     const spots = [
       {
@@ -382,7 +345,7 @@
         spot_name: "スポット1",
         latitude: 35.506855,
         longitude: 138.744967,
-        radius_m: 30,
+        radius_m: 100,
         images: { old: OLD_URL, new: NEW_URL },
         content: {
           question: "この場所で昔と今の違いは何だと思いますか？",
@@ -394,7 +357,7 @@
         spot_name: "スポット2",
         latitude: 35.506900,
         longitude: 138.745050,
-        radius_m: 30,
+        radius_m: 100,
         images: { old: OLD_URL, new: NEW_URL },
         content: {
           question: "ここで変わったと感じるものは何ですか？",
@@ -406,7 +369,7 @@
         spot_name: "スポット3",
         latitude: 35.507000,
         longitude: 138.745200,
-        radius_m: 30,
+        radius_m: 100,
         images: { old: OLD_URL, new: NEW_URL },
         content: {
           question: "この場所の特徴は何だと思いますか？",
@@ -418,7 +381,7 @@
         spot_name: "スポット4",
         latitude: 35.507100,
         longitude: 138.745300,
-        radius_m: 30,
+        radius_m: 100,
         images: { old: OLD_URL, new: NEW_URL },
         content: {
           question: "昔と比べて変化した部分は？",
@@ -430,7 +393,7 @@
         spot_name: "スポット5",
         latitude: 35.507200,
         longitude: 138.745400,
-        radius_m: 30,
+        radius_m: 100,
         images: { old: OLD_URL, new: NEW_URL },
         content: {
           question: "この場所の意味は何だと思いますか？",
@@ -458,18 +421,6 @@
       maxZoom: 19,
       attribution: "&copy; OpenStreetMap contributors"
     }).addTo(map);
-
-    const userIcon = L.divIcon({
-      className: "",
-      html: `
-        <div class="user-dot-wrap">
-          <div class="user-dot-pulse"></div>
-          <div class="user-dot-core"></div>
-        </div>
-      `,
-      iconSize: [26, 26],
-      iconAnchor: [13, 13]
-    });
 
     spots.forEach((spot) => {
       const marker = L.circleMarker([spot.latitude, spot.longitude], {
@@ -516,12 +467,23 @@
           const lon = pos.coords.longitude;
           const accuracy = pos.coords.accuracy;
 
-          map.setView([lat, lon], 18);
+          map.setView([lat, lon], 17);
 
-          if (userMarker) map.removeLayer(userMarker);
-          if (userCircle) map.removeLayer(userCircle);
+          if (userMarker) {
+            map.removeLayer(userMarker);
+          }
+          if (userCircle) {
+            map.removeLayer(userCircle);
+          }
 
-          userMarker = L.marker([lat, lon], { icon: userIcon }).addTo(map);
+          userMarker = L.circleMarker([lat, lon], {
+            radius: 8,
+            color: "#ffffff",
+            weight: 2,
+            fillColor: "#1976d2",
+            fillOpacity: 1
+          }).addTo(map);
+
           userCircle = L.circle([lat, lon], {
             radius: accuracy,
             color: "#1976d2",
@@ -533,7 +495,7 @@
           checkDistance(lat, lon);
 
           document.getElementById("statusText").innerText =
-            `現在地を取得しました。\n緯度: ${lat.toFixed(6)} / 経度: ${lon.toFixed(6)} / 精度目安: ±${Math.round(accuracy)}m\n青い点が現在地です。`;
+            `現在地を取得しました。\n緯度: ${lat.toFixed(6)} / 経度: ${lon.toFixed(6)} / 精度目安: ±${Math.round(accuracy)}m\n青い丸が現在地です。`;
         },
         () => {
           alert("GPS取得に失敗しました。位置情報の許可を確認してください。");
@@ -553,7 +515,9 @@
         const d = getDistance(lat, lon, spot.latitude, spot.longitude);
 
         if (d <= spot.radius_m) {
-          if (!unlocked[spot.spot_id]) newlyUnlocked = true;
+          if (!unlocked[spot.spot_id]) {
+            newlyUnlocked = true;
+          }
           unlocked[spot.spot_id] = true;
         }
 
@@ -598,16 +562,11 @@
       const oldImg = document.getElementById("oldImg");
       const newImg = document.getElementById("newImg");
 
-      let oldLoaded = false;
-      let newLoaded = false;
-
       oldImg.onload = () => {
-        oldLoaded = true;
-        checkImageLoadState();
+        imageError.style.display = "none";
       };
       newImg.onload = () => {
-        newLoaded = true;
-        checkImageLoadState();
+        imageError.style.display = "none";
       };
 
       oldImg.onerror = () => {
@@ -622,20 +581,12 @@
       oldImg.src = spot.images.old;
       newImg.src = spot.images.new;
 
-      function checkImageLoadState() {
-        if (oldLoaded && newLoaded) {
-          imageError.style.display = "none";
-          imageError.innerText = "";
-        }
-      }
-
       document.getElementById("sheetBackdrop").style.display = "block";
       document.getElementById("sheet").style.display = "block";
     }
 
     function updateCompareSlider(value) {
-      const wrap = document.getElementById("compareWrap");
-      wrap.style.setProperty("--divider", value + "%");
+      document.getElementById("compareWrap").style.setProperty("--divider", value + "%");
     }
 
     function closeSheet() {
