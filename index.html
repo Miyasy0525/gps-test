@@ -173,6 +173,7 @@
       margin: 14px 0 8px;
     }
 
+    /* 比較表示 */
     .compareWrap {
       position: relative;
       width: 100%;
@@ -182,24 +183,35 @@
       border-radius: 10px;
       overflow: hidden;
       margin-bottom: 12px;
+      --divider: 50%;
     }
 
     .compareBase,
-    .compareOverlay img {
+    .compareTop {
       position: absolute;
       inset: 0;
       width: 100%;
       height: 100%;
       object-fit: contain;
       background: #f7f7f7;
+      display: block;
     }
 
-    .compareOverlay {
+    /* 画像サイズは固定、見える範囲だけ切り替える */
+    .compareTop {
+      clip-path: inset(0 0 0 var(--divider));
+    }
+
+    .compareDivider {
       position: absolute;
-      inset: 0;
-      width: 50%;
-      overflow: hidden;
-      border-right: 2px solid #ffffff;
+      top: 0;
+      bottom: 0;
+      left: var(--divider);
+      width: 2px;
+      background: #ffffff;
+      box-shadow: 0 0 0 1px rgba(0,0,0,0.15);
+      transform: translateX(-1px);
+      z-index: 4;
     }
 
     .compareLabel {
@@ -263,8 +275,8 @@
 
     /* 現在地マーカー */
     .user-dot-wrap {
-      width: 24px;
-      height: 24px;
+      width: 26px;
+      height: 26px;
       position: relative;
     }
 
@@ -292,8 +304,8 @@
 
     @keyframes pulse {
       0%   { transform: scale(0.6); opacity: 0.9; }
-      70%  { transform: scale(1.6); opacity: 0; }
-      100% { transform: scale(1.6); opacity: 0; }
+      70%  { transform: scale(1.7); opacity: 0; }
+      100% { transform: scale(1.7); opacity: 0; }
     }
   </style>
 </head>
@@ -336,15 +348,12 @@
 
       <div class="imgLabel">昔と今の比較</div>
 
-      <div class="compareWrap">
+      <div id="compareWrap" class="compareWrap">
         <div class="compareLabel old">昔</div>
         <div class="compareLabel new">今</div>
-
         <img id="oldImg" class="compareBase" alt="昔の画像" src="" />
-
-        <div id="compareOverlay" class="compareOverlay">
-          <img id="newImg" alt="今の画像" src="" />
-        </div>
+        <img id="newImg" class="compareTop" alt="今の画像" src="" />
+        <div class="compareDivider"></div>
       </div>
 
       <input id="compareRange" type="range" min="0" max="100" value="50" oninput="updateCompareSlider(this.value)" />
@@ -364,8 +373,8 @@
   </div>
 
   <script>
-    const OLD_URL = "https://miyasy0525.github.io/gps-test/images/old.jpg?v=3";
-    const NEW_URL = "https://miyasy0525.github.io/gps-test/images/new.jpg?v=3";
+    const OLD_URL = "https://miyasy0525.github.io/gps-test/images/old.jpg?v=4";
+    const NEW_URL = "https://miyasy0525.github.io/gps-test/images/new.jpg?v=4";
 
     const spots = [
       {
@@ -458,8 +467,8 @@
           <div class="user-dot-core"></div>
         </div>
       `,
-      iconSize: [24, 24],
-      iconAnchor: [12, 12]
+      iconSize: [26, 26],
+      iconAnchor: [13, 13]
     });
 
     spots.forEach((spot) => {
@@ -603,11 +612,11 @@
 
       oldImg.onerror = () => {
         imageError.style.display = "block";
-        imageError.innerText = "昔画像の読み込みに失敗しました。画像URLまたはファイル名を確認してください。";
+        imageError.innerText = "昔画像の読み込みに失敗しました。";
       };
       newImg.onerror = () => {
         imageError.style.display = "block";
-        imageError.innerText = "今画像の読み込みに失敗しました。画像URLまたはファイル名を確認してください。";
+        imageError.innerText = "今画像の読み込みに失敗しました。";
       };
 
       oldImg.src = spot.images.old;
@@ -625,7 +634,8 @@
     }
 
     function updateCompareSlider(value) {
-      document.getElementById("compareOverlay").style.width = value + "%";
+      const wrap = document.getElementById("compareWrap");
+      wrap.style.setProperty("--divider", value + "%");
     }
 
     function closeSheet() {
