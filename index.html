@@ -621,23 +621,18 @@
       return "sess_" + Date.now() + "_" + Math.random().toString(36).slice(2, 10);
     }
 
-    async function postToSheet(payload) {
-      try {
-        await fetch(API_URL, {
-          method: "POST",
-          mode: "no-cors",
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8"
-          },
-          body: new URLSearchParams(payload)
-        });
-      } catch (error) {
-        logDebug("シート送信でエラーが起きました。");
-      }
+    function postToSheet(payload) {
+      const params = new URLSearchParams(payload);
+      const url = API_URL + "?" + params.toString() + "&_t=" + Date.now();
+
+      const img = new Image();
+      img.src = url;
+
+      logDebug("シート送信を実行しました。");
     }
 
-    async function sendSessionToSheet(profile) {
-      await postToSheet({
+    function sendSessionToSheet(profile) {
+      postToSheet({
         action: "session",
         session_id: sessionId,
         started_at: profile.startedAt,
@@ -649,8 +644,8 @@
       logDebug("sessions シートへ送信しました。");
     }
 
-    async function sendAnswerToSheet(spotId, answerText) {
-      await postToSheet({
+    function sendAnswerToSheet(spotId, answerText) {
+      postToSheet({
         action: "answer",
         session_id: sessionId,
         timestamp: new Date().toISOString(),
@@ -660,7 +655,7 @@
       logDebug("answers シートへ送信しました。");
     }
 
-    async function startExperience() {
+    function startExperience() {
       const gender = document.getElementById("genderSelect").value;
       const age = document.getElementById("ageSelect").value;
       const region = document.getElementById("regionSelect").value;
@@ -681,7 +676,7 @@
 
       localStorage.setItem("userProfile", JSON.stringify(userProfile));
 
-      await sendSessionToSheet(userProfile);
+      sendSessionToSheet(userProfile);
 
       document.getElementById("startScreen").classList.add("hidden");
       document.getElementById("appScreen").classList.remove("hidden");
@@ -900,7 +895,7 @@
       document.getElementById("sheet").style.display = "none";
     }
 
-    async function saveAnswer() {
+    function saveAnswer() {
       if (!currentSpot) return;
 
       const val = document.getElementById("answerBox").value.trim();
@@ -913,7 +908,7 @@
       answers[currentSpot.spot_id] = val;
       localStorage.setItem("answers", JSON.stringify(answers));
 
-      await sendAnswerToSheet(currentSpot.spot_id, val);
+      sendAnswerToSheet(currentSpot.spot_id, val);
 
       updateProgress();
       updateMarker(currentSpot);
