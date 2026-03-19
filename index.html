@@ -621,15 +621,21 @@
       return "sess_" + Date.now() + "_" + Math.random().toString(36).slice(2, 10);
     }
 
-    function postToSheet(payload) {
-      const params = new URLSearchParams(payload);
-      const url = API_URL + "?" + params.toString() + "&_t=" + Date.now();
+   function postToSheet(payload) {
+  const params = new URLSearchParams(payload);
+  const url = API_URL + "?" + params.toString() + "&_t=" + Date.now();
 
-      const img = new Image();
-      img.src = url;
+  logDebug("送信URL: " + url);
 
-      logDebug("シート送信を実行しました。");
-    }
+  const img = new Image();
+  img.onload = function () {
+    logDebug("送信画像ロード成功");
+  };
+  img.onerror = function () {
+    logDebug("送信画像ロード失敗");
+  };
+  img.src = url;
+}
 
     function sendSessionToSheet(profile) {
       postToSheet({
