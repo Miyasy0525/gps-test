@@ -5,14 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>忍野八海 体験プロトタイプ</title>
 
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Yomogi&display=swap" rel="stylesheet">
+
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <link rel="stylesheet" href="css/style.css" />
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="js/app.js" defer></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-　<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-　<link href="https://fonts.googleapis.com/css2?family=Yomogi&display=swap" rel="stylesheet">
 </head>
 <body>
 
@@ -160,6 +161,58 @@
   </button>
 
   <div id="fxLayer"></div>
+
+  <!-- チュートリアルモーダル -->
+  <div id="tutorialBackdrop" onclick="closeTutorialIfBackdrop(event)"></div>
+  <div id="tutorialModal">
+    <div id="tutorialInner">
+      <div class="tutorialHeader">
+        <div class="tutorialTitle">このアプリの使い方</div>
+        <button class="tutorialSkipBtn" onclick="skipTutorial()">スキップ</button>
+      </div>
+
+      <div class="tutorialViewport">
+        <div id="tutorialTrack" class="tutorialTrack">
+          <div class="tutorialSlide">
+            <img src="images/new.jpg" alt="チュートリアル画像1">
+            <h3>忍野八海を歩いて、ヒミツを集めよう</h3>
+            <p>このアプリでは、現地をめぐりながら問いに答えて、地図片を集めることができます。</p>
+          </div>
+
+          <div class="tutorialSlide">
+            <img src="images/new.jpg" alt="チュートリアル画像2">
+            <h3>現在地を確認しよう</h3>
+            <p>あなたの現在地はGPSで地図上に表示されます。現在地が表示されないときは、位置情報の共有をONにしてください。</p>
+          </div>
+
+          <div class="tutorialSlide">
+            <img src="images/new.jpg" alt="チュートリアル画像3">
+            <h3>スポットに近づくと問いが解放</h3>
+            <p>地図上のスポットの近くに行くと、その場所の問いが解放されます。灰色は未解放、青は解放済み、緑は発見済みです。</p>
+          </div>
+
+          <div class="tutorialSlide">
+            <img src="images/new.jpg" alt="チュートリアル画像4">
+            <h3>正解すると地図片をゲット</h3>
+            <p>問いに正解すると、地図片が1枚ずつ集まります。間違えても何度でもリトライできます。すべて集めると、特典が解放されます。</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="tutorialDots">
+        <span class="tutorialDot active" data-index="0"></span>
+        <span class="tutorialDot" data-index="1"></span>
+        <span class="tutorialDot" data-index="2"></span>
+        <span class="tutorialDot" data-index="3"></span>
+      </div>
+
+      <div class="tutorialButtons">
+        <button id="tutorialPrevBtn" onclick="prevTutorialSlide()">前へ</button>
+        <button id="tutorialNextBtn" class="primaryBtn" onclick="nextTutorialSlide()">次へ</button>
+        <button id="tutorialStartBtn" class="primaryBtn hidden" onclick="finishTutorial()">はじめる</button>
+      </div>
+    </div>
+  </div>
 
   <div id="mapSheetBackdrop" onclick="closeMapSheet()"></div>
 
