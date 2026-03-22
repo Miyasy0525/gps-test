@@ -215,10 +215,7 @@ let lastLon = null;
 let map = null;
 let effectRunning = false;
 
-function logDebug(text) {
-  const el = document.getElementById("debugText");
-  if (el) el.innerText = "デバッグ: " + text;
-}
+function logDebug() {}
 
 function updateStartButtonState() {
   const gender = document.getElementById("genderSelect").value.trim();
@@ -237,8 +234,6 @@ function createSessionId() {
 function postToSheet(payload) {
   const body = new URLSearchParams(payload).toString();
 
-  logDebug("送信開始: " + body);
-
   fetch(API_URL, {
     method: "POST",
     mode: "no-cors",
@@ -246,13 +241,7 @@ function postToSheet(payload) {
       "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8"
     },
     body: body
-  })
-  .then(() => {
-    logDebug("送信実行: fetch完了");
-  })
-  .catch((error) => {
-    logDebug("送信失敗: " + error);
-  });
+  }).catch(() => {});
 }
 
 function sendSessionToSheet(profile) {
@@ -265,7 +254,6 @@ function sendSessionToSheet(profile) {
     companion_type: profile.companion,
     region: profile.region
   });
-  logDebug("sessions シートへ送信しました。");
 }
 
 function sendAnswerToSheet(spotId, answerText) {
@@ -276,7 +264,14 @@ function sendAnswerToSheet(spotId, answerText) {
     spot_id: spotId,
     answer_text: answerText
   });
-  logDebug("answers シートへ送信しました。");
+}
+
+function updateMapBtnCount() {
+  const count = Object.values(answers).filter(a => a && a.isCorrect).length;
+  const el = document.getElementById("mapBtnCount");
+  if (el) {
+    el.textContent = `回答数：${count}/8`;
+  }
 }
 
 function updateSealButton() {
@@ -325,6 +320,7 @@ function updateMapCollectionUI() {
   }
 
   updateSealButton();
+  updateMapBtnCount();
 }
 
 function openMapSheet() {
@@ -341,7 +337,9 @@ function closeMapSheet() {
 function pulseMapButton() {
   const mapBtn = document.getElementById("mapBtn");
   mapBtn.classList.add("pulse");
+  mapBtn.classList.add("sparklePulse");
   setTimeout(() => mapBtn.classList.remove("pulse"), 300);
+  setTimeout(() => mapBtn.classList.remove("sparklePulse"), 1000);
 }
 
 function createSparkle(x, y) {
@@ -523,8 +521,6 @@ function startAutoTracking() {
     navigator.geolocation.clearWatch(watchId);
   }
 
-  logDebug("自動追従を開始しました。");
-
   watchId = navigator.geolocation.watchPosition(
     (pos) => {
       const lat = pos.coords.latitude;
@@ -536,13 +532,8 @@ function startAutoTracking() {
 
       updateUserLocation(lat, lon, accuracy);
       checkDistance(lat, lon);
-
-      document.getElementById("statusText").innerText =
-        `現在地を自動追従中です。\n緯度: ${lat.toFixed(6)} / 経度: ${lon.toFixed(6)} / 精度目安: ±${Math.round(accuracy)}m\n青い丸が現在地です。`;
     },
-    () => {
-      logDebug("自動追従に失敗しました。位置情報の許可を確認してください。");
-    },
+    () => {},
     {
       enableHighAccuracy: true,
       timeout: 30000,
@@ -575,20 +566,14 @@ function updateUserLocation(lat, lon, accuracy) {
 function centerOnUser() {
   if (lastLat !== null && lastLon !== null) {
     map.setView([lastLat, lastLon], 17);
-    logDebug("現在地を地図中央に戻しました。");
-  } else {
-    logDebug("まだ現在地が取得できていません。");
   }
 }
 
 function checkDistance(lat, lon) {
-  let newlyUnlocked = false;
-
   spots.forEach((spot) => {
     const d = getDistance(lat, lon, spot.latitude, spot.longitude);
 
     if (d <= spot.radius_m) {
-      if (!unlocked[spot.spot_id]) newlyUnlocked = true;
       unlocked[spot.spot_id] = true;
     }
 
@@ -597,10 +582,6 @@ function checkDistance(lat, lon) {
 
   localStorage.setItem("unlocked", JSON.stringify(unlocked));
   renderUnlockedList();
-
-  if (newlyUnlocked) {
-    document.getElementById("statusText").innerText += "\n新しいスポットが開放されました。下の一覧からも開けます。";
-  }
 }
 
 function updateMarker(spot) {
@@ -620,18 +601,15 @@ function updateMarker(spot) {
 
 function openSpotFromMarker(spot) {
   if (!unlocked[spot.spot_id]) {
-    logDebug(`${spot.spot_name} をタップしましたが、まだ未解放です。`);
     alert("このスポットの近くに移動すると情報が開放されます。");
     return;
   }
 
   if (answers[spot.spot_id] && answers[spot.spot_id].isCorrect) {
-    logDebug(`${spot.spot_name} はすでに発見済みです。`);
     alert("このスポットは発見済みです。");
     return;
   }
 
-  logDebug(`${spot.spot_name} をタップして開きました。`);
   openSpot(spot);
 }
 
@@ -740,7 +718,7 @@ function openSpot(spot) {
   const saved = answers[spot.spot_id];
   if (saved) {
     document.getElementById("formMessage").innerText =
-      `保存済みの回答：${saved.value}（${saved.label}）\n結果：${saved.isCorrect ? "発見済み" : "リトライする"}`;
+      `保存済みの回答：${saved.value}（${saved.label}）\n結果：${saved.isCorrect ? "発見済み" : "リトライ"}`;
   } else {
     document.getElementById("formMessage").innerText = "";
   }
@@ -797,7 +775,7 @@ async function saveAnswer() {
   );
 
   document.getElementById("formMessage").innerText =
-    `${isCorrect ? "正解です！ 地図片を獲得しました。" : "リトライする"}\nあなたの回答：${selectedChoice.value}（${selectedChoice.label}）`;
+    `${isCorrect ? "正解です！ 地図片を獲得しました。" : "リトライ"}\nあなたの回答：${selectedChoice.value}（${selectedChoice.label}）`;
 
   if (isFirstCorrect) {
     collectedPieces[currentSpot.spot_id] = true;
@@ -819,13 +797,11 @@ async function saveAnswer() {
 
   setTimeout(() => {
     closeSheet();
-    logDebug(`${currentSpot.spot_name} に回答を保存しました。`);
   }, 200);
 }
 
 function updateProgress() {
-  const count = Object.keys(answers).length;
-  document.getElementById("progress").innerText = "回答数: " + count + " / " + spots.length;
+  updateMapBtnCount();
 }
 
 function renderUnlockedList() {
@@ -854,7 +830,7 @@ function renderUnlockedList() {
     if (answers[spot.spot_id] && answers[spot.spot_id].isCorrect) {
       meta.textContent = "発見済み";
     } else if (answers[spot.spot_id]) {
-      meta.textContent = "リトライする";
+      meta.textContent = "リトライ";
     } else {
       meta.textContent = "未回答";
     }
@@ -870,9 +846,11 @@ function renderUnlockedList() {
       row.appendChild(badge);
     } else {
       const btn = document.createElement("button");
-      btn.textContent = "ヒミツに迫る";
+      btn.textContent = answers[spot.spot_id] ? "リトライ" : "ヒミツに迫る";
+      if (answers[spot.spot_id] && !answers[spot.spot_id].isCorrect) {
+        btn.classList.add("retryBtn");
+      }
       btn.onclick = () => {
-        logDebug(`${spot.spot_name} を一覧から開きました。`);
         openSpot(spot);
       };
       row.appendChild(left);
