@@ -214,16 +214,18 @@
       margin-top: 4px;
     }
 
-    #rewardBtn {
+    #mapBtn {
       position: fixed;
       top: 10px;
       right: 10px;
       z-index: 3000;
-      display: none;
+      display: block;
       border-radius: 999px;
       border: none;
-      background: #ffd54f;
-      font-size: 22px;
+      background: #ffe7a3;
+      font-size: 16px;
+      font-weight: bold;
+      padding: 10px 14px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.2);
     }
 
@@ -431,6 +433,102 @@
       padding-bottom: 10px;
       flex-wrap: wrap;
     }
+
+    .mapCount {
+      margin-top: 10px;
+      font-size: 14px;
+      color: #555;
+    }
+
+    #mapSheetBackdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.45);
+      z-index: 6000;
+    }
+
+    #mapSheet {
+      display: none;
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      width: 100%;
+      max-height: 90vh;
+      background: #fff;
+      border-top-left-radius: 16px;
+      border-top-right-radius: 16px;
+      box-shadow: 0 -4px 20px rgba(0,0,0,0.25);
+      z-index: 7000;
+      overflow: hidden;
+    }
+
+    #mapSheetInner {
+      padding: 16px;
+      overflow-y: auto;
+      max-height: 90vh;
+    }
+
+    .mapSheetTitle {
+      margin: 0 0 8px 0;
+      font-size: 22px;
+    }
+
+    .mapSheetLead {
+      font-size: 14px;
+      line-height: 1.7;
+      color: #555;
+      margin-bottom: 12px;
+    }
+
+    .mapStage {
+      position: relative;
+      width: 100%;
+      max-width: 900px;
+      margin: 0 auto;
+      aspect-ratio: 3 / 2;
+      background: #f6f1e8;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .mapBase {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+
+    .mapPiece {
+      position: absolute;
+      width: 22%;
+      height: 30%;
+      object-fit: contain;
+      opacity: 0;
+      transform: scale(0.96);
+      transition: opacity 0.35s ease, transform 0.35s ease, filter 0.35s ease;
+      pointer-events: none;
+    }
+
+    .mapPiece.filled {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .mapStage.completed {
+      box-shadow: 0 0 0 2px #f2c94c, 0 0 24px rgba(242, 201, 76, 0.45);
+    }
+
+    .mapSheetButtons {
+      display: flex;
+      gap: 10px;
+      margin-top: 14px;
+      flex-wrap: wrap;
+    }
   </style>
 </head>
 <body>
@@ -442,7 +540,7 @@
         この体験では、忍野八海をめぐりながら、地域の歴史や文化にまつわる問いに答えることができます。
       </div>
       <div class="startLead">
-        地図上のスポットに近づくと情報が開放されます。いくつかのスポットに回答すると、特典コンテンツを見ることができます。
+        地図上のスポットに近づくと情報が開放されます。いくつかのスポットに回答すると、地図片を集めることができます。
       </div>
 
       <div class="warnBox">
@@ -580,7 +678,36 @@
     </div>
   </div>
 
-  <button id="rewardBtn" onclick="openReward()">🎁</button>
+  <button id="mapBtn" onclick="openMapSheet()">地図</button>
+
+  <div id="mapSheetBackdrop" onclick="closeMapSheet()"></div>
+
+  <div id="mapSheet">
+    <div id="mapSheetInner">
+      <h2 class="mapSheetTitle">集めた地図</h2>
+      <div class="mapSheetLead">
+        正解したスポットの地図片が、少しずつ巻物に集まっていきます。
+      </div>
+      <div id="mapCount" class="mapCount">0 / 8 枚</div>
+
+      <div id="mapStage" class="mapStage">
+        <img src="map/base.png" alt="地図の土台" class="mapBase" />
+
+        <img id="piece1" class="mapPiece" src="map/mappiece1.png" alt="地図片1" style="top: 2%; left: 0%;" />
+        <img id="piece2" class="mapPiece" src="map/mappiece2.png" alt="地図片2" style="top: 2%; left: 18%;" />
+        <img id="piece3" class="mapPiece" src="map/mappiece3.png" alt="地図片3" style="top: 0%; left: 38%;" />
+        <img id="piece4" class="mapPiece" src="map/mappiece4.png" alt="地図片4" style="top: 3%; left: 62%;" />
+        <img id="piece5" class="mapPiece" src="map/mappiece5.png" alt="地図片5" style="top: 47%; left: 0%;" />
+        <img id="piece6" class="mapPiece" src="map/mappiece6.png" alt="地図片6" style="top: 44%; left: 23%;" />
+        <img id="piece7" class="mapPiece" src="map/mappiece7.png" alt="地図片7" style="top: 40%; left: 42%;" />
+        <img id="piece8" class="mapPiece" src="map/mappiece8.png" alt="地図片8" style="top: 50%; left: 67%;" />
+      </div>
+
+      <div class="mapSheetButtons">
+        <button onclick="closeMapSheet()">閉じる</button>
+      </div>
+    </div>
+  </div>
 
   <div id="sheetBackdrop" onclick="closeSheet()"></div>
 
@@ -637,6 +764,17 @@
 
     // Q1 の飲める湧水写真は、あとでGitHubに置いたURLへ差し替えてください
     const DRINK_WATER_URL = NEW_URL;
+
+    const pieceMap = {
+      spot01: 1,
+      spot02: 2,
+      spot03: 3,
+      spot04: 4,
+      spot05: 5,
+      spot06: 6,
+      spot07: 7,
+      spot08: 8
+    };
 
     const spots = [
       {
@@ -809,11 +947,9 @@
       }
     ];
 
-    const config = { rewardUnlockCount: 2 };
-
     let answers = JSON.parse(localStorage.getItem("answers") || "{}");
     let unlocked = JSON.parse(localStorage.getItem("unlocked") || "{}");
-    let rewardUnlocked = JSON.parse(localStorage.getItem("rewardUnlocked") || "false");
+    let collectedPieces = JSON.parse(localStorage.getItem("collectedPieces") || "{}");
     let sessionId = localStorage.getItem("sessionId") || "";
     let userProfile = JSON.parse(localStorage.getItem("userProfile") || "null");
 
@@ -900,6 +1036,50 @@
       logDebug("answers シートへ送信しました。");
     }
 
+    function updateMapCollectionUI() {
+      let count = 0;
+
+      spots.forEach((spot) => {
+        const pieceNumber = pieceMap[spot.spot_id];
+        const pieceEl = document.getElementById(`piece${pieceNumber}`);
+        const hasPiece = !!collectedPieces[spot.spot_id];
+
+        if (pieceEl) {
+          if (hasPiece) {
+            pieceEl.classList.add("filled");
+            count++;
+          } else {
+            pieceEl.classList.remove("filled");
+          }
+        }
+      });
+
+      const countEl = document.getElementById("mapCount");
+      if (countEl) {
+        countEl.innerText = `${count} / 8 枚`;
+      }
+
+      const stageEl = document.getElementById("mapStage");
+      if (stageEl) {
+        if (count === 8) {
+          stageEl.classList.add("completed");
+        } else {
+          stageEl.classList.remove("completed");
+        }
+      }
+    }
+
+    function openMapSheet() {
+      updateMapCollectionUI();
+      document.getElementById("mapSheetBackdrop").style.display = "block";
+      document.getElementById("mapSheet").style.display = "block";
+    }
+
+    function closeMapSheet() {
+      document.getElementById("mapSheetBackdrop").style.display = "none";
+      document.getElementById("mapSheet").style.display = "none";
+    }
+
     function startExperience() {
       const gender = document.getElementById("genderSelect").value;
       const age = document.getElementById("ageSelect").value;
@@ -960,6 +1140,7 @@
       });
 
       updateProgress();
+      updateMapCollectionUI();
       spots.forEach(updateMarker);
       renderUnlockedList();
     }
@@ -1237,17 +1418,23 @@
       };
       localStorage.setItem("answers", JSON.stringify(answers));
 
+      if (isCorrect) {
+        collectedPieces[currentSpot.spot_id] = true;
+        localStorage.setItem("collectedPieces", JSON.stringify(collectedPieces));
+      }
+
       sendAnswerToSheet(
         currentSpot.spot_id,
         `${selectedChoice.value}: ${selectedChoice.label} / ${isCorrect ? "正解" : "不正解"}`
       );
 
       document.getElementById("formMessage").innerText =
-        `${isCorrect ? "正解です！" : "保存しました。"}\nあなたの回答：${selectedChoice.value}（${selectedChoice.label}）`;
+        `${isCorrect ? "正解です！ 地図片を獲得しました。" : "保存しました。"}\nあなたの回答：${selectedChoice.value}（${selectedChoice.label}）`;
 
       updateProgress();
       updateMarker(currentSpot);
       renderUnlockedList();
+      updateMapCollectionUI();
 
       setTimeout(() => {
         closeSheet();
@@ -1258,20 +1445,6 @@
     function updateProgress() {
       const count = Object.keys(answers).length;
       document.getElementById("progress").innerText = "回答数: " + count + " / " + spots.length;
-
-      if (count >= config.rewardUnlockCount && !rewardUnlocked) {
-        rewardUnlocked = true;
-        localStorage.setItem("rewardUnlocked", "true");
-        alert("おめでとうございます。特典が解放されました。🎁ボタンからアクセスできます。");
-      }
-
-      if (rewardUnlocked) {
-        document.getElementById("rewardBtn").style.display = "block";
-      }
-    }
-
-    function openReward() {
-      alert("ここに特典動画や特典ページを表示します。");
     }
 
     function renderUnlockedList() {
@@ -1319,6 +1492,9 @@
     }
 
     updateStartButtonState();
+    setTimeout(() => {
+      updateMapCollectionUI();
+    }, 0);
   </script>
 </body>
 </html>
