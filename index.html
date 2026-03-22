@@ -501,17 +501,20 @@
       height: 100%;
       object-fit: contain;
       display: block;
+      z-index: 1;
     }
 
     .mapPiece {
       position: absolute;
-      width: 22%;
-      height: 30%;
+      inset: 0;
+      width: 100%;
+      height: 100%;
       object-fit: contain;
       opacity: 0;
-      transform: scale(0.96);
-      transition: opacity 0.35s ease, transform 0.35s ease, filter 0.35s ease;
+      transform: scale(0.995);
+      transition: opacity 0.4s ease, transform 0.4s ease;
       pointer-events: none;
+      z-index: 2;
     }
 
     .mapPiece.filled {
@@ -692,15 +695,14 @@
 
       <div id="mapStage" class="mapStage">
         <img src="map/base.png" alt="地図の土台" class="mapBase" />
-
-        <img id="piece1" class="mapPiece" src="map/mappiece1.png" alt="地図片1" style="top: 2%; left: 0%;" />
-        <img id="piece2" class="mapPiece" src="map/mappiece2.png" alt="地図片2" style="top: 2%; left: 18%;" />
-        <img id="piece3" class="mapPiece" src="map/mappiece3.png" alt="地図片3" style="top: 0%; left: 38%;" />
-        <img id="piece4" class="mapPiece" src="map/mappiece4.png" alt="地図片4" style="top: 3%; left: 62%;" />
-        <img id="piece5" class="mapPiece" src="map/mappiece5.png" alt="地図片5" style="top: 47%; left: 0%;" />
-        <img id="piece6" class="mapPiece" src="map/mappiece6.png" alt="地図片6" style="top: 44%; left: 23%;" />
-        <img id="piece7" class="mapPiece" src="map/mappiece7.png" alt="地図片7" style="top: 40%; left: 42%;" />
-        <img id="piece8" class="mapPiece" src="map/mappiece8.png" alt="地図片8" style="top: 50%; left: 67%;" />
+        <img id="piece1" class="mapPiece" src="map/mappiece1.png" alt="地図片1" />
+        <img id="piece2" class="mapPiece" src="map/mappiece2.png" alt="地図片2" />
+        <img id="piece3" class="mapPiece" src="map/mappiece3.png" alt="地図片3" />
+        <img id="piece4" class="mapPiece" src="map/mappiece4.png" alt="地図片4" />
+        <img id="piece5" class="mapPiece" src="map/mappiece5.png" alt="地図片5" />
+        <img id="piece6" class="mapPiece" src="map/mappiece6.png" alt="地図片6" />
+        <img id="piece7" class="mapPiece" src="map/mappiece7.png" alt="地図片7" />
+        <img id="piece8" class="mapPiece" src="map/mappiece8.png" alt="地図片8" />
       </div>
 
       <div class="mapSheetButtons">
