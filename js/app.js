@@ -266,11 +266,24 @@ function sendAnswerToSheet(spotId, answerText) {
   });
 }
 
+function getCorrectCount() {
+  return Object.values(answers).filter(a => a && a.isCorrect).length;
+}
+
 function updateMapBtnCount() {
-  const count = Object.values(answers).filter(a => a && a.isCorrect).length;
+  const count = getCorrectCount();
   const el = document.getElementById("mapBtnCount");
   if (el) {
     el.textContent = `回答数：${count}/8`;
+  }
+
+  const btn = document.getElementById("mapBtn");
+  if (btn) {
+    if (count >= 8) {
+      btn.classList.add("attentionGlow");
+    } else {
+      btn.classList.remove("attentionGlow");
+    }
   }
 }
 
@@ -305,9 +318,9 @@ function updateMapCollectionUI() {
     }
   });
 
-  const countEl = document.getElementById("mapCount");
-  if (countEl) {
-    countEl.innerText = `${count} / 8 枚`;
+  const titleCountEl = document.getElementById("mapTitleCount");
+  if (titleCountEl) {
+    titleCountEl.innerText = `(${count}/8枚)`;
   }
 
   const stageEl = document.getElementById("mapStage");
