@@ -540,7 +540,41 @@
     }
 
     .mapStage.completed {
-      box-shadow: 0 0 0 2px #f2c94c, 0 0 24px rgba(242, 201, 76, 0.45);
+      border: 1px solid #d4af37;
+      box-shadow:
+        0 0 0 1px rgba(255, 244, 180, 0.95),
+        0 0 0 3px rgba(212, 175, 55, 0.72),
+        0 0 18px rgba(255, 220, 110, 0.65),
+        0 0 36px rgba(255, 215, 80, 0.42),
+        inset 0 0 18px rgba(255, 245, 190, 0.22);
+      animation: goldGlow 2.2s ease-in-out infinite;
+    }
+
+    @keyframes goldGlow {
+      0% {
+        box-shadow:
+          0 0 0 1px rgba(255, 244, 180, 0.88),
+          0 0 0 3px rgba(212, 175, 55, 0.60),
+          0 0 14px rgba(255, 220, 110, 0.45),
+          0 0 28px rgba(255, 215, 80, 0.28),
+          inset 0 0 12px rgba(255, 245, 190, 0.14);
+      }
+      50% {
+        box-shadow:
+          0 0 0 1px rgba(255, 250, 215, 1),
+          0 0 0 3px rgba(231, 193, 78, 0.92),
+          0 0 22px rgba(255, 228, 130, 0.84),
+          0 0 48px rgba(255, 214, 92, 0.56),
+          inset 0 0 20px rgba(255, 248, 210, 0.28);
+      }
+      100% {
+        box-shadow:
+          0 0 0 1px rgba(255, 244, 180, 0.88),
+          0 0 0 3px rgba(212, 175, 55, 0.60),
+          0 0 14px rgba(255, 220, 110, 0.45),
+          0 0 28px rgba(255, 215, 80, 0.28),
+          inset 0 0 12px rgba(255, 245, 190, 0.14);
+      }
     }
 
     .mapSheetButtons {
@@ -548,6 +582,28 @@
       gap: 10px;
       margin-top: 14px;
       flex-wrap: wrap;
+    }
+
+    .sealBtn {
+      background: #f28c28;
+      color: #fff;
+      border: none;
+      font-weight: 700;
+      text-decoration: none;
+      padding: 10px 14px;
+      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 10px rgba(242, 140, 40, 0.28);
+    }
+
+    .sealBtn:hover {
+      background: #eb7f15;
+    }
+
+    .sealBtn.hidden {
+      display: none !important;
     }
 
     #fxLayer {
@@ -724,7 +780,7 @@
 
       <div id="progress">回答数: 0 / 8</div>
       <div id="statusText">地図上の丸はすべてスポットです。
-灰色 = 未解放、青 = 解放済み、緑 = 正解済み
+灰色 = 未解放、青 = 解放済み、緑 = 発見済み
 ページを開くと現在地の自動追従を開始します。</div>
 
       <div id="debugText">デバッグ: まだ操作ログはありません。</div>
@@ -732,7 +788,7 @@
       <div class="legend">
         <div><span style="background: gray;"></span>未解放</div>
         <div><span style="background: blue;"></span>解放済み</div>
-        <div><span style="background: green;"></span>正解済み</div>
+        <div><span style="background: green;"></span>発見済み</div>
         <div><span style="background: #1976d2;"></span>現在地</div>
       </div>
 
@@ -771,6 +827,7 @@
 
       <div class="mapSheetButtons">
         <button onclick="closeMapSheet()">閉じる</button>
+        <a id="sealBtn" class="sealBtn hidden" href="" target="_blank" rel="noopener noreferrer"><strong>封印を解く</strong></a>
       </div>
     </div>
   </div>
@@ -829,6 +886,7 @@
     const NEW_URL = "https://miyasy0525.github.io/gps-test/images/new.jpg?v=6";
 
     const DRINK_WATER_URL = NEW_URL;
+    const SEAL_LINK = "";
 
     const pieceMap = {
       spot01: 1,
@@ -1103,6 +1161,19 @@
       logDebug("answers シートへ送信しました。");
     }
 
+    function updateSealButton() {
+      const sealBtn = document.getElementById("sealBtn");
+      const count = Object.keys(collectedPieces).length;
+
+      if (count >= 8) {
+        sealBtn.classList.remove("hidden");
+        sealBtn.href = SEAL_LINK;
+      } else {
+        sealBtn.classList.add("hidden");
+        sealBtn.href = "";
+      }
+    }
+
     function updateMapCollectionUI() {
       let count = 0;
 
@@ -1134,6 +1205,8 @@
           stageEl.classList.remove("completed");
         }
       }
+
+      updateSealButton();
     }
 
     function openMapSheet() {
@@ -1197,7 +1270,7 @@
         icon.src = iconSrc;
         icon.style.left = `${startX}px`;
         icon.style.top = `${startY}px`;
-        icon.style.transform = "translate(-50%, -50%) scale(0.9)";
+        icon.style.transform = "translate(-50%, -50%) scale(1.35)";
         fxLayer.appendChild(icon);
 
         requestAnimationFrame(() => {
@@ -1205,7 +1278,7 @@
           icon.style.transition = "left 0.7s ease, top 0.7s ease, transform 0.7s ease, opacity 0.25s ease";
           icon.style.left = `${centerX}px`;
           icon.style.top = `${centerY}px`;
-          icon.style.transform = "translate(-50%, -50%) scale(3)";
+          icon.style.transform = "translate(-50%, -50%) scale(4.5)";
         });
 
         const sparkleTimer = setInterval(() => {
@@ -1224,7 +1297,7 @@
             icon.style.transition = "left 1.1s cubic-bezier(0.2, 0.85, 0.2, 1), top 1.1s cubic-bezier(0.2, 0.85, 0.2, 1), transform 1.1s ease, opacity 1.1s ease";
             icon.style.left = `${endX}px`;
             icon.style.top = `${endY}px`;
-            icon.style.transform = "translate(-50%, -50%) scale(0.28)";
+            icon.style.transform = "translate(-50%, -50%) scale(0.42)";
             icon.style.opacity = "0.92";
 
             const step2Done = () => {
@@ -1435,8 +1508,8 @@
       }
 
       if (answers[spot.spot_id] && answers[spot.spot_id].isCorrect) {
-        logDebug(`${spot.spot_name} はすでに正解済みです。`);
-        alert("このスポットは正解済みです。");
+        logDebug(`${spot.spot_name} はすでに発見済みです。`);
+        alert("このスポットは発見済みです。");
         return;
       }
 
@@ -1549,7 +1622,7 @@
       const saved = answers[spot.spot_id];
       if (saved) {
         document.getElementById("formMessage").innerText =
-          `保存済みの回答：${saved.value}（${saved.label}）\n結果：${saved.isCorrect ? "正解" : "不正解"}`;
+          `保存済みの回答：${saved.value}（${saved.label}）\n結果：${saved.isCorrect ? "発見済み" : "リトライする"}`;
       } else {
         document.getElementById("formMessage").innerText = "";
       }
@@ -1578,7 +1651,7 @@
 
       const alreadyCorrect = answers[currentSpot.spot_id] && answers[currentSpot.spot_id].isCorrect;
       if (alreadyCorrect) {
-        document.getElementById("formMessage").innerText = "このスポットはすでに正解済みです。";
+        document.getElementById("formMessage").innerText = "このスポットは発見済みです。";
         return;
       }
 
@@ -1606,7 +1679,7 @@
       );
 
       document.getElementById("formMessage").innerText =
-        `${isCorrect ? "正解です！ 地図片を獲得しました。" : "保存しました。"}\nあなたの回答：${selectedChoice.value}（${selectedChoice.label}）`;
+        `${isCorrect ? "正解です！ 地図片を獲得しました。" : "リトライする"}\nあなたの回答：${selectedChoice.value}（${selectedChoice.label}）`;
 
       if (isFirstCorrect) {
         collectedPieces[currentSpot.spot_id] = true;
@@ -1661,9 +1734,9 @@
         meta.className = "spotRowMeta";
 
         if (answers[spot.spot_id] && answers[spot.spot_id].isCorrect) {
-          meta.textContent = "正解済み";
+          meta.textContent = "発見済み";
         } else if (answers[spot.spot_id]) {
-          meta.textContent = "再挑戦できます";
+          meta.textContent = "リトライする";
         } else {
           meta.textContent = "未回答";
         }
@@ -1674,12 +1747,12 @@
         if (answers[spot.spot_id] && answers[spot.spot_id].isCorrect) {
           const badge = document.createElement("div");
           badge.className = "doneBadge";
-          badge.textContent = "正解済み";
+          badge.textContent = "発見済み";
           row.appendChild(left);
           row.appendChild(badge);
         } else {
           const btn = document.createElement("button");
-          btn.textContent = "開く";
+          btn.textContent = "ヒミツに迫る";
           btn.onclick = () => {
             logDebug(`${spot.spot_name} を一覧から開きました。`);
             openSpot(spot);
