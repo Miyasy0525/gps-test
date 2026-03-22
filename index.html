@@ -227,6 +227,13 @@
       font-weight: bold;
       padding: 10px 14px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+    }
+
+    #mapBtn.pulse {
+      transform: scale(1.12);
+      background: #fff0bd;
+      box-shadow: 0 0 0 4px rgba(255, 215, 79, 0.25), 0 6px 16px rgba(0,0,0,0.25);
     }
 
     #sheetBackdrop {
@@ -532,6 +539,51 @@
       margin-top: 14px;
       flex-wrap: wrap;
     }
+
+    #fxLayer {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 9000;
+      overflow: hidden;
+    }
+
+    .flyingIcon {
+      position: fixed;
+      left: 0;
+      top: 0;
+      width: 72px;
+      height: 72px;
+      object-fit: contain;
+      pointer-events: none;
+      will-change: transform, left, top, opacity;
+      filter: drop-shadow(0 8px 18px rgba(0,0,0,0.18));
+      opacity: 0;
+    }
+
+    .sparkle {
+      position: fixed;
+      left: 0;
+      top: 0;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      pointer-events: none;
+      background: radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(255,240,180,0.95) 40%, rgba(255,215,100,0.55) 72%, rgba(255,215,100,0) 100%);
+      box-shadow: 0 0 10px rgba(255,230,150,0.7);
+      animation: sparkleFade 0.7s ease-out forwards;
+    }
+
+    @keyframes sparkleFade {
+      0% {
+        opacity: 0.95;
+        transform: translate(-50%, -50%) scale(0.6);
+      }
+      100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(1.8);
+      }
+    }
   </style>
 </head>
 <body>
@@ -683,6 +735,8 @@
 
   <button id="mapBtn" onclick="openMapSheet()">地図</button>
 
+  <div id="fxLayer"></div>
+
   <div id="mapSheetBackdrop" onclick="closeMapSheet()"></div>
 
   <div id="mapSheet">
@@ -752,7 +806,7 @@
       <div id="formMessage"></div>
 
       <div class="sheetButtons">
-        <button class="primaryBtn" onclick="saveAnswer()">回答を保存</button>
+        <button id="saveAnswerBtn" class="primaryBtn" onclick="saveAnswer()">回答を保存</button>
         <button onclick="closeSheet()">閉じる</button>
       </div>
     </div>
@@ -764,7 +818,6 @@
     const OLD_URL = "https://miyasy0525.github.io/gps-test/images/old.jpg?v=6";
     const NEW_URL = "https://miyasy0525.github.io/gps-test/images/new.jpg?v=6";
 
-    // Q1 の飲める湧水写真は、あとでGitHubに置いたURLへ差し替えてください
     const DRINK_WATER_URL = NEW_URL;
 
     const pieceMap = {
@@ -776,6 +829,17 @@
       spot06: 6,
       spot07: 7,
       spot08: 8
+    };
+
+    const iconMap = {
+      spot01: "map/mapicon1.png",
+      spot02: "map/mapicon2.png",
+      spot03: "map/mapicon3.png",
+      spot04: "map/mapicon4.png",
+      spot05: "map/mapicon5.png",
+      spot06: "map/mapicon6.png",
+      spot07: "map/mapicon7.png",
+      spot08: "map/mapicon8.png"
     };
 
     const spots = [
@@ -963,6 +1027,7 @@
     let lastLat = null;
     let lastLon = null;
     let map = null;
+    let effectRunning = false;
 
     function logDebug(text) {
       const el = document.getElementById("debugText");
@@ -1080,6 +1145,104 @@
     function closeMapSheet() {
       document.getElementById("mapSheetBackdrop").style.display = "none";
       document.getElementById("mapSheet").style.display = "none";
+    }
+
+    function pulseMapButton() {
+      const mapBtn = document.getElementById("mapBtn");
+      mapBtn.classList.add("pulse");
+      setTimeout(() => mapBtn.classList.remove("pulse"), 300);
+    }
+
+    function createSparkle(x, y) {
+      const fxLayer = document.getElementById("fxLayer");
+      const s = document.createElement("div");
+      s.className = "sparkle";
+      const dx = (Math.random() - 0.5) * 24;
+      const dy = (Math.random() - 0.5) * 24;
+      s.style.left = `${x + dx}px`;
+      s.style.top = `${y + dy}px`;
+      fxLayer.appendChild(s);
+      setTimeout(() => s.remove(), 750);
+    }
+
+    function animateIconToMap(spotId) {
+      return new Promise((resolve) => {
+        const iconSrc = iconMap[spotId];
+        if (!iconSrc) {
+          resolve();
+          return;
+        }
+
+        const fxLayer = document.getElementById("fxLayer");
+        const saveBtn = document.getElementById("saveAnswerBtn");
+        const mapBtn = document.getElementById("mapBtn");
+
+        if (!saveBtn || !mapBtn) {
+          resolve();
+          return;
+        }
+
+        const saveRect = saveBtn.getBoundingClientRect();
+        const mapRect = mapBtn.getBoundingClientRect();
+
+        const startX = saveRect.left + saveRect.width / 2;
+        const startY = saveRect.top + saveRect.height / 2;
+        const centerX = window.innerWidth / 2;
+        const centerY = window.innerHeight / 2;
+        const endX = mapRect.left + mapRect.width / 2;
+        const endY = mapRect.top + mapRect.height / 2;
+
+        const icon = document.createElement("img");
+        icon.className = "flyingIcon";
+        icon.src = iconSrc;
+        icon.style.left = `${startX}px`;
+        icon.style.top = `${startY}px`;
+        icon.style.transform = "translate(-50%, -50%) scale(0.35)";
+        fxLayer.appendChild(icon);
+
+        requestAnimationFrame(() => {
+          icon.style.opacity = "1";
+          icon.style.transition = "left 0.35s ease, top 0.35s ease, transform 0.35s ease, opacity 0.2s ease";
+          icon.style.left = `${centerX}px`;
+          icon.style.top = `${centerY}px`;
+          icon.style.transform = "translate(-50%, -50%) scale(1.18)";
+        });
+
+        const sparkleTimer = setInterval(() => {
+          const currentLeft = parseFloat(icon.style.left || "0");
+          const currentTop = parseFloat(icon.style.top || "0");
+          if (currentLeft && currentTop) {
+            createSparkle(currentLeft, currentTop);
+            if (Math.random() > 0.55) createSparkle(currentLeft, currentTop);
+          }
+        }, 90);
+
+        const step1Done = () => {
+          icon.removeEventListener("transitionend", step1Done);
+
+          setTimeout(() => {
+            icon.style.transition = "left 0.55s cubic-bezier(0.2, 0.85, 0.2, 1), top 0.55s cubic-bezier(0.2, 0.85, 0.2, 1), transform 0.55s ease, opacity 0.55s ease";
+            icon.style.left = `${endX}px`;
+            icon.style.top = `${endY}px`;
+            icon.style.transform = "translate(-50%, -50%) scale(0.22)";
+            icon.style.opacity = "0.92";
+
+            const step2Done = () => {
+              icon.removeEventListener("transitionend", step2Done);
+              clearInterval(sparkleTimer);
+              pulseMapButton();
+              setTimeout(() => {
+                icon.remove();
+                resolve();
+              }, 120);
+            };
+
+            icon.addEventListener("transitionend", step2Done, { once: true });
+          }, 220);
+        };
+
+        icon.addEventListener("transitionend", step1Done, { once: true });
+      });
     }
 
     function startExperience() {
@@ -1400,8 +1563,8 @@
       return checked.value;
     }
 
-    function saveAnswer() {
-      if (!currentSpot) return;
+    async function saveAnswer() {
+      if (!currentSpot || effectRunning) return;
 
       const selectedValue = getSelectedChoice();
 
@@ -1420,11 +1583,6 @@
       };
       localStorage.setItem("answers", JSON.stringify(answers));
 
-      if (isCorrect) {
-        collectedPieces[currentSpot.spot_id] = true;
-        localStorage.setItem("collectedPieces", JSON.stringify(collectedPieces));
-      }
-
       sendAnswerToSheet(
         currentSpot.spot_id,
         `${selectedChoice.value}: ${selectedChoice.label} / ${isCorrect ? "正解" : "不正解"}`
@@ -1436,12 +1594,23 @@
       updateProgress();
       updateMarker(currentSpot);
       renderUnlockedList();
-      updateMapCollectionUI();
+
+      if (isCorrect) {
+        collectedPieces[currentSpot.spot_id] = true;
+        localStorage.setItem("collectedPieces", JSON.stringify(collectedPieces));
+
+        effectRunning = true;
+        await animateIconToMap(currentSpot.spot_id);
+        updateMapCollectionUI();
+        effectRunning = false;
+      } else {
+        updateMapCollectionUI();
+      }
 
       setTimeout(() => {
         closeSheet();
         logDebug(`${currentSpot.spot_name} に回答を保存しました。`);
-      }, 700);
+      }, 200);
     }
 
     function updateProgress() {
