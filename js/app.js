@@ -215,6 +215,7 @@ let lastLon = null;
 let map = null;
 let effectRunning = false;
 let tutorialIndex = 0;
+const TUTORIAL_TOTAL = 4;
 
 function logDebug() {}
 
@@ -388,8 +389,8 @@ function animateIconToMap(spotId) {
     const saveRect = saveBtn.getBoundingClientRect();
     const mapRect = mapBtn.getBoundingClientRect();
 
-    const startX = saveRect.left + saveRect.width / 2;
-    const startY = saveRect.top + saveRect.height / 2;
+    const startX = saveBtn ? saveRect.left + saveRect.width / 2 : window.innerWidth / 2;
+    const startY = saveBtn ? saveRect.top + saveRect.height / 2 : window.innerHeight / 2;
     const centerX = window.innerWidth / 2;
     const centerY = window.innerHeight / 2;
     const endX = mapRect.left + mapRect.width / 2;
@@ -460,19 +461,25 @@ function maybeOpenTutorial() {
 
 function updateTutorialSlide() {
   const track = document.getElementById("tutorialTrack");
-  track.style.transform = `translateX(-${tutorialIndex * 25}%)`;
+  if (track) {
+    track.style.transform = `translateX(-${tutorialIndex * 100}%)`;
+  }
 
   document.querySelectorAll(".tutorialDot").forEach((dot, idx) => {
     dot.classList.toggle("active", idx === tutorialIndex);
   });
 
-  document.getElementById("tutorialPrevBtn").disabled = tutorialIndex === 0;
-  document.getElementById("tutorialNextBtn").classList.toggle("hidden", tutorialIndex === 3);
-  document.getElementById("tutorialStartBtn").classList.toggle("hidden", tutorialIndex !== 3);
+  const prevBtn = document.getElementById("tutorialPrevBtn");
+  const nextBtn = document.getElementById("tutorialNextBtn");
+  const startBtn = document.getElementById("tutorialStartBtn");
+
+  if (prevBtn) prevBtn.disabled = tutorialIndex === 0;
+  if (nextBtn) nextBtn.classList.toggle("hidden", tutorialIndex === TUTORIAL_TOTAL - 1);
+  if (startBtn) startBtn.classList.toggle("hidden", tutorialIndex !== TUTORIAL_TOTAL - 1);
 }
 
 function nextTutorialSlide() {
-  if (tutorialIndex < 3) {
+  if (tutorialIndex < TUTORIAL_TOTAL - 1) {
     tutorialIndex += 1;
     updateTutorialSlide();
   }
