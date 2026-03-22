@@ -6,7 +6,7 @@
   <title>忍野八海 体験プロトタイプ</title>
 
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="CSS/style.css" />
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="js/app.js" defer></script>
@@ -137,18 +137,11 @@
         <button onclick="centerOnUser()">現在地に戻る</button>
       </div>
 
-      <div id="progress">回答数: 0 / 8</div>
-      <div id="statusText">地図上の丸はすべてスポットです。
-灰色 = 未解放、青 = 解放済み、緑 = 発見済み
-ページを開くと現在地の自動追従を開始します。</div>
-
-      <div id="debugText">デバッグ: まだ操作ログはありません。</div>
-
-      <div class="legend">
-        <div><span style="background: gray;"></span>未解放</div>
-        <div><span style="background: blue;"></span>解放済み</div>
-        <div><span style="background: green;"></span>発見済み</div>
-        <div><span style="background: #1976d2;"></span>現在地</div>
+      <div id="legendRow" class="legendRow">
+        <div class="legendItem"><span class="legendDot gray"></span>未解放</div>
+        <div class="legendItem"><span class="legendDot blue"></span>解放済み</div>
+        <div class="legendItem"><span class="legendDot green"></span>発見済み</div>
+        <div class="legendItem"><span class="legendDot current"></span>現在地</div>
       </div>
 
       <div class="sectionTitle">開放済みスポット</div>
@@ -158,7 +151,10 @@
     </div>
   </div>
 
-  <button id="mapBtn" class="hidden" onclick="openMapSheet()">地図</button>
+  <button id="mapBtn" class="hidden" onclick="openMapSheet()">
+    <span class="mapBtnMain">地図</span>
+    <span id="mapBtnCount" class="mapBtnCount">回答数：0/8</span>
+  </button>
 
   <div id="fxLayer"></div>
 
