@@ -214,6 +214,7 @@ let lastLat = null;
 let lastLon = null;
 let map = null;
 let effectRunning = false;
+let tutorialIndex = 0;
 
 function logDebug() {}
 
@@ -447,6 +448,59 @@ function animateIconToMap(spotId) {
   });
 }
 
+/* チュートリアル */
+function maybeOpenTutorial() {
+  const seen = localStorage.getItem("tutorialSeen");
+  if (seen === "1") return;
+  tutorialIndex = 0;
+  updateTutorialSlide();
+  document.getElementById("tutorialBackdrop").style.display = "block";
+  document.getElementById("tutorialModal").style.display = "block";
+}
+
+function updateTutorialSlide() {
+  const track = document.getElementById("tutorialTrack");
+  track.style.transform = `translateX(-${tutorialIndex * 25}%)`;
+
+  document.querySelectorAll(".tutorialDot").forEach((dot, idx) => {
+    dot.classList.toggle("active", idx === tutorialIndex);
+  });
+
+  document.getElementById("tutorialPrevBtn").disabled = tutorialIndex === 0;
+  document.getElementById("tutorialNextBtn").classList.toggle("hidden", tutorialIndex === 3);
+  document.getElementById("tutorialStartBtn").classList.toggle("hidden", tutorialIndex !== 3);
+}
+
+function nextTutorialSlide() {
+  if (tutorialIndex < 3) {
+    tutorialIndex += 1;
+    updateTutorialSlide();
+  }
+}
+
+function prevTutorialSlide() {
+  if (tutorialIndex > 0) {
+    tutorialIndex -= 1;
+    updateTutorialSlide();
+  }
+}
+
+function finishTutorial() {
+  localStorage.setItem("tutorialSeen", "1");
+  document.getElementById("tutorialBackdrop").style.display = "none";
+  document.getElementById("tutorialModal").style.display = "none";
+}
+
+function skipTutorial() {
+  finishTutorial();
+}
+
+function closeTutorialIfBackdrop(e) {
+  if (e.target.id === "tutorialBackdrop") {
+    finishTutorial();
+  }
+}
+
 function startExperience() {
   const gender = document.getElementById("genderSelect").value;
   const age = document.getElementById("ageSelect").value;
@@ -480,6 +534,7 @@ function startExperience() {
   setTimeout(() => {
     map.invalidateSize();
     startAutoTracking();
+    maybeOpenTutorial();
   }, 100);
 }
 
