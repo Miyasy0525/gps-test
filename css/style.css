@@ -7,7 +7,6 @@ body {
   color: #222;
 }
 
-/* フォントを強めに統一 */
 select,
 option,
 input,
@@ -359,6 +358,117 @@ button {
     transform: scale(1.08);
     filter: brightness(1.12);
   }
+}
+
+/* チュートリアル */
+#tutorialBackdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  z-index: 5500;
+}
+
+#tutorialModal {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: min(92vw, 720px);
+  max-height: 88vh;
+  transform: translate(-50%, -50%);
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 12px 42px rgba(0,0,0,0.28);
+  z-index: 5600;
+  overflow: hidden;
+}
+
+#tutorialInner {
+  padding: 18px;
+  overflow: hidden;
+}
+
+.tutorialHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.tutorialTitle {
+  font-size: 22px;
+  font-weight: bold;
+}
+
+.tutorialSkipBtn {
+  font-size: 14px;
+  padding: 8px 12px;
+}
+
+.tutorialViewport {
+  overflow: hidden;
+  width: 100%;
+}
+
+.tutorialTrack {
+  display: flex;
+  width: 400%;
+  transition: transform 0.35s ease;
+}
+
+.tutorialSlide {
+  width: 100%;
+  flex: 0 0 100%;
+  padding: 4px;
+}
+
+.tutorialSlide img {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 14px;
+  border: 1px solid #ddd;
+  display: block;
+  background: #f7f7f7;
+}
+
+.tutorialSlide h3 {
+  margin: 14px 0 8px;
+  font-size: 20px;
+}
+
+.tutorialSlide p {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.8;
+  color: #444;
+}
+
+.tutorialDots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin: 14px 0;
+}
+
+.tutorialDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #d3d3d3;
+  display: inline-block;
+}
+
+.tutorialDot.active {
+  background: #1976d2;
+}
+
+.tutorialButtons {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
 }
 
 #sheetBackdrop {
