@@ -414,18 +414,19 @@ button {
 
 .tutorialTrack {
   display: flex;
-  width: 400%;
   transition: transform 0.35s ease;
+  will-change: transform;
 }
 
 .tutorialSlide {
-  width: 100%;
   flex: 0 0 100%;
+  width: 100%;
   padding: 4px;
 }
 
 .tutorialSlide img {
   width: 100%;
+  max-height: 38vh;
   aspect-ratio: 16 / 9;
   object-fit: cover;
   border-radius: 14px;
