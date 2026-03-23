@@ -39,7 +39,9 @@
 
       <div class="formGrid">
         <div>
-          <label class="formLabel" for="genderSelect">性別</label>
+          <label class="formLabel" for="genderSelect">
+            <ruby>性別<rt>せいべつ</rt></ruby>
+          </label>
           <select id="genderSelect" onchange="updateStartButtonState()">
             <option value="">選択してください</option>
             <option value="女性">女性</option>
@@ -49,7 +51,9 @@
         </div>
 
         <div>
-          <label class="formLabel" for="ageSelect">年代</label>
+          <label class="formLabel" for="ageSelect">
+            <ruby>年代<rt>ねんだい</rt></ruby>
+          </label>
           <select id="ageSelect" onchange="updateStartButtonState()">
             <option value="">選択してください</option>
             <option value="10代">10代</option>
@@ -63,7 +67,9 @@
         </div>
 
         <div>
-          <label class="formLabel" for="regionSelect">地域</label>
+          <label class="formLabel" for="regionSelect">
+            <ruby>地域<rt>ちいき</rt></ruby>
+          </label>
           <select id="regionSelect" onchange="updateStartButtonState()">
             <option value="">選択してください</option>
             <option value="北海道">北海道</option>
@@ -117,7 +123,9 @@
         </div>
 
         <div>
-          <label class="formLabel" for="companionSelect">同行者タイプ</label>
+          <label class="formLabel" for="companionSelect">
+            <ruby>同行者<rt>どうこうしゃ</rt></ruby>タイプ
+          </label>
           <select id="companionSelect" onchange="updateStartButtonState()">
             <option value="">選択してください</option>
             <option value="一人">一人</option>
@@ -252,7 +260,9 @@
 
       <div class="mapSheetButtons">
         <button onclick="closeMapSheet()">閉じる</button>
-        <a id="sealBtn" class="sealBtn hidden" href="" target="_blank" rel="noopener noreferrer"><strong><ruby>封印<rt>ふういん</rt></ruby>を解く</strong></a>
+        <a id="sealBtn" class="sealBtn hidden" href="" target="_blank" rel="noopener noreferrer">
+          <strong><ruby>封印<rt>ふういん</rt></ruby>を解く</strong>
+        </a>
       </div>
     </div>
   </div>
@@ -266,25 +276,31 @@
       <div id="spotDescription"></div>
 
       <div id="singleImageArea" class="hidden">
-        <div class="imgLabel">参考画像</div>
+        <div class="imgLabel">
+          <ruby>参考画像<rt>さんこうがぞう</rt></ruby>
+        </div>
         <div class="singleImageWrap">
           <img id="singleImg" alt="参考画像" src="" />
         </div>
       </div>
 
       <div id="compareArea" class="hidden">
-        <div class="imgLabel">昔と今の比較</div>
+        <div class="imgLabel">
+          <ruby>昔<rt>むかし</rt></ruby>と<ruby>今<rt>いま</rt></ruby>の<ruby>比較<rt>ひかく</rt></ruby>
+        </div>
 
         <div id="compareWrap" class="compareWrap">
-          <div class="compareLabel old">昔</div>
-          <div class="compareLabel new">今</div>
+          <div class="compareLabel old"><ruby>昔<rt>むかし</rt></ruby></div>
+          <div class="compareLabel new"><ruby>今<rt>いま</rt></ruby></div>
           <img id="oldImg" class="compareBase" alt="昔の画像" src="" />
           <img id="newImg" class="compareTop" alt="今の画像" src="" />
           <div class="compareDivider"></div>
         </div>
 
         <input id="compareRange" type="range" min="0" max="100" value="50" oninput="updateCompareSlider(this.value)" />
-        <div class="compareHint">スライダーを動かすと、昔と今の画像を見くらべられるよ。</div>
+        <div class="compareHint">
+          スライダーを動かすと、昔と今の画像を見くらべられるよ。
+        </div>
       </div>
 
       <div id="imageError"></div>
