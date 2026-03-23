@@ -19,17 +19,22 @@
 
   <div id="startScreen">
     <div class="startCard">
-      <div class="startTitle">忍野八海<br>八大竜王と8つのヒミツ</div>
-      <div class="startLead">
-        忍野八海を歩いて、8つの池にかくされたヒミツを見つけよう！
+      <div class="startTitle">
+        <ruby>忍野八海<rt>おしのはっかい</rt></ruby><br>
+        <ruby>八大竜王<rt>はちだいりゅうおう</rt></ruby>と8つのヒミツ
       </div>
+
+      <div class="startLead">
+        <ruby>忍野八海<rt>おしのはっかい</rt></ruby>を歩いて、8つの池にかくされたヒミツを見つけよう！
+      </div>
+
       <div class="startLead">
         スポットに近づいてナゾに答えると、ふしぎな地図のかけらが集まるよ。
       </div>
 
       <div class="warnBox">
-        この冒険では、いまいる場所が大事だよ。<br>
-        スタートする前に、位置情報をONにしてね。
+        この<ruby>冒険<rt>ぼうけん</rt></ruby>では、いまいる場所が大事だよ。<br>
+        スタートする前に、<ruby>位置情報<rt>いちじょうほう</rt></ruby>をONにしてね。
       </div>
 
       <div class="formGrid">
@@ -124,11 +129,13 @@
       </div>
 
       <div class="startBtnWrap">
-        <button id="startBtn" class="primaryBtn" onclick="startExperience()" disabled>冒険をはじめる</button>
+        <button id="startBtn" class="primaryBtn" onclick="startExperience()" disabled>
+          <ruby>冒険<rt>ぼうけん</rt></ruby>をはじめる
+        </button>
       </div>
 
       <div class="subText" style="margin-top:12px;">
-        4つえらぶと、冒険スタート！
+        4つえらぶと、<ruby>冒険<rt>ぼうけん</rt></ruby>スタート！
       </div>
     </div>
   </div>
@@ -167,7 +174,9 @@
   <div id="tutorialModal">
     <div id="tutorialInner">
       <div class="tutorialHeader">
-        <div class="tutorialTitle">冒険のしかた</div>
+        <div class="tutorialTitle">
+          <ruby>冒険<rt>ぼうけん</rt></ruby>のしかた
+        </div>
         <button class="tutorialSkipBtn" onclick="skipTutorial()">あとで見る</button>
       </div>
 
@@ -175,14 +184,14 @@
         <div id="tutorialTrack" class="tutorialTrack">
           <div class="tutorialSlide">
             <img src="images/new.jpg" alt="チュートリアル画像1">
-            <h3>忍野八海を歩いて、8つのヒミツを集めよう</h3>
+            <h3><ruby>忍野八海<rt>おしのはっかい</rt></ruby>を歩いて、8つのヒミツを集めよう</h3>
             <p>池をめぐってナゾに答えると、ふしぎな地図のかけらが集まるよ。</p>
           </div>
 
           <div class="tutorialSlide">
             <img src="images/new.jpg" alt="チュートリアル画像2">
             <h3>いまいる場所を見てみよう</h3>
-            <p>きみの場所は地図に出るよ。出ないときは位置情報をONにしよう。</p>
+            <p>きみの場所は地図に出るよ。出ないときは、<ruby>位置情報<rt>いちじょうほう</rt></ruby>をONにしよう。</p>
           </div>
 
           <div class="tutorialSlide">
@@ -243,7 +252,7 @@
 
       <div class="mapSheetButtons">
         <button onclick="closeMapSheet()">閉じる</button>
-        <a id="sealBtn" class="sealBtn hidden" href="" target="_blank" rel="noopener noreferrer"><strong>封印を解く</strong></a>
+        <a id="sealBtn" class="sealBtn hidden" href="" target="_blank" rel="noopener noreferrer"><strong><ruby>封印<rt>ふういん</rt></ruby>を解く</strong></a>
       </div>
     </div>
   </div>
