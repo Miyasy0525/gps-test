@@ -5,6 +5,10 @@ body {
   font-family: "Yomogi", cursive;
   background: #f7f7f7;
   color: #222;
+  font-weight: 700;
+  text-shadow:
+    0.35px 0 0 currentColor,
+    -0.35px 0 0 currentColor;
 }
 
 select,
@@ -13,6 +17,7 @@ input,
 textarea,
 button {
   font-family: "Yomogi", cursive !important;
+  font-weight: 700;
 }
 
 .startTitle,
@@ -36,8 +41,49 @@ button {
 #spotTip,
 .compareHint,
 .imgLabel,
-.sealBtn {
+.sealBtn,
+.tutorialTitle,
+.tutorialSlide h3,
+.tutorialSlide p,
+.choiceLabel,
+.compareLabel,
+button {
   font-family: "Yomogi", cursive;
+  font-weight: 700;
+  text-shadow:
+    0.4px 0 0 currentColor,
+    -0.4px 0 0 currentColor;
+}
+
+.startTitle,
+.mapSheetTitle,
+#spotTitle,
+.sectionTitle,
+.mapBtnMain,
+.formLabel,
+.tutorialTitle,
+.tutorialSlide h3,
+.sealBtn,
+.primaryBtn {
+  font-weight: 800;
+  text-shadow:
+    0.55px 0 0 currentColor,
+    -0.55px 0 0 currentColor,
+    0 0.4px 0 currentColor,
+    0 -0.4px 0 currentColor;
+}
+
+ruby {
+  ruby-align: center;
+  ruby-position: over;
+}
+
+rt {
+  font-size: 0.46em;
+  line-height: 1;
+  letter-spacing: 0;
+  font-weight: 700;
+  text-shadow: none;
 }
 
 .hidden { display: none !important; }
@@ -60,14 +106,14 @@ button {
 
 .startTitle {
   font-size: 28px;
-  font-weight: bold;
   margin-bottom: 12px;
-  line-height: 1.4;
+  line-height: 1.55;
+  text-align: center;
 }
 
 .startLead {
   font-size: 15px;
-  line-height: 1.8;
+  line-height: 1.9;
   color: #444;
   margin-bottom: 12px;
 }
@@ -79,7 +125,7 @@ button {
   border-radius: 12px;
   padding: 12px;
   font-size: 14px;
-  line-height: 1.7;
+  line-height: 1.8;
   margin: 16px 0 18px;
 }
 
@@ -91,7 +137,6 @@ button {
 
 .formLabel {
   font-size: 14px;
-  font-weight: bold;
   margin-bottom: 6px;
   display: block;
 }
@@ -103,6 +148,7 @@ select {
   border-radius: 10px;
   font-size: 16px;
   background: white;
+  color: #222;
 }
 
 .startBtnWrap {
@@ -131,7 +177,7 @@ select {
 .subText {
   font-size: 13px;
   color: #666;
-  line-height: 1.7;
+  line-height: 1.8;
 }
 
 #appScreen {
@@ -176,7 +222,6 @@ button {
   margin-top: 18px;
   margin-bottom: 8px;
   font-size: 16px;
-  font-weight: bold;
 }
 
 #unlockedList {
@@ -197,7 +242,7 @@ button {
 }
 
 .spotRowTitle {
-  font-weight: bold;
+  font-weight: 800;
 }
 
 .spotRowMeta {
@@ -210,7 +255,6 @@ button {
   padding: 8px 12px;
   border-radius: 999px;
   font-size: 13px;
-  font-weight: bold;
   color: #2e7d32;
   background: #e8f5e9;
   border: 1px solid #a5d6a7;
@@ -265,7 +309,6 @@ button {
   border-radius: 999px;
   border: none;
   background: #ffe7a3;
-  font-weight: bold;
   padding: 10px 14px 8px;
   box-shadow: 0 4px 10px rgba(0,0,0,0.2);
   transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
@@ -284,7 +327,7 @@ button {
   font-size: 10px;
   line-height: 1.1;
   color: #6b5200;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 #mapBtn.pulse {
@@ -399,7 +442,6 @@ button {
 
 .tutorialTitle {
   font-size: 22px;
-  font-weight: bold;
 }
 
 .tutorialSkipBtn {
@@ -438,12 +480,13 @@ button {
 .tutorialSlide h3 {
   margin: 14px 0 8px;
   font-size: 20px;
+  line-height: 1.7;
 }
 
 .tutorialSlide p {
   margin: 0;
   font-size: 15px;
-  line-height: 1.8;
+  line-height: 1.9;
   color: #444;
 }
 
@@ -511,7 +554,7 @@ button {
 #spotQuestion,
 #spotHint,
 #spotTip {
-  line-height: 1.7;
+  line-height: 1.8;
   margin: 10px 0;
   white-space: pre-line;
 }
@@ -521,7 +564,7 @@ button {
   padding: 12px;
   margin: 10px 0 14px;
   font-size: 14px;
-  line-height: 1.7;
+  line-height: 1.8;
 }
 
 .hintBox {
@@ -537,7 +580,6 @@ button {
 }
 
 .imgLabel {
-  font-weight: bold;
   margin: 14px 0 8px;
 }
 
@@ -601,7 +643,6 @@ button {
   top: 10px;
   padding: 4px 8px;
   font-size: 12px;
-  font-weight: bold;
   color: white;
   background: rgba(0,0,0,0.65);
   border-radius: 999px;
@@ -627,7 +668,7 @@ button {
   margin-bottom: 12px;
   color: #b00020;
   font-size: 14px;
-  line-height: 1.5;
+  line-height: 1.6;
 }
 
 #choicesBox {
@@ -646,7 +687,7 @@ button {
   background: #fafafa;
   padding: 12px;
   cursor: pointer;
-  line-height: 1.6;
+  line-height: 1.7;
 }
 
 .choiceLabel input {
@@ -656,7 +697,7 @@ button {
 }
 
 .choiceCode {
-  font-weight: bold;
+  font-weight: 800;
   min-width: 22px;
 }
 
@@ -665,7 +706,7 @@ button {
   font-size: 14px;
   color: #b00020;
   min-height: 20px;
-  line-height: 1.6;
+  line-height: 1.7;
   white-space: pre-line;
 }
 
@@ -720,17 +761,18 @@ button {
   align-items: baseline;
   gap: 8px;
   flex-wrap: wrap;
+  line-height: 1.7;
 }
 
 .mapTitleCount {
   font-size: 16px;
   color: #6b5200;
-  font-weight: 700;
+  font-weight: 800;
 }
 
 .mapSheetLead {
   font-size: 14px;
-  line-height: 1.7;
+  line-height: 1.8;
   color: #555;
   margin-bottom: 12px;
 }
@@ -821,68 +863,103 @@ button {
 }
 
 .sealBtn {
-  background: #f28c28;
-  color: #fff;
-  border: none;
-  font-weight: 700;
-  text-decoration: none;
-  padding: 10px 14px;
-  border-radius: 8px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 10px rgba(242, 140, 40, 0.28);
-}
-
-.sealBtn:hover {
-  background: #eb7f15;
-}
-
-.sealBtn.hidden {
-  display: none !important;
+  padding: 11px 16px;
+  border-radius: 10px;
+  text-decoration: none;
+  color: #3d2b00;
+  background: linear-gradient(180deg, #ffe9a6 0%, #f5cc56 100%);
+  border: 1px solid #d5a92a;
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.6) inset,
+    0 6px 14px rgba(164, 120, 0, 0.18);
 }
 
 #fxLayer {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  z-index: 9000;
+  z-index: 8000;
   overflow: hidden;
 }
 
 .flyingIcon {
   position: fixed;
-  left: 0;
-  top: 0;
   width: 72px;
   height: 72px;
   object-fit: contain;
-  pointer-events: none;
-  will-change: transform, left, top, opacity;
-  filter: drop-shadow(0 8px 18px rgba(0,0,0,0.18));
+  transform: translate(-50%, -50%) scale(1);
+  z-index: 8100;
+  filter: drop-shadow(0 8px 16px rgba(0,0,0,0.25));
   opacity: 0;
 }
 
 .sparkle {
   position: fixed;
-  left: 0;
-  top: 0;
-  width: 8px;
-  height: 8px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
-  pointer-events: none;
-  background: radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(255,240,180,0.95) 40%, rgba(255,215,100,0.55) 72%, rgba(255,215,100,0) 100%);
-  box-shadow: 0 0 10px rgba(255,230,150,0.7);
-  animation: sparkleFade 0.7s ease-out forwards;
+  background:
+    radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(255,241,150,1) 35%, rgba(255,208,75,0.92) 65%, rgba(255,208,75,0) 100%);
+  transform: translate(-50%, -50%) scale(0.6);
+  opacity: 0.95;
+  animation: sparkleFade 0.75s ease-out forwards;
+  z-index: 8200;
 }
 
 @keyframes sparkleFade {
   0% {
-    opacity: 0.95;
-    transform: translate(-50%, -50%) scale(0.6);
+    transform: translate(-50%, -50%) scale(0.45);
+    opacity: 0;
+  }
+  20% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
   }
   100% {
+    transform: translate(-50%, -50%) scale(1.6);
     opacity: 0;
-    transform: translate(-50%, -50%) scale(1.8);
+  }
+}
+
+@media (max-width: 640px) {
+  .startTitle {
+    font-size: 24px;
+    line-height: 1.6;
+  }
+
+  .startLead,
+  .warnBox,
+  .subText,
+  #spotDescription,
+  #spotQuestion,
+  #spotHint,
+  #spotTip,
+  .tutorialSlide p {
+    line-height: 1.95;
+  }
+
+  .tutorialTitle,
+  #spotTitle,
+  .mapSheetTitle {
+    font-size: 20px;
+  }
+
+  .tutorialSlide h3 {
+    font-size: 18px;
+  }
+
+  .mapBtnMain {
+    font-size: 15px;
+  }
+
+  .mapBtnCount {
+    font-size: 10px;
+  }
+
+  rt {
+    font-size: 0.5em;
   }
 }
