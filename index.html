@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>忍野八海 体験プロトタイプ</title>
+  <title>忍野八海 八大竜王と8つのヒミツ</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,17 +19,17 @@
 
   <div id="startScreen">
     <div class="startCard">
-      <div class="startTitle">忍野八海の歴史と文化のストーリーを知る旅へ</div>
+      <div class="startTitle">忍野八海<br>八大竜王と8つのヒミツ</div>
       <div class="startLead">
-        この体験では、忍野八海をめぐりながら、地域の歴史や文化にまつわる問いに答えることができます。
+        忍野八海を歩いて、8つの池にかくされたヒミツを見つけよう！
       </div>
       <div class="startLead">
-        地図上のスポットに近づくと情報が開放されます。いくつかのスポットに回答すると、地図片を集めることができます。
+        スポットに近づいてナゾに答えると、ふしぎな地図のかけらが集まるよ。
       </div>
 
       <div class="warnBox">
-        このアプリでは位置情報が必須です。<br>
-        位置情報をオンにしたうえでご利用ください。
+        この冒険では、いまいる場所が大事だよ。<br>
+        スタートする前に、位置情報をONにしてね。
       </div>
 
       <div class="formGrid">
@@ -124,11 +124,11 @@
       </div>
 
       <div class="startBtnWrap">
-        <button id="startBtn" class="primaryBtn" onclick="startExperience()" disabled>次に進む</button>
+        <button id="startBtn" class="primaryBtn" onclick="startExperience()" disabled>冒険をはじめる</button>
       </div>
 
       <div class="subText" style="margin-top:12px;">
-        4項目すべてを選択すると、次に進めます。
+        4つえらぶと、冒険スタート！
       </div>
     </div>
   </div>
@@ -138,26 +138,26 @@
 
     <div id="info">
       <div class="top-row">
-        <button onclick="centerOnUser()">現在地に戻る</button>
+        <button onclick="centerOnUser()">いまいる場所へ</button>
       </div>
 
       <div id="legendRow" class="legendRow">
-        <div class="legendItem"><span class="legendDot gray"></span>未解放</div>
-        <div class="legendItem"><span class="legendDot blue"></span>解放済み</div>
-        <div class="legendItem"><span class="legendDot green"></span>発見済み</div>
-        <div class="legendItem"><span class="legendDot current"></span>現在地</div>
+        <div class="legendItem"><span class="legendDot gray"></span>まだヒミツ</div>
+        <div class="legendItem"><span class="legendDot blue"></span>見つけた！</div>
+        <div class="legendItem"><span class="legendDot green"></span>クリア！</div>
+        <div class="legendItem"><span class="legendDot current"></span>いまここ</div>
       </div>
 
-      <div class="sectionTitle">開放済みスポット</div>
+      <div class="sectionTitle">見つけたヒミツ</div>
       <div id="unlockedList">
-        <div style="color:#666; font-size:14px;">まだ開放されたスポットはありません。</div>
+        <div style="color:#666; font-size:14px;">まだ見つかったヒミツはないよ。池の近くまで行ってみよう！</div>
       </div>
     </div>
   </div>
 
   <button id="mapBtn" class="hidden" onclick="openMapSheet()">
-    <span class="mapBtnMain">地図</span>
-    <span id="mapBtnCount" class="mapBtnCount">回答数：0/8</span>
+    <span class="mapBtnMain">ヒミツの地図</span>
+    <span id="mapBtnCount" class="mapBtnCount">地図のかけら 0/8</span>
   </button>
 
   <div id="fxLayer"></div>
@@ -167,34 +167,34 @@
   <div id="tutorialModal">
     <div id="tutorialInner">
       <div class="tutorialHeader">
-        <div class="tutorialTitle">このアプリの使い方</div>
-        <button class="tutorialSkipBtn" onclick="skipTutorial()">スキップ</button>
+        <div class="tutorialTitle">冒険のしかた</div>
+        <button class="tutorialSkipBtn" onclick="skipTutorial()">あとで見る</button>
       </div>
 
       <div class="tutorialViewport">
         <div id="tutorialTrack" class="tutorialTrack">
           <div class="tutorialSlide">
             <img src="images/new.jpg" alt="チュートリアル画像1">
-            <h3>忍野八海を歩いて、ヒミツを集めよう</h3>
-            <p>このアプリでは、現地をめぐりながら問いに答えて、地図片を集めることができます。</p>
+            <h3>忍野八海を歩いて、8つのヒミツを集めよう</h3>
+            <p>池をめぐってナゾに答えると、ふしぎな地図のかけらが集まるよ。</p>
           </div>
 
           <div class="tutorialSlide">
             <img src="images/new.jpg" alt="チュートリアル画像2">
-            <h3>現在地を確認しよう</h3>
-            <p>あなたの現在地はGPSで地図上に表示されます。現在地が表示されないときは、位置情報の共有をONにしてください。</p>
+            <h3>いまいる場所を見てみよう</h3>
+            <p>きみの場所は地図に出るよ。出ないときは位置情報をONにしよう。</p>
           </div>
 
           <div class="tutorialSlide">
             <img src="images/new.jpg" alt="チュートリアル画像3">
-            <h3>スポットに近づくと問いが解放</h3>
-            <p>地図上のスポットの近くに行くと、その場所の問いが解放されます。灰色は未解放、青は解放済み、緑は発見済みです。</p>
+            <h3>池の近くでヒミツがひらく</h3>
+            <p>スポットに近づくと、その場所のナゾにちょうせんできるよ。灰はまだヒミツ、青は見つけた、緑はクリア！</p>
           </div>
 
           <div class="tutorialSlide">
             <img src="images/new.jpg" alt="チュートリアル画像4">
-            <h3>正解すると地図片をゲット</h3>
-            <p>問いに正解すると、地図片が1枚ずつ集まります。間違えても何度でもリトライできます。すべて集めると、特典が解放されます。</p>
+            <h3>正解して地図のかけらを手に入れよう</h3>
+            <p>正解すると、ふしぎな地図が少しずつ完成！ まちがえても何度でもちょうせんできるよ。全部集めると、最後のヒミツがひらく！</p>
           </div>
         </div>
       </div>
@@ -226,7 +226,7 @@
       </div>
 
       <div class="mapSheetLead">
-        正解したスポットの地図片が、少しずつ巻物に集まっていきます。
+        ヒミツを見つけるたびに、古い地図が少しずつ目をさます。
       </div>
 
       <div id="mapStage" class="mapStage">
@@ -275,7 +275,7 @@
         </div>
 
         <input id="compareRange" type="range" min="0" max="100" value="50" oninput="updateCompareSlider(this.value)" />
-        <div class="compareHint">スライダーを動かすと、昔と今の画像を見比べられます。</div>
+        <div class="compareHint">スライダーを動かすと、昔と今の画像を見くらべられるよ。</div>
       </div>
 
       <div id="imageError"></div>
@@ -289,7 +289,7 @@
       <div id="formMessage"></div>
 
       <div class="sheetButtons">
-        <button id="saveAnswerBtn" class="primaryBtn" onclick="saveAnswer()">回答を保存</button>
+        <button id="saveAnswerBtn" class="primaryBtn" onclick="saveAnswer()">こたえを決める</button>
         <button onclick="closeSheet()">閉じる</button>
       </div>
     </div>
