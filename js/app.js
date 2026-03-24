@@ -1,3 +1,4 @@
+
 const API_URL = "https://script.google.com/macros/s/AKfycbx3AGuRyNJe0mDxP5jb-JkkjE1npzYkRYSD2eHZlqceMaR2pvQiESmnxfUGV9kVyBBH/exec";
 
 const OLD_URL = "https://miyasy0525.github.io/gps-test/images/old.jpg?v=6";
@@ -17,14 +18,20 @@ const MAPTILER_TILE_URL = `https://api.maptiler.com/maps/${MAPTILER_STYLE_ID}/{z
    GPS安定判定設定
 ========================= */
 const GPS_SETTINGS = {
-  requiredAccuracy: 35,     // この値(m)以下なら実用精度
-  stableDistance: 25,       // 連続取得時のブレ許容距離(m)
-  requiredStableCount: 2,   // 何回連続で安定したら位置確定とみなすか
+  requiredAccuracy: 35,
+  stableDistance: 25,
+  requiredStableCount: 2,
   watchTimeout: 15000,
   maximumAge: 0,
   defaultZoom: 17,
   stableZoom: 17
 };
+
+/* =========================
+   管理用PIN
+========================= */
+const ADMIN_PIN = "2525";
+const HOTSPOT_HOLD_MS = 5000;
 
 const pieceMap = {
   spot01: 1,
@@ -244,7 +251,102 @@ let gpsLocked = false;
 let hasCenteredOnStableLocation = false;
 let latestAccuracy = null;
 
+/* 管理ホットスポット */
+let hotspotTimer = null;
+let hotspotTriggered = false;
+
 function logDebug() {}
+
+/* =========================
+   初期化
+========================= */
+document.addEventListener("DOMContentLoaded", () => {
+  updateStartButtonState();
+  updateMapCollectionUI();
+  renderUnlockedList();
+  setupAdminHotspot();
+});
+
+/* =========================
+   画面遷移
+========================= */
+function goToProfileScreen() {
+  document.getElementById("titleScreen").classList.add("hidden");
+  document.getElementById("startScreen").classList.remove("hidden");
+}
+
+function showTitleScreen() {
+  document.getElementById("titleScreen").classList.remove("hidden");
+  document.getElementById("startScreen").classList.add("hidden");
+  document.getElementById("appScreen").classList.add("hidden");
+  document.getElementById("mapBtn").classList.add("hidden");
+}
+
+/* =========================
+   管理用ホットスポット
+========================= */
+function setupAdminHotspot() {
+  const hotspot = document.getElementById("adminHotspot");
+  if (!hotspot) return;
+
+  const startHold = (e) => {
+    e.preventDefault();
+    hotspotTriggered = false;
+    clearTimeout(hotspotTimer);
+    hotspotTimer = setTimeout(() => {
+      hotspotTriggered = true;
+      openPinModal();
+    }, HOTSPOT_HOLD_MS);
+  };
+
+  const cancelHold = () => {
+    clearTimeout(hotspotTimer);
+  };
+
+  hotspot.addEventListener("mousedown", startHold);
+  hotspot.addEventListener("touchstart", startHold, { passive: false });
+
+  hotspot.addEventListener("mouseup", cancelHold);
+  hotspot.addEventListener("mouseleave", cancelHold);
+  hotspot.addEventListener("touchend", cancelHold);
+  hotspot.addEventListener("touchcancel", cancelHold);
+}
+
+function openPinModal() {
+  const pinBackdrop = document.getElementById("pinBackdrop");
+  const pinModal = document.getElementById("pinModal");
+  const pinInput = document.getElementById("pinInput");
+  const pinError = document.getElementById("pinError");
+
+  pinError.textContent = "";
+  pinInput.value = "";
+
+  pinBackdrop.classList.remove("hidden");
+  pinModal.classList.remove("hidden");
+
+  setTimeout(() => pinInput.focus(), 30);
+}
+
+function closePinModal() {
+  document.getElementById("pinBackdrop").classList.add("hidden");
+  document.getElementById("pinModal").classList.add("hidden");
+  document.getElementById("pinError").textContent = "";
+}
+
+function submitAdminPin() {
+  const pinInput = document.getElementById("pinInput");
+  const pinError = document.getElementById("pinError");
+  const value = pinInput.value.trim();
+
+  if (value === ADMIN_PIN) {
+    closePinModal();
+    goToProfileScreen();
+  } else {
+    pinError.textContent = "暗証番号が違います。";
+    pinInput.focus();
+    pinInput.select();
+  }
+}
 
 /* =========================
    開始画面
@@ -320,6 +422,7 @@ function startExperience() {
 
   sendSessionToSheet(userProfile);
 
+  document.getElementById("titleScreen").classList.add("hidden");
   document.getElementById("startScreen").classList.add("hidden");
   document.getElementById("appScreen").classList.remove("hidden");
   document.getElementById("mapBtn").classList.remove("hidden");
@@ -1066,9 +1169,3 @@ async function saveAnswer() {
 function updateProgress() {
   updateMapBtnCount();
 }
-
-updateStartButtonState();
-setTimeout(() => {
-  updateMapCollectionUI();
-  renderUnlockedList();
-}, 0);
