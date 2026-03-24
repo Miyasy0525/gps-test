@@ -9,18 +9,17 @@ const SEAL_LINK = "";
 /* =========================
    MapTiler
 ========================= */
-const MAPTILER_KEY = "c8LmF4zfUxbdqG0w5bmE";
+const MAPTILER_KEY = "6bM0wJwEREYxPUpDEK46";
 const MAPTILER_STYLE_ID = "jp-mierune-streets";
 const MAPTILER_TILE_URL = `https://api.maptiler.com/maps/${MAPTILER_STYLE_ID}/{z}/{x}/{y}.png?key=${MAPTILER_KEY}`;
 
 /* =========================
    GPS安定判定設定
-   位置確定レイヤー
 ========================= */
 const GPS_SETTINGS = {
-  requiredAccuracy: 35,        // この値以下なら「かなり使える」
-  stableDistance: 25,          // 前回安定候補からこの距離以内なら安定継続
-  requiredStableCount: 2,      // 連続何回で安定とみなすか
+  requiredAccuracy: 35,     // この値(m)以下なら実用精度
+  stableDistance: 25,       // 連続取得時のブレ許容距離(m)
+  requiredStableCount: 2,   // 何回連続で安定したら位置確定とみなすか
   watchTimeout: 15000,
   maximumAge: 0,
   defaultZoom: 17,
@@ -74,8 +73,8 @@ const spots = [
   {
     spot_id: "spot02",
     spot_name: "第2問　富士講",
-    latitude: 35.506930,
-    longitude: 138.745040,
+    latitude: 35.50693,
+    longitude: 138.74504,
     radius_m: 100,
     mediaMode: "single",
     images: { single: NEW_URL },
@@ -95,8 +94,8 @@ const spots = [
   {
     spot_id: "spot03",
     spot_name: "第3問　誰が整備した？",
-    latitude: 35.507010,
-    longitude: 138.745120,
+    latitude: 35.50701,
+    longitude: 138.74512,
     radius_m: 100,
     mediaMode: "single",
     images: { single: NEW_URL },
@@ -116,8 +115,8 @@ const spots = [
   {
     spot_id: "spot04",
     spot_name: "第4問　なぜ整備された？",
-    latitude: 35.507090,
-    longitude: 138.745200,
+    latitude: 35.50709,
+    longitude: 138.7452,
     radius_m: 100,
     mediaMode: "single",
     images: { single: NEW_URL },
@@ -137,8 +136,8 @@ const spots = [
   {
     spot_id: "spot05",
     spot_name: "第5問　誰が管理した？",
-    latitude: 35.507170,
-    longitude: 138.745280,
+    latitude: 35.50717,
+    longitude: 138.74528,
     radius_m: 100,
     mediaMode: "single",
     images: { single: NEW_URL },
@@ -158,8 +157,8 @@ const spots = [
   {
     spot_id: "spot06",
     spot_name: "第6問　星と池",
-    latitude: 35.507250,
-    longitude: 138.745360,
+    latitude: 35.50725,
+    longitude: 138.74536,
     radius_m: 100,
     mediaMode: "single",
     images: { single: NEW_URL },
@@ -179,8 +178,8 @@ const spots = [
   {
     spot_id: "spot07",
     spot_name: "第7問　村おこしのしくみ",
-    latitude: 35.507330,
-    longitude: 138.745440,
+    latitude: 35.50733,
+    longitude: 138.74544,
     radius_m: 100,
     mediaMode: "single",
     images: { single: NEW_URL },
@@ -200,8 +199,8 @@ const spots = [
   {
     spot_id: "spot08",
     spot_name: "第8問　石碑のことば",
-    latitude: 35.507410,
-    longitude: 138.745520,
+    latitude: 35.50741,
+    longitude: 138.74552,
     radius_m: 100,
     mediaMode: "single",
     images: { single: NEW_URL },
@@ -247,6 +246,9 @@ let latestAccuracy = null;
 
 function logDebug() {}
 
+/* =========================
+   開始画面
+========================= */
 function updateStartButtonState() {
   const gender = document.getElementById("genderSelect").value.trim();
   const age = document.getElementById("ageSelect").value.trim();
@@ -296,6 +298,46 @@ function sendAnswerToSheet(spotId, answerText) {
   });
 }
 
+function startExperience() {
+  const gender = document.getElementById("genderSelect").value;
+  const age = document.getElementById("ageSelect").value;
+  const region = document.getElementById("regionSelect").value;
+  const companion = document.getElementById("companionSelect").value;
+
+  if (!gender || !age || !region || !companion) return;
+
+  sessionId = createSessionId();
+  localStorage.setItem("sessionId", sessionId);
+
+  userProfile = {
+    gender,
+    age,
+    region,
+    companion,
+    startedAt: new Date().toISOString()
+  };
+  localStorage.setItem("userProfile", JSON.stringify(userProfile));
+
+  sendSessionToSheet(userProfile);
+
+  document.getElementById("startScreen").classList.add("hidden");
+  document.getElementById("appScreen").classList.remove("hidden");
+  document.getElementById("mapBtn").classList.remove("hidden");
+
+  if (!map) {
+    initMap();
+  }
+
+  setTimeout(() => {
+    map.invalidateSize();
+    startAutoTracking();
+    maybeOpenTutorial();
+  }, 100);
+}
+
+/* =========================
+   進捗・地図片
+========================= */
 function getCorrectCount() {
   return Object.values(answers).filter(a => a && a.isCorrect).length;
 }
@@ -304,7 +346,7 @@ function updateMapBtnCount() {
   const count = getCorrectCount();
   const el = document.getElementById("mapBtnCount");
   if (el) {
-    el.textContent = `回答数：${count}/8`;
+    el.textContent = `地図のかけら ${count}/8`;
   }
 
   const btn = document.getElementById("mapBtn");
@@ -377,6 +419,9 @@ function closeMapSheet() {
   document.getElementById("mapSheet").style.display = "none";
 }
 
+/* =========================
+   演出
+========================= */
 function pulseMapButton() {
   const mapBtn = document.getElementById("mapBtn");
   mapBtn.classList.add("pulse");
@@ -539,43 +584,9 @@ function closeTutorialIfBackdrop(e) {
   }
 }
 
-function startExperience() {
-  const gender = document.getElementById("genderSelect").value;
-  const age = document.getElementById("ageSelect").value;
-  const region = document.getElementById("regionSelect").value;
-  const companion = document.getElementById("companionSelect").value;
-
-  if (!gender || !age || !region || !companion) return;
-
-  sessionId = createSessionId();
-  localStorage.setItem("sessionId", sessionId);
-
-  userProfile = {
-    gender,
-    age,
-    region,
-    companion,
-    startedAt: new Date().toISOString()
-  };
-  localStorage.setItem("userProfile", JSON.stringify(userProfile));
-
-  sendSessionToSheet(userProfile);
-
-  document.getElementById("startScreen").classList.add("hidden");
-  document.getElementById("appScreen").classList.remove("hidden");
-  document.getElementById("mapBtn").classList.remove("hidden");
-
-  if (!map) {
-    initMap();
-  }
-
-  setTimeout(() => {
-    map.invalidateSize();
-    startAutoTracking();
-    maybeOpenTutorial();
-  }, 100);
-}
-
+/* =========================
+   地図初期化
+========================= */
 function initMap() {
   map = L.map("map").setView([35.506855, 138.744967], GPS_SETTINGS.defaultZoom);
 
@@ -606,6 +617,9 @@ function initMap() {
   renderUnlockedList();
 }
 
+/* =========================
+   GPSまわり
+========================= */
 function getDistance(lat1, lon1, lat2, lon2) {
   const R = 6371000;
   const dLat = (lat2 - lat1) * Math.PI / 180;
@@ -675,6 +689,7 @@ function startAutoTracking() {
   }
 
   resetGpsStability();
+  hasCenteredOnStableLocation = false;
 
   watchId = navigator.geolocation.watchPosition(
     (pos) => {
@@ -699,7 +714,9 @@ function startAutoTracking() {
 
       renderUnlockedList();
     },
-    () => {},
+    (err) => {
+      console.error("GPS取得エラー:", err);
+    },
     {
       enableHighAccuracy: true,
       timeout: GPS_SETTINGS.watchTimeout,
@@ -756,6 +773,9 @@ function checkDistance(lat, lon) {
   renderUnlockedList();
 }
 
+/* =========================
+   マーカー・一覧
+========================= */
 function updateMarker(spot) {
   const marker = markers[spot.spot_id];
   if (!marker) return;
@@ -778,7 +798,7 @@ function openSpotFromMarker(spot) {
   }
 
   if (!unlocked[spot.spot_id]) {
-    alert("このスポットの近くに移動すると情報が開放されます。");
+    alert("このスポットの近くに移動すると情報が解放されます。");
     return;
   }
 
@@ -790,6 +810,69 @@ function openSpotFromMarker(spot) {
   openSpot(spot);
 }
 
+function renderUnlockedList() {
+  const container = document.getElementById("unlockedList");
+  const unlockedSpots = spots.filter(spot => unlocked[spot.spot_id]);
+
+  if (unlockedSpots.length === 0) {
+    const gpsMessage = gpsLocked
+      ? "まだ見つかったヒミツはないよ。池の近くまで行ってみよう！"
+      : `現在地を確認中です。しばらくすると近くのスポットが開きます。${latestAccuracy ? `（現在の誤差の目安：約${Math.round(latestAccuracy)}m）` : ""}`;
+    container.innerHTML = `<div style="color:#666; font-size:14px;">${gpsMessage}</div>`;
+    return;
+  }
+
+  container.innerHTML = "";
+
+  unlockedSpots.forEach(spot => {
+    const row = document.createElement("div");
+    row.className = "spotRow";
+
+    const left = document.createElement("div");
+    const title = document.createElement("div");
+    title.className = "spotRowTitle";
+    title.textContent = spot.spot_name;
+
+    const meta = document.createElement("div");
+    meta.className = "spotRowMeta";
+
+    if (answers[spot.spot_id] && answers[spot.spot_id].isCorrect) {
+      meta.textContent = "ヒミツ発見！";
+    } else if (answers[spot.spot_id]) {
+      meta.textContent = "もう一回ちょうせん";
+    } else {
+      meta.textContent = "まだチャレンジしてない";
+    }
+
+    left.appendChild(title);
+    left.appendChild(meta);
+
+    if (answers[spot.spot_id] && answers[spot.spot_id].isCorrect) {
+      const badge = document.createElement("div");
+      badge.className = "doneBadge";
+      badge.textContent = "クリア！";
+      row.appendChild(left);
+      row.appendChild(badge);
+    } else {
+      const btn = document.createElement("button");
+      btn.textContent = answers[spot.spot_id] ? "もう一回ちょうせん" : "ナゾにちょうせん";
+      if (answers[spot.spot_id] && !answers[spot.spot_id].isCorrect) {
+        btn.classList.add("retryBtn");
+      }
+      btn.onclick = () => {
+        openSpot(spot);
+      };
+      row.appendChild(left);
+      row.appendChild(btn);
+    }
+
+    container.appendChild(row);
+  });
+}
+
+/* =========================
+   スポットシート
+========================= */
 function buildChoices(spot) {
   const box = document.getElementById("choicesBox");
   box.innerHTML = "";
@@ -895,7 +978,7 @@ function openSpot(spot) {
   const saved = answers[spot.spot_id];
   if (saved) {
     document.getElementById("formMessage").innerText =
-      `保存済みの回答：${saved.value}（${saved.label}）\n結果：${saved.isCorrect ? "発見済み" : "リトライ"}`;
+      `保存済みの回答：${saved.value}（${saved.label}）\n結果：${saved.isCorrect ? "ヒミツ発見！" : "もう一回ちょうせん"}`;
   } else {
     document.getElementById("formMessage").innerText = "";
   }
@@ -952,7 +1035,7 @@ async function saveAnswer() {
   );
 
   document.getElementById("formMessage").innerText =
-    `${isCorrect ? "正解です！ 地図片を獲得しました。" : "リトライ"}\nあなたの回答：${selectedChoice.value}（${selectedChoice.label}）`;
+    `${isCorrect ? "正解です！ 地図のかけらを手に入れたよ。" : "ちがうかも。もう一回ちょうせん！"}\nあなたの回答：${selectedChoice.value}（${selectedChoice.label}）`;
 
   if (isFirstCorrect) {
     collectedPieces[currentSpot.spot_id] = true;
@@ -977,68 +1060,11 @@ async function saveAnswer() {
   }, 200);
 }
 
+/* =========================
+   その他
+========================= */
 function updateProgress() {
   updateMapBtnCount();
-}
-
-function renderUnlockedList() {
-  const container = document.getElementById("unlockedList");
-  const unlockedSpots = spots.filter(spot => unlocked[spot.spot_id]);
-
-  if (unlockedSpots.length === 0) {
-    const gpsMessage = gpsLocked
-      ? "まだ開放されたスポットはありません。"
-      : `現在地を確認中です。しばらくすると近くのスポットが開きます。${latestAccuracy ? `（現在の誤差の目安：約${Math.round(latestAccuracy)}m）` : ""}`;
-    container.innerHTML = `<div style="color:#666; font-size:14px;">${gpsMessage}</div>`;
-    return;
-  }
-
-  container.innerHTML = "";
-
-  unlockedSpots.forEach(spot => {
-    const row = document.createElement("div");
-    row.className = "spotRow";
-
-    const left = document.createElement("div");
-    const title = document.createElement("div");
-    title.className = "spotRowTitle";
-    title.textContent = spot.spot_name;
-
-    const meta = document.createElement("div");
-    meta.className = "spotRowMeta";
-
-    if (answers[spot.spot_id] && answers[spot.spot_id].isCorrect) {
-      meta.textContent = "発見済み";
-    } else if (answers[spot.spot_id]) {
-      meta.textContent = "リトライ";
-    } else {
-      meta.textContent = "未回答";
-    }
-
-    left.appendChild(title);
-    left.appendChild(meta);
-
-    if (answers[spot.spot_id] && answers[spot.spot_id].isCorrect) {
-      const badge = document.createElement("div");
-      badge.className = "doneBadge";
-      badge.textContent = "発見済み";
-      row.appendChild(left);
-      row.appendChild(badge);
-    } else {
-      const btn = document.createElement("button");
-      btn.textContent = answers[spot.spot_id] ? "リトライ" : "ヒミツに迫る";
-      if (answers[spot.spot_id] && !answers[spot.spot_id].isCorrect) {
-        btn.classList.add("retryBtn");
-      }
-      btn.onclick = () => {
-        openSpot(spot);
-      };
-      row.appendChild(left);
-      row.appendChild(btn);
-    }
-
-    container.appendChild(row);
-  });
 }
 
 updateStartButtonState();
