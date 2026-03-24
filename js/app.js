@@ -6,6 +6,27 @@ const NEW_URL = "https://miyasy0525.github.io/gps-test/images/new.jpg?v=6";
 const DRINK_WATER_URL = NEW_URL;
 const SEAL_LINK = "";
 
+/* =========================
+   MapTiler
+========================= */
+const MAPTILER_KEY = "c8LmF4zfUxbdqG0w5bmE";
+const MAPTILER_STYLE_ID = "jp-mierune-streets";
+const MAPTILER_TILE_URL = `https://api.maptiler.com/maps/${MAPTILER_STYLE_ID}/{z}/{x}/{y}.png?key=${MAPTILER_KEY}`;
+
+/* =========================
+   GPS安定判定設定
+   位置確定レイヤー
+========================= */
+const GPS_SETTINGS = {
+  requiredAccuracy: 35,        // この値以下なら「かなり使える」
+  stableDistance: 25,          // 前回安定候補からこの距離以内なら安定継続
+  requiredStableCount: 2,      // 連続何回で安定とみなすか
+  watchTimeout: 15000,
+  maximumAge: 0,
+  defaultZoom: 17,
+  stableZoom: 17
+};
+
 const pieceMap = {
   spot01: 1,
   spot02: 2,
@@ -217,6 +238,13 @@ let effectRunning = false;
 let tutorialIndex = 0;
 const TUTORIAL_TOTAL = 4;
 
+/* GPS安定判定用 */
+let stableCount = 0;
+let stableReference = null;
+let gpsLocked = false;
+let hasCenteredOnStableLocation = false;
+let latestAccuracy = null;
+
 function logDebug() {}
 
 function updateStartButtonState() {
@@ -389,8 +417,8 @@ function animateIconToMap(spotId) {
     const saveRect = saveBtn.getBoundingClientRect();
     const mapRect = mapBtn.getBoundingClientRect();
 
-    const startX = saveBtn ? saveRect.left + saveRect.width / 2 : window.innerWidth / 2;
-    const startY = saveBtn ? saveRect.top + saveRect.height / 2 : window.innerHeight / 2;
+    const startX = saveRect.left + saveRect.width / 2;
+    const startY = saveRect.top + saveRect.height / 2;
     const centerX = window.innerWidth / 2;
     const centerY = window.innerHeight / 2;
     const endX = mapRect.left + mapRect.width / 2;
@@ -449,10 +477,13 @@ function animateIconToMap(spotId) {
   });
 }
 
-/* チュートリアル */
+/* =========================
+   チュートリアル
+========================= */
 function maybeOpenTutorial() {
   const seen = localStorage.getItem("tutorialSeen");
   if (seen === "1") return;
+
   tutorialIndex = 0;
   updateTutorialSlide();
   document.getElementById("tutorialBackdrop").style.display = "block";
@@ -546,11 +577,11 @@ function startExperience() {
 }
 
 function initMap() {
-  map = L.map("map").setView([35.506855, 138.744967], 17);
+  map = L.map("map").setView([35.506855, 138.744967], GPS_SETTINGS.defaultZoom);
 
-  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+  L.tileLayer(MAPTILER_TILE_URL, {
     maxZoom: 19,
-    attribution: "&copy; OpenStreetMap contributors"
+    attribution: '&copy; MapTiler & OpenStreetMap contributors'
   }).addTo(map);
 
   spots.forEach((spot) => {
@@ -586,6 +617,53 @@ function getDistance(lat1, lon1, lat2, lon2) {
   return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
 }
 
+function resetGpsStability() {
+  stableCount = 0;
+  stableReference = null;
+  gpsLocked = false;
+}
+
+function isAccurateEnough(accuracy) {
+  return Number.isFinite(accuracy) && accuracy <= GPS_SETTINGS.requiredAccuracy;
+}
+
+function evaluateGpsStability(lat, lon, accuracy) {
+  latestAccuracy = accuracy;
+
+  if (!isAccurateEnough(accuracy)) {
+    resetGpsStability();
+    return false;
+  }
+
+  if (!stableReference) {
+    stableReference = { lat, lon };
+    stableCount = 1;
+    return false;
+  }
+
+  const drift = getDistance(lat, lon, stableReference.lat, stableReference.lon);
+
+  if (drift <= GPS_SETTINGS.stableDistance) {
+    stableCount += 1;
+  } else {
+    stableReference = { lat, lon };
+    stableCount = 1;
+    return false;
+  }
+
+  stableReference = {
+    lat: (stableReference.lat + lat) / 2,
+    lon: (stableReference.lon + lon) / 2
+  };
+
+  if (stableCount >= GPS_SETTINGS.requiredStableCount) {
+    gpsLocked = true;
+    return true;
+  }
+
+  return false;
+}
+
 function startAutoTracking() {
   if (!navigator.geolocation) {
     alert("この端末では位置情報が使えません。");
@@ -595,6 +673,8 @@ function startAutoTracking() {
   if (watchId !== null) {
     navigator.geolocation.clearWatch(watchId);
   }
+
+  resetGpsStability();
 
   watchId = navigator.geolocation.watchPosition(
     (pos) => {
@@ -606,13 +686,24 @@ function startAutoTracking() {
       lastLon = lon;
 
       updateUserLocation(lat, lon, accuracy);
-      checkDistance(lat, lon);
+
+      const stableNow = evaluateGpsStability(lat, lon, accuracy);
+
+      if (stableNow) {
+        if (!hasCenteredOnStableLocation) {
+          map.setView([lat, lon], GPS_SETTINGS.stableZoom);
+          hasCenteredOnStableLocation = true;
+        }
+        checkDistance(lat, lon);
+      }
+
+      renderUnlockedList();
     },
     () => {},
     {
       enableHighAccuracy: true,
-      timeout: 30000,
-      maximumAge: 5000
+      timeout: GPS_SETTINGS.watchTimeout,
+      maximumAge: GPS_SETTINGS.maximumAge
     }
   );
 }
@@ -631,31 +722,37 @@ function updateUserLocation(lat, lon, accuracy) {
 
   userCircle = L.circle([lat, lon], {
     radius: accuracy,
-    color: "#1976d2",
-    fillColor: "#1976d2",
-    fillOpacity: 0.12,
+    color: gpsLocked ? "#1976d2" : "#ff9800",
+    fillColor: gpsLocked ? "#1976d2" : "#ff9800",
+    fillOpacity: gpsLocked ? 0.12 : 0.08,
     weight: 1
   }).addTo(map);
 }
 
 function centerOnUser() {
   if (lastLat !== null && lastLon !== null) {
-    map.setView([lastLat, lastLon], 17);
+    map.setView([lastLat, lastLon], GPS_SETTINGS.stableZoom);
   }
 }
 
 function checkDistance(lat, lon) {
+  let changed = false;
+
   spots.forEach((spot) => {
     const d = getDistance(lat, lon, spot.latitude, spot.longitude);
 
-    if (d <= spot.radius_m) {
+    if (d <= spot.radius_m && !unlocked[spot.spot_id]) {
       unlocked[spot.spot_id] = true;
+      changed = true;
     }
 
     updateMarker(spot);
   });
 
-  localStorage.setItem("unlocked", JSON.stringify(unlocked));
+  if (changed) {
+    localStorage.setItem("unlocked", JSON.stringify(unlocked));
+  }
+
   renderUnlockedList();
 }
 
@@ -675,6 +772,11 @@ function updateMarker(spot) {
 }
 
 function openSpotFromMarker(spot) {
+  if (!gpsLocked) {
+    alert("現在地を確認中です。しばらくすると、正しい場所でスポットを開けるようになります。");
+    return;
+  }
+
   if (!unlocked[spot.spot_id]) {
     alert("このスポットの近くに移動すると情報が開放されます。");
     return;
@@ -884,7 +986,10 @@ function renderUnlockedList() {
   const unlockedSpots = spots.filter(spot => unlocked[spot.spot_id]);
 
   if (unlockedSpots.length === 0) {
-    container.innerHTML = '<div style="color:#666; font-size:14px;">まだ開放されたスポットはありません。</div>';
+    const gpsMessage = gpsLocked
+      ? "まだ開放されたスポットはありません。"
+      : `現在地を確認中です。しばらくすると近くのスポットが開きます。${latestAccuracy ? `（現在の誤差の目安：約${Math.round(latestAccuracy)}m）` : ""}`;
+    container.innerHTML = `<div style="color:#666; font-size:14px;">${gpsMessage}</div>`;
     return;
   }
 
@@ -939,4 +1044,5 @@ function renderUnlockedList() {
 updateStartButtonState();
 setTimeout(() => {
   updateMapCollectionUI();
+  renderUnlockedList();
 }, 0);
