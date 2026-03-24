@@ -17,7 +17,56 @@
 </head>
 <body>
 
-  <div id="startScreen">
+  <!-- =========================
+       タイトル画面
+  ========================== -->
+  <div id="titleScreen">
+    <div id="adminHotspot" aria-hidden="true"></div>
+
+    <div class="titleHero">
+      <img id="titleHeroImage" src="images/topimage.png" alt="忍野八海 八大竜王と8つのヒミツ タイトル画像">
+
+      <div class="titleOverlay">
+        <div class="titleBottomArea">
+          <button id="enterAppBtn" class="titleMainBtn" onclick="goToProfileScreen()">
+            <ruby>冒険<rt>ぼうけん</rt></ruby>をはじめる
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================
+       管理用PINモーダル
+  ========================== -->
+  <div id="pinBackdrop" class="hidden"></div>
+  <div id="pinModal" class="hidden">
+    <div id="pinModalInner">
+      <div class="pinTitle">管理用メニュー</div>
+      <div class="pinLead">暗証番号を入力してください</div>
+
+      <input
+        id="pinInput"
+        type="password"
+        inputmode="numeric"
+        autocomplete="off"
+        maxlength="8"
+        placeholder="暗証番号"
+      />
+
+      <div id="pinError"></div>
+
+      <div class="pinButtons">
+        <button id="pinSubmitBtn" class="primaryBtn" onclick="submitAdminPin()">決定</button>
+        <button onclick="closePinModal()">閉じる</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================
+       属性入力画面
+  ========================== -->
+  <div id="startScreen" class="hidden">
     <div class="startCard">
       <div class="startTitle">
         <ruby>忍野八海<rt>おしのはっかい</rt></ruby><br>
@@ -148,6 +197,9 @@
     </div>
   </div>
 
+  <!-- =========================
+       本編画面
+  ========================== -->
   <div id="appScreen" class="hidden">
     <div id="map"></div>
 
@@ -177,7 +229,9 @@
 
   <div id="fxLayer"></div>
 
-  <!-- チュートリアルモーダル -->
+  <!-- =========================
+       チュートリアルモーダル
+  ========================== -->
   <div id="tutorialBackdrop" onclick="closeTutorialIfBackdrop(event)"></div>
   <div id="tutorialModal">
     <div id="tutorialInner">
@@ -231,6 +285,9 @@
     </div>
   </div>
 
+  <!-- =========================
+       地図片シート
+  ========================== -->
   <div id="mapSheetBackdrop" onclick="closeMapSheet()"></div>
 
   <div id="mapSheet">
@@ -267,6 +324,9 @@
     </div>
   </div>
 
+  <!-- =========================
+       スポットシート
+  ========================== -->
   <div id="sheetBackdrop" onclick="closeSheet()"></div>
 
   <div id="sheet">
