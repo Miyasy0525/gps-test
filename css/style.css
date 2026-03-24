@@ -97,69 +97,10 @@ rt {
    タイトル画面
 ========================= */
 #titleScreen {
-  min-height: 100vh;
-  background: #0e0d10;
   position: relative;
+  min-height: 100vh;
+  background: #000;
   overflow: hidden;
-}
-
-.titleHero {
-  position: relative;
-  width: 100%;
-  min-height: 100vh;
-  background: #0e0d10;
-}
-
-#titleHeroImage {
-  width: 100%;
-  height: 100vh;
-  object-fit: cover;
-  display: block;
-  filter: saturate(1.05) contrast(1.02);
-}
-
-.titleOverlay {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  padding: 24px 18px 34px;
-  background:
-    linear-gradient(
-      to top,
-      rgba(8, 7, 10, 0.72) 0%,
-      rgba(8, 7, 10, 0.26) 24%,
-      rgba(8, 7, 10, 0.06) 44%,
-      rgba(8, 7, 10, 0.02) 100%
-    );
-}
-
-.titleBottomArea {
-  width: min(92vw, 520px);
-  display: flex;
-  justify-content: center;
-}
-
-.titleMainBtn {
-  width: 100%;
-  max-width: 360px;
-  border: 1px solid rgba(146, 92, 18, 0.95);
-  background:
-    linear-gradient(180deg, rgba(255, 233, 175, 0.98) 0%, rgba(241, 199, 92, 0.98) 100%);
-  color: #3d2b00;
-  border-radius: 999px;
-  padding: 15px 22px;
-  font-size: 22px;
-  cursor: pointer;
-  box-shadow:
-    0 1px 0 rgba(255,255,255,0.62) inset,
-    0 10px 28px rgba(0,0,0,0.28),
-    0 0 24px rgba(255, 204, 91, 0.18);
-}
-
-.titleMainBtn:active {
-  transform: translateY(1px);
 }
 
 #adminHotspot {
@@ -168,82 +109,132 @@ rt {
   left: 0;
   width: 84px;
   height: 84px;
-  z-index: 20;
+  z-index: 30;
   background: transparent;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+}
+
+.titleHero {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  overflow: hidden;
+  background: #000;
+}
+
+#titleHeroImage {
+  width: 100%;
+  height: 100vh;
+  object-fit: cover;
+  display: block;
+}
+
+.titleOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 20px 18px 34px;
+  background:
+    linear-gradient(to top, rgba(0,0,0,0.52) 0%, rgba(0,0,0,0.18) 24%, rgba(0,0,0,0.00) 46%);
+}
+
+.titleBottomArea {
+  width: 100%;
+  max-width: 460px;
+  display: flex;
+  justify-content: center;
+}
+
+.titleMainBtn {
+  width: min(88vw, 360px);
+  min-height: 58px;
+  border: none;
+  border-radius: 999px;
+  font-size: 24px;
+  color: #3d2b00;
+  background:
+    linear-gradient(180deg, #fff0b9 0%, #f5cf63 44%, #e1a936 100%);
+  box-shadow:
+    0 2px 0 rgba(255,255,255,0.48) inset,
+    0 10px 22px rgba(0,0,0,0.28),
+    0 0 18px rgba(255,220,120,0.28);
+  cursor: pointer;
+  padding: 14px 22px;
+}
+
+.titleMainBtn:active {
+  transform: translateY(1px) scale(0.995);
 }
 
 /* =========================
-   管理用PIN
+   管理用PINモーダル
 ========================= */
 #pinBackdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.55);
+  background: rgba(0, 0, 0, 0.58);
   z-index: 9000;
 }
 
 #pinModal {
   position: fixed;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 18px;
+  top: 50%;
+  left: 50%;
+  width: min(90vw, 420px);
+  transform: translate(-50%, -50%);
   z-index: 9100;
 }
 
 #pinModalInner {
-  width: min(92vw, 420px);
-  background: #fff9eb;
-  border: 1px solid #d9bf7b;
+  background: #fffdf7;
+  border: 1px solid #d8c79a;
   border-radius: 18px;
-  box-shadow: 0 16px 42px rgba(0,0,0,0.28);
-  padding: 22px 18px 18px;
+  padding: 20px 18px 18px;
+  box-shadow: 0 14px 36px rgba(0,0,0,0.32);
 }
 
 .pinTitle {
   font-size: 24px;
-  color: #3f2d07;
-  margin-bottom: 8px;
+  color: #3c2d12;
+  margin-bottom: 10px;
   text-align: center;
 }
 
 .pinLead {
   font-size: 14px;
-  color: #5d4920;
-  line-height: 1.7;
+  line-height: 1.8;
+  color: #5d4a2c;
   text-align: center;
   margin-bottom: 14px;
 }
 
 #pinInput {
   width: 100%;
-  padding: 14px 14px;
-  border-radius: 12px;
-  border: 1px solid #b79b5e;
-  background: #fffdf6;
+  padding: 13px 14px;
+  border: 1px solid #bda97b;
+  border-radius: 10px;
   font-size: 18px;
-  color: #2b2b2b;
-  outline: none;
-}
-
-#pinInput:focus {
-  border-color: #8f6d23;
-  box-shadow: 0 0 0 3px rgba(197, 159, 71, 0.18);
+  background: #fff;
+  color: #222;
+  margin-bottom: 8px;
 }
 
 #pinError {
   min-height: 22px;
-  margin-top: 10px;
   font-size: 14px;
   color: #b00020;
   line-height: 1.6;
+  margin-bottom: 8px;
 }
 
 .pinButtons {
   display: flex;
   gap: 10px;
-  margin-top: 10px;
+  justify-content: center;
   flex-wrap: wrap;
 }
 
@@ -253,17 +244,21 @@ rt {
 #startScreen {
   min-height: 100vh;
   padding: 24px 18px 40px;
-  background: #f7f7f7;
+  background:
+    radial-gradient(circle at top, rgba(255,240,198,0.55), rgba(255,240,198,0) 34%),
+    linear-gradient(180deg, #f5efe4 0%, #f7f4ee 100%);
 }
 
 .startCard {
   max-width: 720px;
   margin: 0 auto;
-  background: #ffffff;
-  border: 1px solid #ddd;
-  border-radius: 16px;
+  background: rgba(255, 252, 245, 0.96);
+  border: 1px solid #d8ccb3;
+  border-radius: 18px;
   padding: 20px;
-  box-shadow: 0 8px 22px rgba(0,0,0,0.08);
+  box-shadow:
+    0 8px 22px rgba(0,0,0,0.08),
+    0 0 0 1px rgba(255,255,255,0.35) inset;
 }
 
 .startTitle {
@@ -271,6 +266,7 @@ rt {
   margin-bottom: 12px;
   line-height: 1.55;
   text-align: center;
+  color: #24324d;
 }
 
 .startLead {
@@ -355,7 +351,7 @@ select {
 }
 
 #info {
-  background: #fff;
+  background: #fffdf8;
   padding: 14px;
   border-top: 1px solid #ddd;
 }
@@ -387,6 +383,7 @@ button {
   margin-top: 18px;
   margin-bottom: 8px;
   font-size: 16px;
+  color: #2b2b2b;
 }
 
 #unlockedList {
@@ -403,7 +400,7 @@ button {
   padding: 10px;
   border: 1px solid #ddd;
   border-radius: 10px;
-  background: #fafafa;
+  background: #faf7ef;
 }
 
 .spotRowTitle {
@@ -466,9 +463,6 @@ button {
 .legendDot.green { background: green; }
 .legendDot.current { background: #1976d2; }
 
-/* =========================
-   ヒミツの地図ボタン
-========================= */
 #mapBtn {
   position: fixed;
   top: 10px;
@@ -716,6 +710,8 @@ button {
   padding: 16px;
   overflow-y: auto;
   max-height: 88vh;
+  background:
+    linear-gradient(180deg, rgba(255,251,240,0.98) 0%, rgba(255,255,255,0.98) 100%);
 }
 
 #sheet h2 {
@@ -857,7 +853,7 @@ button {
   align-items: flex-start;
   border: 1px solid #d7d7d7;
   border-radius: 10px;
-  background: #fafafa;
+  background: #faf7ef;
   padding: 12px;
   cursor: pointer;
   line-height: 1.7;
@@ -921,6 +917,8 @@ button {
   padding: 18px;
   overflow-y: auto;
   max-height: 88vh;
+  background:
+    linear-gradient(180deg, rgba(255,248,233,0.98) 0%, rgba(255,255,255,0.98) 100%);
 }
 
 .mapSheetHeader {
@@ -1107,6 +1105,11 @@ button {
    レスポンシブ
 ========================= */
 @media (max-width: 640px) {
+  .titleMainBtn {
+    font-size: 21px;
+    min-height: 56px;
+  }
+
   .startTitle {
     font-size: 24px;
     line-height: 1.6;
@@ -1125,7 +1128,8 @@ button {
 
   .tutorialTitle,
   #spotTitle,
-  .mapSheetTitle {
+  .mapSheetTitle,
+  .pinTitle {
     font-size: 20px;
   }
 
@@ -1139,11 +1143,6 @@ button {
 
   .mapBtnCount {
     font-size: 10px;
-  }
-
-  .titleMainBtn {
-    font-size: 20px;
-    padding: 14px 18px;
   }
 
   rt {
