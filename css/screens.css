@@ -230,7 +230,7 @@ select:focus {
   background: #fff;
 }
 
-#mapStage {
+#mapViewport {
   position: relative;
   width: 100%;
   height: 100%;
