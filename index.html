@@ -17,7 +17,6 @@
 </head>
 <body>
 
-
   <!-- =========================
        端末制限画面
   ========================== -->
@@ -243,6 +242,28 @@
   </button>
 
   <div id="fxLayer"></div>
+
+  <!-- =========================
+       見つけたヒミツ カードテンプレート
+       ※ CSS / JSで使用予定
+  ========================== -->
+  <template id="spotRowTemplate">
+    <button class="spotRow spotRowDragon" type="button">
+      <div class="spotRowText">
+        <div class="spotRowTitle"></div>
+        <div class="spotRowMeta"></div>
+      </div>
+
+      <div class="spotRowVisualWrap" aria-hidden="true">
+        <div class="spotRowVisualFade"></div>
+        <img class="spotRowDragonImg" src="" alt="">
+      </div>
+
+      <div class="spotRowBadgeWrap">
+        <div class="doneBadge hidden">クリア！</div>
+      </div>
+    </button>
+  </template>
 
   <!-- =========================
        チュートリアルモーダル
