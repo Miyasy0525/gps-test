@@ -32,6 +32,19 @@ const GPS_SETTINGS = {
 const ADMIN_PIN = "2525";
 const HOTSPOT_HOLD_MS = 5000;
 
+/* =========================
+   竜画像対応
+   未クリア: images/1-A.png
+   クリア後: images/1-B.png
+   ※ 今は第1問だけ設定済み
+========================= */
+const dragonImageMap = {
+  spot01: {
+    locked: "images/1-A.png",
+    unlocked: "images/1-B.png"
+  }
+};
+
 const pieceMap = {
   spot01: 1,
   spot02: 2,
@@ -252,7 +265,6 @@ let latestAccuracy = null;
 
 /* 管理ホットスポット */
 let hotspotTimer = null;
-let hotspotTriggered = false;
 
 /* =========================
    端末制限
@@ -300,11 +312,11 @@ function applyDeviceGate() {
 
   if (!deviceAccessAllowed) {
     document.body.classList.add("device-blocked");
-    gateScreen.classList.remove("hidden");
-    titleScreen.classList.add("hidden");
-    startScreen.classList.add("hidden");
-    appScreen.classList.add("hidden");
-    mapBtn.classList.add("hidden");
+    if (gateScreen) gateScreen.classList.remove("hidden");
+    if (titleScreen) titleScreen.classList.add("hidden");
+    if (startScreen) startScreen.classList.add("hidden");
+    if (appScreen) appScreen.classList.add("hidden");
+    if (mapBtn) mapBtn.classList.add("hidden");
 
     if (tutorialBackdrop) tutorialBackdrop.style.display = "none";
     if (tutorialModal) tutorialModal.style.display = "none";
@@ -324,12 +336,10 @@ function applyDeviceGate() {
   }
 
   document.body.classList.remove("device-blocked");
-  gateScreen.classList.add("hidden");
-  titleScreen.classList.remove("hidden");
+  if (gateScreen) gateScreen.classList.add("hidden");
+  if (titleScreen) titleScreen.classList.remove("hidden");
   return true;
 }
-
-function logDebug() {}
 
 /* =========================
    初期化
@@ -375,10 +385,8 @@ function setupAdminHotspot() {
 
   const startHold = (e) => {
     e.preventDefault();
-    hotspotTriggered = false;
     clearTimeout(hotspotTimer);
     hotspotTimer = setTimeout(() => {
-      hotspotTriggered = true;
       openPinModal();
     }, HOTSPOT_HOLD_MS);
   };
@@ -447,6 +455,7 @@ function updateStartButtonState() {
 
 async function startExperience() {
   if (!deviceAccessAllowed) return;
+
   const gender = document.getElementById("genderSelect").value.trim();
   const age = document.getElementById("ageSelect").value.trim();
   const region = document.getElementById("regionSelect").value.trim();
@@ -534,7 +543,7 @@ function initMap() {
     tileSize: 256,
     zoomOffset: 0,
     maxZoom: 20,
-    attribution: '&copy; MapTiler &copy; OpenStreetMap contributors'
+    attribution: "&copy; MapTiler &copy; OpenStreetMap contributors"
   }).addTo(map);
 
   spots.forEach((spot) => {
@@ -709,10 +718,27 @@ function centerOnUser() {
 }
 
 /* =========================
+   竜画像ヘルパー
+========================= */
+function getDragonImageSrc(spotId, isCorrect) {
+  const config = dragonImageMap[spotId];
+  if (!config) return "";
+
+  return isCorrect ? config.unlocked : config.locked;
+}
+
+function hasDragonImage(spotId) {
+  const config = dragonImageMap[spotId];
+  return !!(config && config.locked && config.unlocked);
+}
+
+/* =========================
    見つけたヒミツ一覧
 ========================= */
 function renderUnlockedList() {
   const list = document.getElementById("unlockedList");
+  const template = document.getElementById("spotRowTemplate");
+
   if (!list) return;
 
   const unlockedSpots = spots.filter((spot) => unlocked[spot.spot_id]);
@@ -722,18 +748,57 @@ function renderUnlockedList() {
     return;
   }
 
-  list.innerHTML = unlockedSpots.map((spot) => {
+  list.innerHTML = "";
+
+  unlockedSpots.forEach((spot) => {
     const correct = isSpotAnsweredCorrectly(spot.spot_id);
-    return `
-      <button class="spotRow" onclick="openSpotSheetById('${spot.spot_id}')">
-        <div class="spotRowLeft">
-          <div class="spotRowTitle">${spot.spot_name}</div>
-          <div class="spotRowMeta">${correct ? "問題クリア済み" : "まだ問題に答えていないよ"}</div>
-        </div>
-        ${correct ? `<div class="doneBadge">クリア！</div>` : ``}
-      </button>
+
+    if (template) {
+      const fragment = template.content.cloneNode(true);
+      const button = fragment.querySelector(".spotRow");
+      const titleEl = fragment.querySelector(".spotRowTitle");
+      const metaEl = fragment.querySelector(".spotRowMeta");
+      const badgeEl = fragment.querySelector(".doneBadge");
+      const visualWrap = fragment.querySelector(".spotRowVisualWrap");
+      const dragonImg = fragment.querySelector(".spotRowDragonImg");
+
+      titleEl.textContent = spot.spot_name;
+      metaEl.textContent = correct ? "問題クリア済み" : "まだ問題に答えていないよ";
+
+      if (correct) {
+        badgeEl.classList.remove("hidden");
+      } else {
+        badgeEl.classList.add("hidden");
+      }
+
+      if (hasDragonImage(spot.spot_id)) {
+        dragonImg.src = getDragonImageSrc(spot.spot_id, correct);
+        dragonImg.alt = "";
+      } else {
+        visualWrap.classList.add("hidden");
+      }
+
+      button.addEventListener("click", () => {
+        openSpotSheet(spot);
+      });
+
+      list.appendChild(fragment);
+      return;
+    }
+
+    const button = document.createElement("button");
+    button.className = "spotRow";
+    button.type = "button";
+    button.innerHTML = `
+      <div class="spotRowLeft">
+        <div class="spotRowTitle">${spot.spot_name}</div>
+        <div class="spotRowMeta">${correct ? "問題クリア済み" : "まだ問題に答えていないよ"}</div>
+      </div>
+      ${correct ? `<div class="doneBadge">クリア！</div>` : ``}
     `;
-  }).join("");
+    button.addEventListener("click", () => openSpotSheet(spot));
+    list.appendChild(button);
+  });
 }
 
 function openSpotSheetById(spotId) {
@@ -1028,7 +1093,7 @@ async function saveAnswer() {
     return;
   }
 
-  const selectedChoice = currentSpot.content.choices.find(c => c.value === selectedValue);
+  const selectedChoice = currentSpot.content.choices.find((c) => c.value === selectedValue);
   const isCorrect = selectedValue === currentSpot.content.correctValue;
   const isFirstCorrect = isCorrect && !collectedPieces[currentSpot.spot_id];
 
