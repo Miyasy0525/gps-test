@@ -90,10 +90,17 @@ async function animateIconToMap(spotId) {
   icon.style.top = `${startY}px`;
   icon.style.transform = "translate(-50%, -50%) scale(1.15)";
   icon.style.opacity = "0";
+  icon.style.transition = "none";
   fxLayer.appendChild(icon);
 
+  /* 2フレーム待って、確実に描画に乗せる */
+  await new Promise((resolve) => {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(resolve);
+    });
+  });
+
   /* Step 1: 中央へ拡大移動 */
-  await waitMs(20);
   icon.style.transition = "left 0.65s ease, top 0.65s ease, transform 0.65s ease, opacity 0.2s ease";
   icon.style.left = `${centerX}px`;
   icon.style.top = `${centerY}px`;
