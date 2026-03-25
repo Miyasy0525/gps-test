@@ -1,4 +1,3 @@
-
 const API_URL = "https://script.google.com/macros/s/AKfycbx3AGuRyNJe0mDxP5jb-JkkjE1npzYkRYSD2eHZlqceMaR2pvQiESmnxfUGV9kVyBBH/exec";
 
 const OLD_URL = "https://miyasy0525.github.io/gps-test/images/old.jpg?v=6";
@@ -255,27 +254,112 @@ let latestAccuracy = null;
 let hotspotTimer = null;
 let hotspotTriggered = false;
 
+/* =========================
+   端末制限
+========================= */
+let deviceAccessAllowed = false;
+
+function isSmartphoneDevice() {
+  const ua = navigator.userAgent || "";
+  const maxTouchPoints = navigator.maxTouchPoints || 0;
+  const shortestSide = Math.min(window.screen.width || 0, window.screen.height || 0);
+  const isIPhone = /iPhone/i.test(ua);
+  const isIPod = /iPod/i.test(ua);
+  const isAndroidMobile = /Android/i.test(ua) && /Mobile/i.test(ua);
+  const isWindowsPhone = /Windows Phone/i.test(ua);
+  const isTablet =
+    /iPad/i.test(ua) ||
+    /Tablet/i.test(ua) ||
+    (/Android/i.test(ua) && !/Mobile/i.test(ua)) ||
+    (/Macintosh/i.test(ua) && maxTouchPoints > 1);
+  const isPhoneByTouchSize = maxTouchPoints > 0 && shortestSide > 0 && shortestSide <= 430;
+
+  if (isTablet) return false;
+  if (isIPhone || isIPod || isAndroidMobile || isWindowsPhone) return true;
+  if (isPhoneByTouchSize && !/Windows NT|Macintosh|CrOS|Linux x86_64/i.test(ua)) return true;
+  return false;
+}
+
+function applyDeviceGate() {
+  const gateScreen = document.getElementById("deviceGateScreen");
+  const titleScreen = document.getElementById("titleScreen");
+  const startScreen = document.getElementById("startScreen");
+  const appScreen = document.getElementById("appScreen");
+  const mapBtn = document.getElementById("mapBtn");
+  const tutorialBackdrop = document.getElementById("tutorialBackdrop");
+  const tutorialModal = document.getElementById("tutorialModal");
+  const mapSheetBackdrop = document.getElementById("mapSheetBackdrop");
+  const mapSheet = document.getElementById("mapSheet");
+  const sheetBackdrop = document.getElementById("sheetBackdrop");
+  const sheet = document.getElementById("sheet");
+  const pinBackdrop = document.getElementById("pinBackdrop");
+  const pinModal = document.getElementById("pinModal");
+  const fxLayer = document.getElementById("fxLayer");
+
+  deviceAccessAllowed = isSmartphoneDevice();
+
+  if (!deviceAccessAllowed) {
+    document.body.classList.add("device-blocked");
+    gateScreen.classList.remove("hidden");
+    titleScreen.classList.add("hidden");
+    startScreen.classList.add("hidden");
+    appScreen.classList.add("hidden");
+    mapBtn.classList.add("hidden");
+
+    if (tutorialBackdrop) tutorialBackdrop.style.display = "none";
+    if (tutorialModal) tutorialModal.style.display = "none";
+    if (mapSheetBackdrop) mapSheetBackdrop.style.display = "none";
+    if (mapSheet) mapSheet.style.display = "none";
+    if (sheetBackdrop) sheetBackdrop.style.display = "none";
+    if (sheet) sheet.style.display = "none";
+    if (pinBackdrop) pinBackdrop.classList.add("hidden");
+    if (pinModal) pinModal.classList.add("hidden");
+    if (fxLayer) fxLayer.innerHTML = "";
+
+    if (watchId !== null && navigator.geolocation) {
+      navigator.geolocation.clearWatch(watchId);
+      watchId = null;
+    }
+    return false;
+  }
+
+  document.body.classList.remove("device-blocked");
+  gateScreen.classList.add("hidden");
+  titleScreen.classList.remove("hidden");
+  return true;
+}
+
 function logDebug() {}
 
 /* =========================
    初期化
 ========================= */
 document.addEventListener("DOMContentLoaded", () => {
+  if (!applyDeviceGate()) return;
+
   updateStartButtonState();
   updateMapCollectionUI();
   renderUnlockedList();
   setupAdminHotspot();
 });
 
+window.addEventListener("resize", applyDeviceGate);
+window.addEventListener("orientationchange", applyDeviceGate);
+
 /* =========================
    画面遷移
 ========================= */
 function goToProfileScreen() {
+  if (!deviceAccessAllowed) return;
   document.getElementById("titleScreen").classList.add("hidden");
   document.getElementById("startScreen").classList.remove("hidden");
 }
 
 function showTitleScreen() {
+  if (!deviceAccessAllowed) {
+    applyDeviceGate();
+    return;
+  }
   document.getElementById("titleScreen").classList.remove("hidden");
   document.getElementById("startScreen").classList.add("hidden");
   document.getElementById("appScreen").classList.add("hidden");
@@ -361,465 +445,162 @@ function updateStartButtonState() {
   document.getElementById("startBtn").disabled = !ok;
 }
 
-function createSessionId() {
-  return "sess_" + Date.now() + "_" + Math.random().toString(36).slice(2, 10);
+async function startExperience() {
+  if (!deviceAccessAllowed) return;
+  const gender = document.getElementById("genderSelect").value.trim();
+  const age = document.getElementById("ageSelect").value.trim();
+  const region = document.getElementById("regionSelect").value.trim();
+  const companion = document.getElementById("companionSelect").value.trim();
+
+  if (!gender || !age || !region || !companion) return;
+
+  userProfile = { gender, age, region, companion };
+  localStorage.setItem("userProfile", JSON.stringify(userProfile));
+
+  if (!sessionId) {
+    sessionId = createSessionId();
+    localStorage.setItem("sessionId", sessionId);
+  }
+
+  sendSessionToSheet();
+
+  document.getElementById("startScreen").classList.add("hidden");
+  document.getElementById("appScreen").classList.remove("hidden");
+  document.getElementById("mapBtn").classList.remove("hidden");
+
+  initMap();
+  updateMapCollectionUI();
+  renderUnlockedList();
+  openTutorial();
 }
 
-function postToSheet(payload) {
-  const body = new URLSearchParams(payload).toString();
+function createSessionId() {
+  return "session_" + Date.now() + "_" + Math.random().toString(36).slice(2, 10);
+}
+
+/* =========================
+   Google Sheets送信
+========================= */
+function sendSessionToSheet() {
+  if (!API_URL || !sessionId || !userProfile) return;
 
   fetch(API_URL, {
     method: "POST",
     mode: "no-cors",
     headers: {
-      "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8"
+      "Content-Type": "application/json"
     },
-    body: body
+    body: JSON.stringify({
+      type: "session",
+      session_id: sessionId,
+      gender: userProfile.gender,
+      age: userProfile.age,
+      region: userProfile.region,
+      companion: userProfile.companion
+    })
   }).catch(() => {});
 }
 
-function sendSessionToSheet(profile) {
-  postToSheet({
-    action: "session",
-    session_id: sessionId,
-    started_at: profile.startedAt,
-    gender: profile.gender,
-    age_group: profile.age,
-    companion_type: profile.companion,
-    region: profile.region
-  });
-}
-
 function sendAnswerToSheet(spotId, answerText) {
-  postToSheet({
-    action: "answer",
-    session_id: sessionId,
-    timestamp: new Date().toISOString(),
-    spot_id: spotId,
-    answer_text: answerText
-  });
-}
+  if (!API_URL || !sessionId) return;
 
-function startExperience() {
-  const gender = document.getElementById("genderSelect").value;
-  const age = document.getElementById("ageSelect").value;
-  const region = document.getElementById("regionSelect").value;
-  const companion = document.getElementById("companionSelect").value;
-
-  if (!gender || !age || !region || !companion) return;
-
-  sessionId = createSessionId();
-  localStorage.setItem("sessionId", sessionId);
-
-  userProfile = {
-    gender,
-    age,
-    region,
-    companion,
-    startedAt: new Date().toISOString()
-  };
-  localStorage.setItem("userProfile", JSON.stringify(userProfile));
-
-  sendSessionToSheet(userProfile);
-
-  document.getElementById("titleScreen").classList.add("hidden");
-  document.getElementById("startScreen").classList.add("hidden");
-  document.getElementById("appScreen").classList.remove("hidden");
-  document.getElementById("mapBtn").classList.remove("hidden");
-
-  if (!map) {
-    initMap();
-  }
-
-  setTimeout(() => {
-    map.invalidateSize();
-    startAutoTracking();
-    maybeOpenTutorial();
-  }, 100);
-}
-
-/* =========================
-   進捗・地図片
-========================= */
-function getCorrectCount() {
-  return Object.values(answers).filter(a => a && a.isCorrect).length;
-}
-
-function updateMapBtnCount() {
-  const count = getCorrectCount();
-  const el = document.getElementById("mapBtnCount");
-  if (el) {
-    el.textContent = `地図のかけら ${count}/8`;
-  }
-
-  const btn = document.getElementById("mapBtn");
-  if (btn) {
-    if (count >= 8) {
-      btn.classList.add("attentionGlow");
-    } else {
-      btn.classList.remove("attentionGlow");
-    }
-  }
-}
-
-function updateSealButton() {
-  const sealBtn = document.getElementById("sealBtn");
-  const count = Object.keys(collectedPieces).length;
-
-  if (count >= 8) {
-    sealBtn.classList.remove("hidden");
-    sealBtn.href = SEAL_LINK;
-  } else {
-    sealBtn.classList.add("hidden");
-    sealBtn.href = "";
-  }
-}
-
-function updateMapCollectionUI() {
-  let count = 0;
-
-  spots.forEach((spot) => {
-    const pieceNumber = pieceMap[spot.spot_id];
-    const pieceEl = document.getElementById(`piece${pieceNumber}`);
-    const hasPiece = !!collectedPieces[spot.spot_id];
-
-    if (pieceEl) {
-      if (hasPiece) {
-        pieceEl.classList.add("filled");
-        count++;
-      } else {
-        pieceEl.classList.remove("filled");
-      }
-    }
-  });
-
-  const titleCountEl = document.getElementById("mapTitleCount");
-  if (titleCountEl) {
-    titleCountEl.innerText = `(${count}/8枚)`;
-  }
-
-  const stageEl = document.getElementById("mapStage");
-  if (stageEl) {
-    if (count === 8) {
-      stageEl.classList.add("completed");
-    } else {
-      stageEl.classList.remove("completed");
-    }
-  }
-
-  updateSealButton();
-  updateMapBtnCount();
-}
-
-function openMapSheet() {
-  updateMapCollectionUI();
-  document.getElementById("mapSheetBackdrop").style.display = "block";
-  document.getElementById("mapSheet").style.display = "block";
-}
-
-function closeMapSheet() {
-  document.getElementById("mapSheetBackdrop").style.display = "none";
-  document.getElementById("mapSheet").style.display = "none";
-}
-
-/* =========================
-   演出
-========================= */
-function pulseMapButton() {
-  const mapBtn = document.getElementById("mapBtn");
-  mapBtn.classList.add("pulse");
-  mapBtn.classList.add("sparklePulse");
-  setTimeout(() => mapBtn.classList.remove("pulse"), 300);
-  setTimeout(() => mapBtn.classList.remove("sparklePulse"), 1000);
-}
-
-function createSparkle(x, y) {
-  const fxLayer = document.getElementById("fxLayer");
-  const s = document.createElement("div");
-  s.className = "sparkle";
-  const dx = (Math.random() - 0.5) * 24;
-  const dy = (Math.random() - 0.5) * 24;
-  s.style.left = `${x + dx}px`;
-  s.style.top = `${y + dy}px`;
-  fxLayer.appendChild(s);
-  setTimeout(() => s.remove(), 750);
-}
-
-function animateIconToMap(spotId) {
-  return new Promise((resolve) => {
-    const iconSrc = iconMap[spotId];
-    if (!iconSrc) {
-      resolve();
-      return;
-    }
-
-    const fxLayer = document.getElementById("fxLayer");
-    const saveBtn = document.getElementById("saveAnswerBtn");
-    const mapBtn = document.getElementById("mapBtn");
-
-    if (!saveBtn || !mapBtn) {
-      resolve();
-      return;
-    }
-
-    const saveRect = saveBtn.getBoundingClientRect();
-    const mapRect = mapBtn.getBoundingClientRect();
-
-    const startX = saveRect.left + saveRect.width / 2;
-    const startY = saveRect.top + saveRect.height / 2;
-    const centerX = window.innerWidth / 2;
-    const centerY = window.innerHeight / 2;
-    const endX = mapRect.left + mapRect.width / 2;
-    const endY = mapRect.top + mapRect.height / 2;
-
-    const icon = document.createElement("img");
-    icon.className = "flyingIcon";
-    icon.src = iconSrc;
-    icon.style.left = `${startX}px`;
-    icon.style.top = `${startY}px`;
-    icon.style.transform = "translate(-50%, -50%) scale(1.35)";
-    fxLayer.appendChild(icon);
-
-    requestAnimationFrame(() => {
-      icon.style.opacity = "1";
-      icon.style.transition = "left 0.7s ease, top 0.7s ease, transform 0.7s ease, opacity 0.25s ease";
-      icon.style.left = `${centerX}px`;
-      icon.style.top = `${centerY}px`;
-      icon.style.transform = "translate(-50%, -50%) scale(4.5)";
-    });
-
-    const sparkleTimer = setInterval(() => {
-      const currentLeft = parseFloat(icon.style.left || "0");
-      const currentTop = parseFloat(icon.style.top || "0");
-      if (currentLeft && currentTop) {
-        createSparkle(currentLeft, currentTop);
-        if (Math.random() > 0.55) createSparkle(currentLeft, currentTop);
-      }
-    }, 90);
-
-    const step1Done = () => {
-      icon.removeEventListener("transitionend", step1Done);
-
-      setTimeout(() => {
-        icon.style.transition = "left 1.1s cubic-bezier(0.2, 0.85, 0.2, 1), top 1.1s cubic-bezier(0.2, 0.85, 0.2, 1), transform 1.1s ease, opacity 1.1s ease";
-        icon.style.left = `${endX}px`;
-        icon.style.top = `${endY}px`;
-        icon.style.transform = "translate(-50%, -50%) scale(0.42)";
-        icon.style.opacity = "0.92";
-
-        const step2Done = () => {
-          icon.removeEventListener("transitionend", step2Done);
-          clearInterval(sparkleTimer);
-          pulseMapButton();
-          setTimeout(() => {
-            icon.remove();
-            resolve();
-          }, 120);
-        };
-
-        icon.addEventListener("transitionend", step2Done, { once: true });
-      }, 1000);
-    };
-
-    icon.addEventListener("transitionend", step1Done, { once: true });
-  });
-}
-
-/* =========================
-   チュートリアル
-========================= */
-function maybeOpenTutorial() {
-  const seen = localStorage.getItem("tutorialSeen");
-  if (seen === "1") return;
-
-  tutorialIndex = 0;
-  updateTutorialSlide();
-  document.getElementById("tutorialBackdrop").style.display = "block";
-  document.getElementById("tutorialModal").style.display = "block";
-}
-
-function updateTutorialSlide() {
-  const track = document.getElementById("tutorialTrack");
-  if (track) {
-    track.style.transform = `translateX(-${tutorialIndex * 100}%)`;
-  }
-
-  document.querySelectorAll(".tutorialDot").forEach((dot, idx) => {
-    dot.classList.toggle("active", idx === tutorialIndex);
-  });
-
-  const prevBtn = document.getElementById("tutorialPrevBtn");
-  const nextBtn = document.getElementById("tutorialNextBtn");
-  const startBtn = document.getElementById("tutorialStartBtn");
-
-  if (prevBtn) prevBtn.disabled = tutorialIndex === 0;
-  if (nextBtn) nextBtn.classList.toggle("hidden", tutorialIndex === TUTORIAL_TOTAL - 1);
-  if (startBtn) startBtn.classList.toggle("hidden", tutorialIndex !== TUTORIAL_TOTAL - 1);
-}
-
-function nextTutorialSlide() {
-  if (tutorialIndex < TUTORIAL_TOTAL - 1) {
-    tutorialIndex += 1;
-    updateTutorialSlide();
-  }
-}
-
-function prevTutorialSlide() {
-  if (tutorialIndex > 0) {
-    tutorialIndex -= 1;
-    updateTutorialSlide();
-  }
-}
-
-function finishTutorial() {
-  localStorage.setItem("tutorialSeen", "1");
-  document.getElementById("tutorialBackdrop").style.display = "none";
-  document.getElementById("tutorialModal").style.display = "none";
-}
-
-function skipTutorial() {
-  finishTutorial();
-}
-
-function closeTutorialIfBackdrop(e) {
-  if (e.target.id === "tutorialBackdrop") {
-    finishTutorial();
-  }
+  fetch(API_URL, {
+    method: "POST",
+    mode: "no-cors",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      type: "answer",
+      session_id: sessionId,
+      spot_id: spotId,
+      answer: answerText
+    })
+  }).catch(() => {});
 }
 
 /* =========================
    地図初期化
 ========================= */
 function initMap() {
-  map = L.map("map").setView([35.506855, 138.744967], GPS_SETTINGS.defaultZoom);
+  if (map) return;
+
+  map = L.map("map", {
+    zoomControl: true,
+    attributionControl: true
+  }).setView([35.50712, 138.74522], GPS_SETTINGS.defaultZoom);
 
   L.tileLayer(MAPTILER_TILE_URL, {
-    maxZoom: 19,
-    attribution: '&copy; MapTiler & OpenStreetMap contributors'
+    tileSize: 256,
+    zoomOffset: 0,
+    maxZoom: 20,
+    attribution: '&copy; MapTiler &copy; OpenStreetMap contributors'
   }).addTo(map);
 
   spots.forEach((spot) => {
-    const marker = L.circleMarker([spot.latitude, spot.longitude], {
-      radius: 14,
-      color: "gray",
-      fillColor: "gray",
-      fillOpacity: 0.8,
-      weight: 2
-    }).addTo(map);
+    const marker = createSpotMarker(spot, false, isSpotAnsweredCorrectly(spot.spot_id));
+    marker.addTo(map);
 
-    marker.bindTooltip(spot.spot_name);
-    marker.on("click", () => openSpotFromMarker(spot));
-    marker.on("mouseup", () => openSpotFromMarker(spot));
+    marker.on("click", () => {
+      if (!unlocked[spot.spot_id]) return;
+      openSpotSheet(spot);
+    });
 
     markers[spot.spot_id] = marker;
   });
 
-  updateProgress();
-  updateMapCollectionUI();
-  spots.forEach(updateMarker);
-  renderUnlockedList();
+  startWatchingLocation();
+}
+
+function createSpotMarker(spot, isUnlocked, isCorrect) {
+  const color = isCorrect ? "#31b36b" : isUnlocked ? "#3892ff" : "#9aa4af";
+  const markerHtml = `
+    <div style="
+      width: 22px;
+      height: 22px;
+      border-radius: 999px;
+      background:${color};
+      border:3px solid #fff;
+      box-shadow:0 4px 12px rgba(0,0,0,0.25);
+    "></div>
+  `;
+
+  const icon = L.divIcon({
+    className: "",
+    html: markerHtml,
+    iconSize: [22, 22],
+    iconAnchor: [11, 11]
+  });
+
+  return L.marker([spot.latitude, spot.longitude], { icon });
+}
+
+function updateMarker(spot) {
+  const marker = markers[spot.spot_id];
+  if (!marker) return;
+
+  const updated = createSpotMarker(
+    spot,
+    !!unlocked[spot.spot_id],
+    isSpotAnsweredCorrectly(spot.spot_id)
+  );
+
+  marker.setIcon(updated.options.icon);
+}
+
+function isSpotAnsweredCorrectly(spotId) {
+  return !!(answers[spotId] && answers[spotId].isCorrect);
 }
 
 /* =========================
-   GPSまわり
+   GPS監視
 ========================= */
-function getDistance(lat1, lon1, lat2, lon2) {
-  const R = 6371000;
-  const dLat = (lat2 - lat1) * Math.PI / 180;
-  const dLon = (lon2 - lon1) * Math.PI / 180;
-  const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-    Math.sin(dLon / 2) * Math.sin(dLon / 2);
-  return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
-}
-
-function resetGpsStability() {
-  stableCount = 0;
-  stableReference = null;
-  gpsLocked = false;
-}
-
-function isAccurateEnough(accuracy) {
-  return Number.isFinite(accuracy) && accuracy <= GPS_SETTINGS.requiredAccuracy;
-}
-
-function evaluateGpsStability(lat, lon, accuracy) {
-  latestAccuracy = accuracy;
-
-  if (!isAccurateEnough(accuracy)) {
-    resetGpsStability();
-    return false;
-  }
-
-  if (!stableReference) {
-    stableReference = { lat, lon };
-    stableCount = 1;
-    return false;
-  }
-
-  const drift = getDistance(lat, lon, stableReference.lat, stableReference.lon);
-
-  if (drift <= GPS_SETTINGS.stableDistance) {
-    stableCount += 1;
-  } else {
-    stableReference = { lat, lon };
-    stableCount = 1;
-    return false;
-  }
-
-  stableReference = {
-    lat: (stableReference.lat + lat) / 2,
-    lon: (stableReference.lon + lon) / 2
-  };
-
-  if (stableCount >= GPS_SETTINGS.requiredStableCount) {
-    gpsLocked = true;
-    return true;
-  }
-
-  return false;
-}
-
-function startAutoTracking() {
-  if (!navigator.geolocation) {
-    alert("この端末では位置情報が使えません。");
-    return;
-  }
-
-  if (watchId !== null) {
-    navigator.geolocation.clearWatch(watchId);
-  }
-
-  resetGpsStability();
-  hasCenteredOnStableLocation = false;
+function startWatchingLocation() {
+  if (!navigator.geolocation) return;
 
   watchId = navigator.geolocation.watchPosition(
-    (pos) => {
-      const lat = pos.coords.latitude;
-      const lon = pos.coords.longitude;
-      const accuracy = pos.coords.accuracy;
-
-      lastLat = lat;
-      lastLon = lon;
-
-      updateUserLocation(lat, lon, accuracy);
-
-      const stableNow = evaluateGpsStability(lat, lon, accuracy);
-
-      if (stableNow) {
-        if (!hasCenteredOnStableLocation) {
-          map.setView([lat, lon], GPS_SETTINGS.stableZoom);
-          hasCenteredOnStableLocation = true;
-        }
-        checkDistance(lat, lon);
-      }
-
-      renderUnlockedList();
-    },
-    (err) => {
-      console.error("GPS取得エラー:", err);
-    },
+    onLocationUpdate,
+    onLocationError,
     {
       enableHighAccuracy: true,
       timeout: GPS_SETTINGS.watchTimeout,
@@ -828,266 +609,392 @@ function startAutoTracking() {
   );
 }
 
-function updateUserLocation(lat, lon, accuracy) {
-  if (userMarker) map.removeLayer(userMarker);
-  if (userCircle) map.removeLayer(userCircle);
+function onLocationUpdate(position) {
+  const lat = position.coords.latitude;
+  const lon = position.coords.longitude;
+  const accuracy = position.coords.accuracy;
+  latestAccuracy = accuracy;
 
-  userMarker = L.circleMarker([lat, lon], {
-    radius: 8,
-    color: "#ffffff",
-    weight: 2,
-    fillColor: "#1976d2",
-    fillOpacity: 1
-  }).addTo(map);
+  if (!userMarker) {
+    const userIcon = L.divIcon({
+      className: "",
+      html: `
+        <div style="
+          width:18px;
+          height:18px;
+          border-radius:999px;
+          background:#ff7c3b;
+          border:3px solid #fff;
+          box-shadow:0 4px 12px rgba(0,0,0,0.28);
+        "></div>
+      `,
+      iconSize: [18, 18],
+      iconAnchor: [9, 9]
+    });
 
-  userCircle = L.circle([lat, lon], {
-    radius: accuracy,
-    color: gpsLocked ? "#1976d2" : "#ff9800",
-    fillColor: gpsLocked ? "#1976d2" : "#ff9800",
-    fillOpacity: gpsLocked ? 0.12 : 0.08,
-    weight: 1
-  }).addTo(map);
+    userMarker = L.marker([lat, lon], { icon: userIcon }).addTo(map);
+    userCircle = L.circle([lat, lon], {
+      radius: accuracy,
+      color: "#ff7c3b",
+      weight: 1,
+      opacity: 0.9,
+      fillColor: "#ff7c3b",
+      fillOpacity: 0.13
+    }).addTo(map);
+  } else {
+    userMarker.setLatLng([lat, lon]);
+    userCircle.setLatLng([lat, lon]);
+    userCircle.setRadius(accuracy);
+  }
+
+  const current = L.latLng(lat, lon);
+
+  if (accuracy <= GPS_SETTINGS.requiredAccuracy) {
+    if (!stableReference) {
+      stableReference = current;
+      stableCount = 1;
+    } else {
+      const moved = stableReference.distanceTo(current);
+      if (moved <= GPS_SETTINGS.stableDistance) {
+        stableCount += 1;
+      } else {
+        stableReference = current;
+        stableCount = 1;
+      }
+    }
+
+    if (!gpsLocked && stableCount >= GPS_SETTINGS.requiredStableCount) {
+      gpsLocked = true;
+    }
+  } else {
+    stableCount = 0;
+    stableReference = null;
+  }
+
+  if (gpsLocked && !hasCenteredOnStableLocation) {
+    map.setView([lat, lon], GPS_SETTINGS.stableZoom);
+    hasCenteredOnStableLocation = true;
+  }
+
+  lastLat = lat;
+  lastLon = lon;
+
+  checkUnlockByDistance(lat, lon);
+}
+
+function onLocationError() {}
+
+function checkUnlockByDistance(lat, lon) {
+  spots.forEach((spot) => {
+    const distance = getDistanceMeters(lat, lon, spot.latitude, spot.longitude);
+    if (distance <= spot.radius_m && !unlocked[spot.spot_id]) {
+      unlocked[spot.spot_id] = true;
+      localStorage.setItem("unlocked", JSON.stringify(unlocked));
+      updateMarker(spot);
+      renderUnlockedList();
+    }
+  });
+}
+
+function getDistanceMeters(lat1, lon1, lat2, lon2) {
+  const a = L.latLng(lat1, lon1);
+  const b = L.latLng(lat2, lon2);
+  return a.distanceTo(b);
 }
 
 function centerOnUser() {
-  if (lastLat !== null && lastLon !== null) {
+  if (map && lastLat !== null && lastLon !== null) {
     map.setView([lastLat, lastLon], GPS_SETTINGS.stableZoom);
   }
 }
 
-function checkDistance(lat, lon) {
-  let changed = false;
+/* =========================
+   見つけたヒミツ一覧
+========================= */
+function renderUnlockedList() {
+  const list = document.getElementById("unlockedList");
+  if (!list) return;
 
-  spots.forEach((spot) => {
-    const d = getDistance(lat, lon, spot.latitude, spot.longitude);
+  const unlockedSpots = spots.filter((spot) => unlocked[spot.spot_id]);
 
-    if (d <= spot.radius_m && !unlocked[spot.spot_id]) {
-      unlocked[spot.spot_id] = true;
-      changed = true;
-    }
-
-    updateMarker(spot);
-  });
-
-  if (changed) {
-    localStorage.setItem("unlocked", JSON.stringify(unlocked));
+  if (unlockedSpots.length === 0) {
+    list.innerHTML = `<div style="color:#666; font-size:14px;">まだ見つかったヒミツはないよ。池の近くまで行ってみよう！</div>`;
+    return;
   }
 
-  renderUnlockedList();
+  list.innerHTML = unlockedSpots.map((spot) => {
+    const correct = isSpotAnsweredCorrectly(spot.spot_id);
+    return `
+      <button class="spotRow" onclick="openSpotSheetById('${spot.spot_id}')">
+        <div class="spotRowLeft">
+          <div class="spotRowTitle">${spot.spot_name}</div>
+          <div class="spotRowMeta">${correct ? "問題クリア済み" : "まだ問題に答えていないよ"}</div>
+        </div>
+        ${correct ? `<div class="doneBadge">クリア！</div>` : ``}
+      </button>
+    `;
+  }).join("");
+}
+
+function openSpotSheetById(spotId) {
+  const spot = spots.find((s) => s.spot_id === spotId);
+  if (!spot) return;
+  openSpotSheet(spot);
 }
 
 /* =========================
-   マーカー・一覧
+   チュートリアル
 ========================= */
-function updateMarker(spot) {
-  const marker = markers[spot.spot_id];
-  if (!marker) return;
+function openTutorial() {
+  document.getElementById("tutorialBackdrop").style.display = "block";
+  document.getElementById("tutorialModal").style.display = "block";
+  tutorialIndex = 0;
+  updateTutorialUI();
+}
 
-  const ans = answers[spot.spot_id];
+function closeTutorial() {
+  document.getElementById("tutorialBackdrop").style.display = "none";
+  document.getElementById("tutorialModal").style.display = "none";
+}
 
-  if (ans && ans.isCorrect) {
-    marker.setStyle({ color: "green", fillColor: "green" });
-  } else if (unlocked[spot.spot_id]) {
-    marker.setStyle({ color: "blue", fillColor: "blue" });
-  } else {
-    marker.setStyle({ color: "gray", fillColor: "gray" });
+function skipTutorial() {
+  closeTutorial();
+}
+
+function closeTutorialIfBackdrop(event) {
+  if (event.target.id === "tutorialBackdrop") {
+    closeTutorial();
   }
 }
 
-function openSpotFromMarker(spot) {
-  if (!gpsLocked) {
-    alert("現在地を確認中です。しばらくすると、正しい場所でスポットを開けるようになります。");
-    return;
-  }
+function updateTutorialUI() {
+  const track = document.getElementById("tutorialTrack");
+  track.style.transform = `translateX(-${tutorialIndex * 25}%)`;
 
-  if (!unlocked[spot.spot_id]) {
-    alert("このスポットの近くに移動すると情報が解放されます。");
-    return;
-  }
-
-  if (answers[spot.spot_id] && answers[spot.spot_id].isCorrect) {
-    alert("このスポットは発見済みです。");
-    return;
-  }
-
-  openSpot(spot);
-}
-
-function renderUnlockedList() {
-  const container = document.getElementById("unlockedList");
-  const unlockedSpots = spots.filter(spot => unlocked[spot.spot_id]);
-
-  if (unlockedSpots.length === 0) {
-    const gpsMessage = gpsLocked
-      ? "まだ見つかったヒミツはないよ。池の近くまで行ってみよう！"
-      : `現在地を確認中です。しばらくすると近くのスポットが開きます。${latestAccuracy ? `（現在の誤差の目安：約${Math.round(latestAccuracy)}m）` : ""}`;
-    container.innerHTML = `<div style="color:#666; font-size:14px;">${gpsMessage}</div>`;
-    return;
-  }
-
-  container.innerHTML = "";
-
-  unlockedSpots.forEach(spot => {
-    const row = document.createElement("div");
-    row.className = "spotRow";
-
-    const left = document.createElement("div");
-    const title = document.createElement("div");
-    title.className = "spotRowTitle";
-    title.textContent = spot.spot_name;
-
-    const meta = document.createElement("div");
-    meta.className = "spotRowMeta";
-
-    if (answers[spot.spot_id] && answers[spot.spot_id].isCorrect) {
-      meta.textContent = "ヒミツ発見！";
-    } else if (answers[spot.spot_id]) {
-      meta.textContent = "もう一回ちょうせん";
-    } else {
-      meta.textContent = "まだチャレンジしてない";
-    }
-
-    left.appendChild(title);
-    left.appendChild(meta);
-
-    if (answers[spot.spot_id] && answers[spot.spot_id].isCorrect) {
-      const badge = document.createElement("div");
-      badge.className = "doneBadge";
-      badge.textContent = "クリア！";
-      row.appendChild(left);
-      row.appendChild(badge);
-    } else {
-      const btn = document.createElement("button");
-      btn.textContent = answers[spot.spot_id] ? "もう一回ちょうせん" : "ナゾにちょうせん";
-      if (answers[spot.spot_id] && !answers[spot.spot_id].isCorrect) {
-        btn.classList.add("retryBtn");
-      }
-      btn.onclick = () => {
-        openSpot(spot);
-      };
-      row.appendChild(left);
-      row.appendChild(btn);
-    }
-
-    container.appendChild(row);
+  const dots = document.querySelectorAll(".tutorialDot");
+  dots.forEach((dot, index) => {
+    dot.classList.toggle("active", index === tutorialIndex);
   });
+
+  document.getElementById("tutorialPrevBtn").disabled = tutorialIndex === 0;
+  document.getElementById("tutorialNextBtn").textContent =
+    tutorialIndex === TUTORIAL_TOTAL - 1 ? "はじめる" : "つぎへ";
+}
+
+function nextTutorial() {
+  if (tutorialIndex >= TUTORIAL_TOTAL - 1) {
+    closeTutorial();
+    return;
+  }
+  tutorialIndex += 1;
+  updateTutorialUI();
+}
+
+function prevTutorial() {
+  if (tutorialIndex <= 0) return;
+  tutorialIndex -= 1;
+  updateTutorialUI();
+}
+
+function goTutorialSlide(index) {
+  tutorialIndex = index;
+  updateTutorialUI();
+}
+
+/* =========================
+   地図のかけらUI
+========================= */
+function updateMapCollectionUI() {
+  updateMapBtnCount();
+  updatePieceGrid();
+  updateSealArea();
+}
+
+function updateMapBtnCount() {
+  const count = Object.keys(collectedPieces).length;
+  const countEl = document.getElementById("mapBtnCount");
+  if (countEl) {
+    countEl.textContent = `地図のかけら ${count}/8`;
+  }
+}
+
+function updatePieceGrid() {
+  const cells = document.querySelectorAll(".pieceCell");
+  cells.forEach((cell) => {
+    const pieceNo = Number(cell.dataset.piece);
+    const matchedSpotId = Object.keys(pieceMap).find((spotId) => pieceMap[spotId] === pieceNo);
+    if (matchedSpotId && collectedPieces[matchedSpotId]) {
+      cell.classList.add("collected");
+    } else {
+      cell.classList.remove("collected");
+    }
+  });
+}
+
+function updateSealArea() {
+  const count = Object.keys(collectedPieces).length;
+  const sealArea = document.getElementById("sealArea");
+  const sealLinkBtn = document.getElementById("sealLinkBtn");
+
+  if (count >= 8 && SEAL_LINK) {
+    sealArea.classList.remove("hidden");
+    sealLinkBtn.href = SEAL_LINK;
+  } else {
+    sealArea.classList.add("hidden");
+    sealLinkBtn.href = "#";
+  }
+}
+
+function openMapSheet() {
+  document.getElementById("mapSheetBackdrop").style.display = "block";
+  document.getElementById("mapSheet").style.display = "block";
+  updateMapCollectionUI();
+}
+
+function closeMapSheet() {
+  document.getElementById("mapSheetBackdrop").style.display = "none";
+  document.getElementById("mapSheet").style.display = "none";
+}
+
+function closeMapSheetIfBackdrop(event) {
+  if (event.target.id === "mapSheetBackdrop") {
+    closeMapSheet();
+  }
+}
+
+/* =========================
+   かけら演出
+========================= */
+async function animateIconToMap(spotId) {
+  const fxLayer = document.getElementById("fxLayer");
+  const iconPath = iconMap[spotId];
+  const mapBtn = document.getElementById("mapBtn");
+  if (!fxLayer || !iconPath || !mapBtn) return;
+
+  const startRect = document.body.getBoundingClientRect();
+  const endRect = mapBtn.getBoundingClientRect();
+
+  const flying = document.createElement("img");
+  flying.src = iconPath;
+  flying.alt = "";
+  flying.style.position = "fixed";
+  flying.style.left = `${startRect.width / 2 - 40}px`;
+  flying.style.top = `${startRect.height / 2 - 40}px`;
+  flying.style.width = "80px";
+  flying.style.height = "80px";
+  flying.style.objectFit = "contain";
+  flying.style.zIndex = "1300";
+  flying.style.transition = "transform 0.75s ease, opacity 0.75s ease";
+  fxLayer.appendChild(flying);
+
+  await waitMs(30);
+
+  const dx = endRect.left + endRect.width / 2 - (startRect.width / 2);
+  const dy = endRect.top + endRect.height / 2 - (startRect.height / 2);
+
+  flying.style.transform = `translate(${dx}px, ${dy}px) scale(0.18)`;
+  flying.style.opacity = "0.2";
+
+  await waitMs(800);
+  flying.remove();
+}
+
+function waitMs(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 /* =========================
    スポットシート
 ========================= */
-function buildChoices(spot) {
-  const box = document.getElementById("choicesBox");
-  box.innerHTML = "";
-
-  const saved = answers[spot.spot_id]?.value || "";
-
-  spot.content.choices.forEach((choice, idx) => {
-    const label = document.createElement("label");
-    label.className = "choiceLabel";
-
-    const radio = document.createElement("input");
-    radio.type = "radio";
-    radio.name = "spotChoice";
-    radio.value = choice.value;
-    if (saved === choice.value) radio.checked = true;
-
-    const code = document.createElement("div");
-    code.className = "choiceCode";
-    code.textContent = ["A", "B", "C"][idx] || choice.value;
-
-    const text = document.createElement("div");
-    text.textContent = choice.label;
-
-    label.appendChild(radio);
-    label.appendChild(code);
-    label.appendChild(text);
-
-    box.appendChild(label);
-  });
-}
-
-function setMedia(spot) {
-  const imageError = document.getElementById("imageError");
-  imageError.style.display = "none";
-  imageError.innerText = "";
-
-  const singleArea = document.getElementById("singleImageArea");
-  const compareArea = document.getElementById("compareArea");
-
-  singleArea.classList.add("hidden");
-  compareArea.classList.add("hidden");
-
-  if (spot.mediaMode === "compare") {
-    compareArea.classList.remove("hidden");
-
-    const oldImg = document.getElementById("oldImg");
-    const newImg = document.getElementById("newImg");
-
-    oldImg.onerror = () => {
-      imageError.style.display = "block";
-      imageError.innerText = "昔画像の読み込みに失敗しました。";
-    };
-    newImg.onerror = () => {
-      imageError.style.display = "block";
-      imageError.innerText = "今画像の読み込みに失敗しました。";
-    };
-
-    oldImg.src = spot.images.old || "";
-    newImg.src = spot.images.new || "";
-
-    document.getElementById("compareRange").value = 50;
-    updateCompareSlider(50);
-  } else {
-    singleArea.classList.remove("hidden");
-    const singleImg = document.getElementById("singleImg");
-    singleImg.onerror = () => {
-      imageError.style.display = "block";
-      imageError.innerText = "参考画像の読み込みに失敗しました。";
-    };
-    singleImg.src = spot.images.single || "";
-  }
-}
-
-function openSpot(spot) {
+function openSpotSheet(spot) {
   currentSpot = spot;
 
-  document.getElementById("spotTitle").innerText = spot.spot_name;
-  document.getElementById("spotDescription").innerText = spot.content.description;
-  document.getElementById("spotQuestion").innerText = spot.content.question;
+  document.getElementById("sheetBackdrop").style.display = "block";
+  document.getElementById("sheet").style.display = "block";
 
+  document.getElementById("spotTitle").textContent = spot.spot_name;
+  document.getElementById("spotDescription").textContent = spot.content.description || "";
+  document.getElementById("spotQuestion").textContent = spot.content.question || "";
+  document.getElementById("formMessage").textContent = "";
+  document.getElementById("imageError").textContent = "";
+
+  renderHintAndTip(spot);
+  renderImageArea(spot);
+  renderChoices(spot);
+}
+
+function renderHintAndTip(spot) {
   const hintEl = document.getElementById("spotHint");
   const tipEl = document.getElementById("spotTip");
 
   if (spot.content.hint) {
-    hintEl.innerText = spot.content.hint;
+    hintEl.textContent = spot.content.hint;
     hintEl.classList.remove("hidden");
   } else {
-    hintEl.innerText = "";
+    hintEl.textContent = "";
     hintEl.classList.add("hidden");
   }
 
   if (spot.content.tip) {
-    tipEl.innerText = spot.content.tip;
+    tipEl.textContent = spot.content.tip;
     tipEl.classList.remove("hidden");
   } else {
-    tipEl.innerText = "";
+    tipEl.textContent = "";
     tipEl.classList.add("hidden");
   }
+}
 
-  buildChoices(spot);
-  setMedia(spot);
+function renderImageArea(spot) {
+  const singleArea = document.getElementById("singleImageArea");
+  const compareArea = document.getElementById("compareArea");
+  const singleImage = document.getElementById("singleImage");
+  const oldImg = document.getElementById("oldImg");
+  const newImg = document.getElementById("newImg");
+  const imageError = document.getElementById("imageError");
 
-  const saved = answers[spot.spot_id];
-  if (saved) {
-    document.getElementById("formMessage").innerText =
-      `保存済みの回答：${saved.value}（${saved.label}）\n結果：${saved.isCorrect ? "ヒミツ発見！" : "もう一回ちょうせん"}`;
-  } else {
-    document.getElementById("formMessage").innerText = "";
+  singleArea.classList.add("hidden");
+  compareArea.classList.add("hidden");
+  imageError.textContent = "";
+
+  if (spot.mediaMode === "single" && spot.images && spot.images.single) {
+    singleArea.classList.remove("hidden");
+    singleImage.src = spot.images.single;
+    singleImage.onerror = () => {
+      imageError.textContent = "画像の読み込みに失敗しました。";
+    };
+  } else if (spot.mediaMode === "compare" && spot.images && spot.images.old && spot.images.new) {
+    compareArea.classList.remove("hidden");
+    oldImg.src = spot.images.old;
+    newImg.src = spot.images.new;
+    updateCompareSlider(50);
+    oldImg.onerror = () => {
+      imageError.textContent = "昔の画像の読み込みに失敗しました。";
+    };
+    newImg.onerror = () => {
+      imageError.textContent = "今の画像の読み込みに失敗しました。";
+    };
   }
+}
 
-  document.getElementById("sheetBackdrop").style.display = "block";
-  document.getElementById("sheet").style.display = "block";
+function renderChoices(spot) {
+  const box = document.getElementById("choicesBox");
+  const saved = answers[spot.spot_id] ? answers[spot.spot_id].value : null;
+
+  box.innerHTML = (spot.content.choices || []).map((choice) => {
+    const checked = saved === choice.value ? "checked" : "";
+    return `
+      <label class="choiceLabel">
+        <input type="radio" name="spotChoice" value="${choice.value}" ${checked}>
+        <span>${choice.label}</span>
+      </label>
+    `;
+  }).join("");
+}
+
+function closeSheetIfBackdrop(event) {
+  if (event.target.id === "sheetBackdrop") {
+    closeSheet();
+  }
 }
 
 function updateCompareSlider(value) {
