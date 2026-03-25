@@ -1,0 +1,414 @@
+/* =========================
+   見つけたヒミツカード
+========================= */
+.spotRow {
+  width: 100%;
+  min-height: 95px;
+  height: 95px;
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 0;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(180deg, #f7fbff 0%, #eef5fc 100%);
+  border: 1px solid #d8e8f8;
+  border-radius: 16px;
+  padding: 0;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: 0 3px 10px rgba(54, 86, 124, 0.06);
+}
+
+.spotRowDragon {
+  isolation: isolate;
+}
+
+.spotRowDragon:hover,
+.spotRowDragon:active {
+  transform: none;
+}
+
+.spotRowText {
+  position: relative;
+  z-index: 4;
+  min-width: 0;
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 12px 8px 12px 14px;
+  max-width: calc(100% - 140px);
+}
+
+.spotRowTitle {
+  font-size: 15px;
+  color: #1f3f63;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin-bottom: 4px;
+}
+
+.spotRowMeta {
+  font-size: 12px;
+  color: #5e7287;
+  line-height: 1.45;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.spotRowVisualWrap {
+  position: absolute;
+  top: 0;
+  right: 82px;
+  width: 88px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.spotRowVisualFade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(247, 251, 255, 0.98) 0%,
+    rgba(247, 251, 255, 0.85) 28%,
+    rgba(247, 251, 255, 0.30) 70%,
+    rgba(247, 251, 255, 0.00) 100%
+  );
+  z-index: 1;
+}
+
+.spotRowDragonImg {
+  position: relative;
+  z-index: 0;
+  width: 78px;
+  height: 78px;
+  object-fit: contain;
+  object-position: center center;
+  display: block;
+  opacity: 0.98;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.10));
+}
+
+.spotRowBadgeWrap {
+  position: relative;
+  z-index: 5;
+  flex: 0 0 82px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-right: 10px;
+}
+
+.doneBadge {
+  white-space: nowrap;
+  background: #dff6e9;
+  color: #207a4d;
+  border: 1.5px solid #98d3af;
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 13px;
+  box-shadow: 0 2px 6px rgba(32, 122, 77, 0.08);
+}
+
+.spotRowLeft {
+  min-width: 0;
+}
+
+/* =========================
+   共通情報部品
+========================= */
+.compareHint {
+  margin-top: 8px;
+  font-size: 14px;
+  line-height: 1.8;
+  color: #53687f;
+}
+
+.imgLabel {
+  margin-bottom: 8px;
+  font-size: 16px;
+  color: #315c93;
+}
+
+.infoBox {
+  margin: 12px 16px 0;
+  border-radius: 16px;
+  padding: 12px 14px;
+  font-size: 15px;
+  line-height: 1.8;
+}
+
+.hintBox {
+  background: #eef8ff;
+  border: 2px solid #badaff;
+  color: #27598f;
+}
+
+.tipBox {
+  background: #fff5df;
+  border: 2px solid #f3d38d;
+  color: #715315;
+}
+
+/* =========================
+   地図のかけら
+========================= */
+.pieceGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  padding: 16px;
+}
+
+.pieceCell {
+  aspect-ratio: 1 / 1;
+  border-radius: 16px;
+  background: #e8eef5;
+  border: 2px dashed #bfd0e0;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+
+.pieceCell img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  opacity: 0.16;
+  filter: grayscale(1);
+}
+
+.pieceCell.collected {
+  background: #fff;
+  border-style: solid;
+  border-color: #9cc8ff;
+}
+
+.pieceCell.collected img {
+  opacity: 1;
+  filter: none;
+}
+
+#sealArea {
+  padding: 0 16px 18px;
+  display: flex;
+  justify-content: center;
+}
+
+.sealBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 52px;
+  min-width: 240px;
+  padding: 0 18px;
+  border-radius: 999px;
+  color: #fff;
+  text-decoration: none;
+  background: linear-gradient(180deg, #ff8d5b 0%, #ed5b27 100%);
+  box-shadow: 0 12px 26px rgba(167, 78, 32, 0.26);
+}
+
+/* =========================
+   問題シート内パーツ
+========================= */
+#spotDescription,
+#spotQuestion,
+#formMessage,
+#imageError {
+  padding: 0 16px;
+}
+
+#spotDescription {
+  margin-top: 12px;
+  font-size: 17px;
+  line-height: 1.9;
+  color: #30455c;
+}
+
+#singleImageArea,
+#compareArea {
+  padding: 14px 16px 0;
+}
+
+.singleImage {
+  width: 100%;
+  border-radius: 18px;
+  display: block;
+  background: #f4f8fb;
+}
+
+.compareWrap {
+  --divider: 50%;
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  border-radius: 18px;
+  background: #f3f7fb;
+}
+
+.compareBase,
+.compareTop {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.compareTop {
+  clip-path: inset(0 0 0 var(--divider));
+}
+
+.compareDivider {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: var(--divider);
+  width: 3px;
+  transform: translateX(-50%);
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 0 0 1px rgba(42, 76, 119, 0.16);
+}
+
+.compareLabel {
+  position: absolute;
+  top: 10px;
+  z-index: 2;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 14px;
+  color: #fff;
+  background: rgba(20, 37, 62, 0.5);
+}
+
+.compareLabel.old { left: 10px; }
+.compareLabel.new { right: 10px; }
+
+#compareRange {
+  width: calc(100% - 32px);
+  margin: 12px 16px 0;
+}
+
+#imageError {
+  margin-top: 8px;
+  color: #a92a2a;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+#spotQuestion {
+  margin-top: 16px;
+  font-size: 18px;
+  line-height: 1.9;
+  color: #213b55;
+}
+
+#choicesBox {
+  display: grid;
+  gap: 10px;
+  padding: 14px 16px 0;
+}
+
+.choiceLabel {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: #f7fbff;
+  border: 2px solid #d9e8f7;
+  color: #294660;
+  cursor: pointer;
+  line-height: 1.8;
+}
+
+.choiceLabel input {
+  margin-top: 3px;
+}
+
+#formMessage {
+  white-space: pre-line;
+  margin-top: 12px;
+  font-size: 16px;
+  line-height: 1.8;
+  color: #2f4a64;
+}
+
+.sheetButtons {
+  display: flex;
+  gap: 10px;
+  padding: 18px 16px 20px;
+}
+
+.sheetButtons button {
+  flex: 1;
+  min-height: 50px;
+  border: none;
+  border-radius: 999px;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.sheetButtons button:not(.primaryBtn) {
+  background: #eef4fa;
+  color: #37506b;
+}
+
+/* =========================
+   レスポンシブ
+========================= */
+@media (min-width: 768px) {
+  .pieceGrid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .spotRow {
+    min-height: 95px;
+    height: 95px;
+  }
+
+  .spotRowText {
+    max-width: calc(100% - 132px);
+    padding-left: 12px;
+    padding-right: 8px;
+  }
+
+  .spotRowVisualWrap {
+    right: 74px;
+    width: 76px;
+  }
+
+  .spotRowDragonImg {
+    width: 68px;
+    height: 68px;
+  }
+
+  .spotRowBadgeWrap {
+    flex-basis: 74px;
+    padding-right: 8px;
+  }
+
+  .doneBadge {
+    font-size: 12px;
+    padding: 6px 10px;
+  }
+
+  #spotDescription,
+  #spotQuestion {
+    font-size: 16px;
+  }
+}

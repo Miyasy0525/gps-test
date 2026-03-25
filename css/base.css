@@ -1,0 +1,152 @@
+* { box-sizing: border-box; }
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  margin: 0;
+  font-family: "Yomogi", cursive;
+  background: #f7f7f7;
+  color: #222;
+  font-weight: 700;
+  text-shadow:
+    0.35px 0 0 currentColor,
+    -0.35px 0 0 currentColor;
+}
+
+select,
+option,
+input,
+textarea,
+button {
+  font-family: "Yomogi", cursive !important;
+  font-weight: 700;
+}
+
+.startTitle,
+.mapSheetTitle,
+#spotTitle,
+.sectionTitle,
+.mapBtnMain,
+.mapBtnCount,
+.formLabel,
+.startLead,
+.warnBox,
+.subText,
+.spotRowTitle,
+.spotRowMeta,
+.doneBadge,
+.legendItem,
+#formMessage,
+#spotDescription,
+#spotQuestion,
+#spotHint,
+#spotTip,
+.compareHint,
+.imgLabel,
+.sealBtn,
+.tutorialTitle,
+.tutorialSlide h3,
+.tutorialSlide p,
+.choiceLabel,
+.compareLabel,
+button,
+.pinTitle,
+.pinLead,
+#pinError {
+  font-family: "Yomogi", cursive;
+  font-weight: 700;
+  text-shadow:
+    0.4px 0 0 currentColor,
+    -0.4px 0 0 currentColor;
+}
+
+.startTitle,
+.mapSheetTitle,
+#spotTitle,
+.sectionTitle,
+.mapBtnMain,
+.formLabel,
+.tutorialTitle,
+.tutorialSlide h3,
+.sealBtn,
+.primaryBtn,
+.pinTitle,
+.titleMainBtn {
+  font-weight: 800;
+  text-shadow:
+    0.55px 0 0 currentColor,
+    -0.55px 0 0 currentColor,
+    0 0.4px 0 currentColor,
+    0 -0.4px 0 currentColor;
+}
+
+ruby {
+  ruby-align: center;
+  ruby-position: over;
+}
+
+rt {
+  font-size: 0.46em;
+  line-height: 1;
+  letter-spacing: 0;
+  font-weight: 700;
+  text-shadow: none;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.appScreenLayer {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+.primaryBtn {
+  min-width: 220px;
+  min-height: 52px;
+  border: none;
+  border-radius: 999px;
+  padding: 0 22px;
+  background: linear-gradient(180deg, #4aa7ff 0%, #1778db 100%);
+  color: #fff;
+  font-size: 22px;
+  cursor: pointer;
+  box-shadow:
+    0 10px 20px rgba(24, 96, 176, 0.22),
+    inset 0 2px 0 rgba(255, 255, 255, 0.24);
+}
+
+.primaryBtn:disabled {
+  background: linear-gradient(180deg, #cdd8e3 0%, #b2becb 100%);
+  color: #f7fbff;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* =========================
+   Leaflet調整
+========================= */
+.leaflet-control-attribution {
+  font-size: 10px;
+}
+
+.leaflet-popup-content-wrapper {
+  border-radius: 16px;
+}
+
+.leaflet-popup-content {
+  margin: 12px 14px;
+  font-family: "Yomogi", cursive;
+  font-weight: 700;
+  line-height: 1.8;
+}

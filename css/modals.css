@@ -1,0 +1,296 @@
+/* =========================
+   チュートリアル / モーダル共通
+========================= */
+#tutorialBackdrop,
+#mapSheetBackdrop,
+#sheetBackdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 25, 40, 0.45);
+  z-index: 900;
+}
+
+#tutorialModal,
+#mapSheet,
+#sheet {
+  display: none;
+  position: fixed;
+  left: 50%;
+  z-index: 950;
+}
+
+#tutorialModal {
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: min(100vw - 20px, 560px);
+  max-height: min(92dvh, 760px);
+}
+
+#tutorialInner,
+#mapSheetInner,
+#sheetInner {
+  background: #fff;
+  border-radius: 22px;
+  box-shadow: 0 18px 44px rgba(18, 34, 62, 0.24);
+  overflow: hidden;
+}
+
+.tutorialHeader,
+.mapSheetHeader,
+.sheetHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 16px 16px 0;
+}
+
+.tutorialTitle,
+.mapSheetTitle,
+#spotTitle {
+  font-size: 24px;
+  color: #214e8d;
+}
+
+.tutorialSkipBtn,
+.sheetHeader button,
+.mapSheetHeader button {
+  min-height: 40px;
+  border: none;
+  border-radius: 999px;
+  padding: 0 14px;
+  background: #edf5ff;
+  color: #28548d;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+/* =========================
+   チュートリアル
+========================= */
+.tutorialViewport {
+  overflow: hidden;
+  width: 100%;
+  padding: 16px;
+}
+
+.tutorialTrack {
+  display: flex;
+  width: 100%;
+  transition: transform 0.28s ease;
+}
+
+.tutorialSlide {
+  width: 100%;
+  min-width: 100%;
+  flex: 0 0 100%;
+  padding-right: 0;
+}
+
+.tutorialSlide img {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 16px;
+  background: #f2f6fa;
+  display: block;
+}
+
+.tutorialSlide h3 {
+  margin: 14px 0 8px;
+  font-size: 22px;
+  line-height: 1.6;
+  color: #244d82;
+}
+
+.tutorialSlide p {
+  margin: 0;
+  font-size: 17px;
+  line-height: 1.9;
+  color: #33485e;
+}
+
+.tutorialDots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 16px 8px;
+}
+
+.tutorialDot {
+  width: 10px;
+  height: 10px;
+  border: none;
+  border-radius: 999px;
+  background: #c6d6e8;
+  cursor: pointer;
+}
+
+.tutorialDot.active {
+  background: #2f86f1;
+}
+
+.tutorialFooter {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 16px 16px;
+}
+
+.tutorialFooter button {
+  flex: 1;
+  min-height: 48px;
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.tutorialFooter button:not(.primaryBtn) {
+  background: #eef4fa;
+  color: #35506e;
+}
+
+/* =========================
+   地図シート
+========================= */
+#mapSheet {
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: min(100vw - 20px, 860px);
+}
+
+.mapSheetLead {
+  padding: 14px 16px 0;
+  font-size: 16px;
+  line-height: 1.8;
+  color: #31475e;
+}
+
+/* =========================
+   スポットシート
+========================= */
+#sheet {
+  top: 12px;
+  bottom: 12px;
+  transform: translateX(-50%);
+  width: min(100vw - 20px, 860px);
+}
+
+#sheetInner {
+  height: calc(100vh - 24px);
+  height: calc(100dvh - 24px);
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* =========================
+   PINモーダル
+========================= */
+#pinBackdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(18, 30, 48, 0.45);
+  z-index: 1300;
+}
+
+#pinModal {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: min(100vw - 24px, 440px);
+  z-index: 1310;
+}
+
+#pinModalInner {
+  background: #fff;
+  border-radius: 22px;
+  padding: 22px 18px 18px;
+  box-shadow: 0 18px 44px rgba(17, 31, 53, 0.28);
+}
+
+.pinTitle {
+  font-size: 24px;
+  color: #214d89;
+  margin-bottom: 10px;
+}
+
+.pinLead {
+  font-size: 16px;
+  color: #44576b;
+  line-height: 1.8;
+  margin-bottom: 10px;
+}
+
+#pinInput {
+  width: 100%;
+  min-height: 48px;
+  border: 2px solid #b8d3ed;
+  border-radius: 14px;
+  padding: 10px 12px;
+  font-size: 18px;
+  outline: none;
+}
+
+#pinInput:focus {
+  border-color: #4aa7ff;
+  box-shadow: 0 0 0 4px rgba(74, 167, 255, 0.18);
+}
+
+#pinError {
+  min-height: 24px;
+  margin-top: 8px;
+  color: #b12c2c;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.pinButtons {
+  margin-top: 14px;
+  display: flex;
+  gap: 10px;
+}
+
+.pinButtons button {
+  flex: 1;
+  min-height: 46px;
+  border: none;
+  border-radius: 999px;
+  font-size: 17px;
+  cursor: pointer;
+}
+
+.pinButtons button:not(.primaryBtn) {
+  background: #edf3f9;
+  color: #39546f;
+}
+
+/* =========================
+   レスポンシブ
+========================= */
+@media (max-width: 480px) {
+  #tutorialModal {
+    width: calc(100vw - 16px);
+    max-height: 92dvh;
+  }
+
+  .tutorialViewport {
+    padding: 12px;
+  }
+
+  .tutorialSlide h3 {
+    font-size: 18px;
+  }
+
+  .tutorialSlide p {
+    font-size: 15px;
+    line-height: 1.75;
+  }
+
+  .tutorialFooter button {
+    min-height: 44px;
+    font-size: 16px;
+  }
+}
