@@ -1,42 +1,146 @@
 let effectRunning = false;
 
 /* =========================
-   かけら演出
+   演出ユーティリティ
+========================= */
+function waitMs(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function pulseMapButton() {
+  const mapBtn = document.getElementById("mapBtn");
+  if (!mapBtn) return;
+
+  mapBtn.animate(
+    [
+      { transform: "scale(1)", boxShadow: "0 12px 26px rgba(98, 74, 20, 0.28)" },
+      { transform: "scale(1.1)", boxShadow: "0 0 0 10px rgba(255, 205, 70, 0.18), 0 16px 34px rgba(98, 74, 20, 0.34)" },
+      { transform: "scale(1)", boxShadow: "0 12px 26px rgba(98, 74, 20, 0.28)" }
+    ],
+    {
+      duration: 900,
+      easing: "ease-out"
+    }
+  );
+}
+
+function createSparkle(x, y) {
+  const fxLayer = document.getElementById("fxLayer");
+  if (!fxLayer) return;
+
+  const s = document.createElement("div");
+  s.style.position = "fixed";
+  s.style.left = `${x}px`;
+  s.style.top = `${y}px`;
+  s.style.width = "10px";
+  s.style.height = "10px";
+  s.style.borderRadius = "999px";
+  s.style.pointerEvents = "none";
+  s.style.zIndex = "1305";
+  s.style.background = "radial-gradient(circle, rgba(255,255,220,1) 0%, rgba(255,215,90,0.95) 45%, rgba(255,215,90,0) 100%)";
+  s.style.transform = "translate(-50%, -50%) scale(0.6)";
+  fxLayer.appendChild(s);
+
+  const dx = (Math.random() - 0.5) * 44;
+  const dy = (Math.random() - 0.5) * 44;
+
+  s.animate(
+    [
+      { transform: "translate(-50%, -50%) scale(0.5)", opacity: 0 },
+      { transform: "translate(-50%, -50%) scale(1.2)", opacity: 1, offset: 0.35 },
+      { transform: `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px)) scale(0.2)`, opacity: 0 }
+    ],
+    {
+      duration: 800,
+      easing: "ease-out"
+    }
+  );
+
+  setTimeout(() => s.remove(), 820);
+}
+
+/* =========================
+   地図のかけら演出
 ========================= */
 async function animateIconToMap(spotId) {
   const fxLayer = document.getElementById("fxLayer");
-  const iconPath = iconMap[spotId];
+  const iconSrc = iconMap[spotId];
+  const saveBtn = document.getElementById("saveAnswerBtn");
   const mapBtn = document.getElementById("mapBtn");
-  if (!fxLayer || !iconPath || !mapBtn) return;
 
-  const startRect = document.body.getBoundingClientRect();
-  const endRect = mapBtn.getBoundingClientRect();
+  if (!fxLayer || !iconSrc || !saveBtn || !mapBtn) return;
 
-  const flying = document.createElement("img");
-  flying.src = iconPath;
-  flying.alt = "";
-  flying.style.position = "fixed";
-  flying.style.left = `${startRect.width / 2 - 40}px`;
-  flying.style.top = `${startRect.height / 2 - 40}px`;
-  flying.style.width = "80px";
-  flying.style.height = "80px";
-  flying.style.objectFit = "contain";
-  flying.style.zIndex = "1300";
-  flying.style.transition = "transform 0.75s ease, opacity 0.75s ease";
-  fxLayer.appendChild(flying);
+  const saveRect = saveBtn.getBoundingClientRect();
+  const mapRect = mapBtn.getBoundingClientRect();
 
-  await waitMs(30);
+  const startX = saveRect.left + saveRect.width / 2;
+  const startY = saveRect.top + saveRect.height / 2;
+  const centerX = window.innerWidth / 2;
+  const centerY = window.innerHeight / 2;
+  const endX = mapRect.left + mapRect.width / 2;
+  const endY = mapRect.top + mapRect.height / 2;
 
-  const dx = endRect.left + endRect.width / 2 - (startRect.width / 2);
-  const dy = endRect.top + endRect.height / 2 - (startRect.height / 2);
+  const icon = document.createElement("img");
+  icon.src = iconSrc;
+  icon.alt = "";
+  icon.style.position = "fixed";
+  icon.style.left = `${startX}px`;
+  icon.style.top = `${startY}px`;
+  icon.style.width = "88px";
+  icon.style.height = "88px";
+  icon.style.objectFit = "contain";
+  icon.style.pointerEvents = "none";
+  icon.style.zIndex = "1302";
+  icon.style.transform = "translate(-50%, -50%) scale(1.15)";
+  icon.style.opacity = "0";
+  fxLayer.appendChild(icon);
 
-  flying.style.transform = `translate(${dx}px, ${dy}px) scale(0.18)`;
-  flying.style.opacity = "0.2";
+  /* Step 1: 中央へ拡大移動 */
+  await waitMs(20);
+  icon.style.transition = "left 0.65s ease, top 0.65s ease, transform 0.65s ease, opacity 0.2s ease";
+  icon.style.left = `${centerX}px`;
+  icon.style.top = `${centerY}px`;
+  icon.style.transform = "translate(-50%, -50%) scale(4.2)";
+  icon.style.opacity = "1";
 
-  await waitMs(800);
-  flying.remove();
-}
+  const sparkleTimer1 = setInterval(() => {
+    createSparkle(centerX + (Math.random() - 0.5) * 70, centerY + (Math.random() - 0.5) * 70);
+  }, 120);
 
-function waitMs(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+  await waitMs(700);
+
+  /* Step 2: 中央で約2秒見せる */
+  icon.style.transition = "transform 0.45s ease";
+  icon.style.transform = "translate(-50%, -50%) scale(4.5)";
+
+  const sparkleTimer2 = setInterval(() => {
+    createSparkle(centerX + (Math.random() - 0.5) * 90, centerY + (Math.random() - 0.5) * 90);
+    if (Math.random() > 0.45) {
+      createSparkle(centerX + (Math.random() - 0.5) * 90, centerY + (Math.random() - 0.5) * 90);
+    }
+  }, 140);
+
+  await waitMs(2000);
+
+  clearInterval(sparkleTimer1);
+  clearInterval(sparkleTimer2);
+
+  /* Step 3: 右上の地図ボタンへ吸い込み */
+  icon.style.transition = "left 0.8s ease-in, top 0.8s ease-in, transform 0.8s ease-in, opacity 0.8s ease-in";
+  icon.style.left = `${endX}px`;
+  icon.style.top = `${endY}px`;
+  icon.style.transform = "translate(-50%, -50%) scale(0.18)";
+  icon.style.opacity = "0.18";
+
+  const flySparkleTimer = setInterval(() => {
+    const rect = icon.getBoundingClientRect();
+    createSparkle(rect.left + rect.width / 2, rect.top + rect.height / 2);
+  }, 90);
+
+  await waitMs(820);
+  clearInterval(flySparkleTimer);
+  icon.remove();
+
+  /* Step 4: ボタンを光らせる */
+  pulseMapButton();
 }
