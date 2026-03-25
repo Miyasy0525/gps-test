@@ -34,9 +34,6 @@ const HOTSPOT_HOLD_MS = 5000;
 
 /* =========================
    竜画像対応
-   未クリア: images/1-A.png
-   クリア後: images/1-B.png
-   ※ 今は第1問だけ設定済み
 ========================= */
 const dragonImageMap = {
   spot01: {
@@ -347,22 +344,82 @@ function applyDeviceGate() {
 document.addEventListener("DOMContentLoaded", () => {
   if (!applyDeviceGate()) return;
 
+  restoreProfileForm();
   updateStartButtonState();
   updateMapCollectionUI();
   renderUnlockedList();
   setupAdminHotspot();
 });
 
-window.addEventListener("resize", applyDeviceGate);
-window.addEventListener("orientationchange", applyDeviceGate);
+window.addEventListener("resize", () => {
+  const wasAllowed = deviceAccessAllowed;
+  const allowed = applyDeviceGate();
+
+  if (allowed && wasAllowed && map) {
+    setTimeout(() => {
+      map.invalidateSize();
+    }, 100);
+  }
+});
+
+window.addEventListener("orientationchange", () => {
+  const wasAllowed = deviceAccessAllowed;
+  const allowed = applyDeviceGate();
+
+  if (allowed && wasAllowed && map) {
+    setTimeout(() => {
+      map.invalidateSize();
+    }, 150);
+  }
+});
 
 /* =========================
    画面遷移
 ========================= */
 function goToProfileScreen() {
   if (!deviceAccessAllowed) return;
+
+  if (userProfile && sessionId) {
+    resumeExperience();
+    return;
+  }
+
   document.getElementById("titleScreen").classList.add("hidden");
   document.getElementById("startScreen").classList.remove("hidden");
+  restoreProfileForm();
+  updateStartButtonState();
+}
+
+function resumeExperience() {
+  document.getElementById("titleScreen").classList.add("hidden");
+  document.getElementById("startScreen").classList.add("hidden");
+  document.getElementById("appScreen").classList.remove("hidden");
+  document.getElementById("mapBtn").classList.remove("hidden");
+
+  if (!map) {
+    initMap();
+  } else {
+    setTimeout(() => {
+      map.invalidateSize();
+    }, 80);
+  }
+
+  updateMapCollectionUI();
+  renderUnlockedList();
+}
+
+function restoreProfileForm() {
+  if (!userProfile) return;
+
+  const genderSelect = document.getElementById("genderSelect");
+  const ageSelect = document.getElementById("ageSelect");
+  const regionSelect = document.getElementById("regionSelect");
+  const companionSelect = document.getElementById("companionSelect");
+
+  if (genderSelect) genderSelect.value = userProfile.gender || "";
+  if (ageSelect) ageSelect.value = userProfile.age || "";
+  if (regionSelect) regionSelect.value = userProfile.region || "";
+  if (companionSelect) companionSelect.value = userProfile.companion || "";
 }
 
 function showTitleScreen() {
@@ -558,6 +615,10 @@ function initMap() {
     markers[spot.spot_id] = marker;
   });
 
+  setTimeout(() => {
+    map.invalidateSize();
+  }, 100);
+
   startWatchingLocation();
 }
 
@@ -723,7 +784,6 @@ function centerOnUser() {
 function getDragonImageSrc(spotId, isCorrect) {
   const config = dragonImageMap[spotId];
   if (!config) return "";
-
   return isCorrect ? config.unlocked : config.locked;
 }
 
@@ -774,6 +834,9 @@ function renderUnlockedList() {
       if (hasDragonImage(spot.spot_id)) {
         dragonImg.src = getDragonImageSrc(spot.spot_id, correct);
         dragonImg.alt = "";
+        dragonImg.onerror = () => {
+          visualWrap.classList.add("hidden");
+        };
       } else {
         visualWrap.classList.add("hidden");
       }
@@ -834,7 +897,7 @@ function closeTutorialIfBackdrop(event) {
 
 function updateTutorialUI() {
   const track = document.getElementById("tutorialTrack");
-  track.style.transform = `translateX(-${tutorialIndex * 25}%)`;
+  track.style.transform = `translateX(-${tutorialIndex * 100}%)`;
 
   const dots = document.querySelectorAll(".tutorialDot");
   dots.forEach((dot, index) => {
