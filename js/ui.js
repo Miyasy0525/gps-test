@@ -121,6 +121,8 @@ function closeTutorialIfBackdrop(event) {
 
 function updateTutorialUI() {
   const track = document.getElementById("tutorialTrack");
+  if (!track) return;
+
   track.style.transform = `translateX(-${tutorialIndex * 100}%)`;
 
   const dots = document.querySelectorAll(".tutorialDot");
@@ -128,9 +130,13 @@ function updateTutorialUI() {
     dot.classList.toggle("active", index === tutorialIndex);
   });
 
-  document.getElementById("tutorialPrevBtn").disabled = tutorialIndex === 0;
-  document.getElementById("tutorialNextBtn").textContent =
-    tutorialIndex === TUTORIAL_TOTAL - 1 ? "はじめる" : "つぎへ";
+  const prevBtn = document.getElementById("tutorialPrevBtn");
+  const nextBtn = document.getElementById("tutorialNextBtn");
+
+  if (prevBtn) prevBtn.disabled = tutorialIndex === 0;
+  if (nextBtn) {
+    nextBtn.textContent = tutorialIndex === TUTORIAL_TOTAL - 1 ? "はじめる" : "つぎへ";
+  }
 }
 
 function nextTutorial() {
@@ -154,11 +160,13 @@ function goTutorialSlide(index) {
 }
 
 /* =========================
-   地図のかけらUI
+   ヒミツの地図 UI
+   完成地図の上に透過ピースを重ねる方式
 ========================= */
 function updateMapCollectionUI() {
   updateMapBtnCount();
-  updatePieceGrid();
+  updateMapTitleCount();
+  updateMapPieceLayers();
   updateSealArea();
 }
 
@@ -170,30 +178,45 @@ function updateMapBtnCount() {
   }
 }
 
-function updatePieceGrid() {
-  const cells = document.querySelectorAll(".pieceCell");
-  cells.forEach((cell) => {
-    const pieceNo = Number(cell.dataset.piece);
-    const matchedSpotId = Object.keys(pieceMap).find((spotId) => pieceMap[spotId] === pieceNo);
-    if (matchedSpotId && collectedPieces[matchedSpotId]) {
-      cell.classList.add("collected");
+function updateMapTitleCount() {
+  const count = Object.keys(collectedPieces).length;
+  const countEl = document.getElementById("mapTitleCount");
+  if (countEl) {
+    countEl.textContent = `(${count}/8枚)`;
+  }
+}
+
+function updateMapPieceLayers() {
+  const mapStage = document.getElementById("mapStage");
+  if (!mapStage) return;
+
+  Object.keys(pieceMap).forEach((spotId) => {
+    const pieceNo = pieceMap[spotId];
+    const pieceEl = document.getElementById(`piece${pieceNo}`);
+    if (!pieceEl) return;
+
+    if (collectedPieces[spotId]) {
+      pieceEl.classList.add("filled");
     } else {
-      cell.classList.remove("collected");
+      pieceEl.classList.remove("filled");
     }
   });
+
+  const collectedCount = Object.keys(collectedPieces).length;
+  mapStage.classList.toggle("completed", collectedCount >= 8);
 }
 
 function updateSealArea() {
-  const count = Object.keys(collectedPieces).length;
-  const sealArea = document.getElementById("sealArea");
-  const sealLinkBtn = document.getElementById("sealLinkBtn");
+  const sealBtn = document.getElementById("sealBtn");
+  if (!sealBtn) return;
 
+  const count = Object.keys(collectedPieces).length;
   if (count >= 8 && SEAL_LINK) {
-    sealArea.classList.remove("hidden");
-    sealLinkBtn.href = SEAL_LINK;
+    sealBtn.classList.remove("hidden");
+    sealBtn.href = SEAL_LINK;
   } else {
-    sealArea.classList.add("hidden");
-    sealLinkBtn.href = "#";
+    sealBtn.classList.add("hidden");
+    sealBtn.href = "";
   }
 }
 
@@ -309,7 +332,9 @@ function closeSheetIfBackdrop(event) {
 }
 
 function updateCompareSlider(value) {
-  document.getElementById("compareWrap").style.setProperty("--divider", value + "%");
+  const wrap = document.getElementById("compareWrap");
+  if (!wrap) return;
+  wrap.style.setProperty("--divider", value + "%");
 }
 
 function closeSheet() {
@@ -385,5 +410,5 @@ async function saveAnswer() {
    その他
 ========================= */
 function updateProgress() {
-  updateMapBtnCount();
+  updateMapCollectionUI();
 }
