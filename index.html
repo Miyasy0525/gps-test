@@ -10,17 +10,17 @@
   <link href="https://fonts.googleapis.com/css2?family=Yomogi&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-　<link rel="stylesheet" href="css/base.css" />
-　<link rel="stylesheet" href="css/screens.css" />
-　<link rel="stylesheet" href="css/components.css" />
-　<link rel="stylesheet" href="css/modals.css" />
-  
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/screens.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/modals.css" />
+
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-　<script src="js/data.js" defer></script>
-　<script src="js/effects.js" defer></script>
-　<script src="js/map.js" defer></script>
-　<script src="js/ui.js" defer></script>
-　<script src="js/app.js" defer></script>
+  <script src="js/data.js" defer></script>
+  <script src="js/effects.js" defer></script>
+  <script src="js/map.js" defer></script>
+  <script src="js/ui.js" defer></script>
+  <script src="js/app.js" defer></script>
 </head>
 <body>
 
@@ -226,7 +226,7 @@
        本編画面
   ========================== -->
   <section id="appScreen" class="appScreenLayer hidden">
-    <div id="mapStage">
+    <div id="mapViewport">
       <div id="map"></div>
 
       <button id="mapBtn" class="hidden" onclick="openMapSheet()" type="button">
@@ -334,12 +334,16 @@
 
   <!-- =========================
        地図シート
+       ※ 完成地図の上に透過ピースを重ねる旧方式
   ========================== -->
   <div id="mapSheetBackdrop" onclick="closeMapSheetIfBackdrop(event)"></div>
   <div id="mapSheet">
     <div id="mapSheetInner">
       <div class="mapSheetHeader">
-        <div class="mapSheetTitle">ヒミツの地図</div>
+        <div class="mapSheetTitle">
+          ヒミツの地図
+          <span id="mapTitleCount" class="mapTitleCount">(0/8枚)</span>
+        </div>
         <button type="button" onclick="closeMapSheet()">閉じる</button>
       </div>
 
@@ -347,19 +351,23 @@
         8つの地図のかけらを集めて、ヒミツの地図を完成させよう！
       </div>
 
-      <div id="pieceGrid" class="pieceGrid">
-        <div class="pieceCell" data-piece="1"><img src="map/mapicon1.png" alt="地図のかけら1"></div>
-        <div class="pieceCell" data-piece="2"><img src="map/mapicon2.png" alt="地図のかけら2"></div>
-        <div class="pieceCell" data-piece="3"><img src="map/mapicon3.png" alt="地図のかけら3"></div>
-        <div class="pieceCell" data-piece="4"><img src="map/mapicon4.png" alt="地図のかけら4"></div>
-        <div class="pieceCell" data-piece="5"><img src="map/mapicon5.png" alt="地図のかけら5"></div>
-        <div class="pieceCell" data-piece="6"><img src="map/mapicon6.png" alt="地図のかけら6"></div>
-        <div class="pieceCell" data-piece="7"><img src="map/mapicon7.png" alt="地図のかけら7"></div>
-        <div class="pieceCell" data-piece="8"><img src="map/mapicon8.png" alt="地図のかけら8"></div>
+      <div id="mapStage" class="mapStage">
+        <img src="map/base.png" alt="地図の土台" class="mapBase" />
+        <img id="piece1" class="mapPiece" src="map/mappiece1.png" alt="地図片1" />
+        <img id="piece2" class="mapPiece" src="map/mappiece2.png" alt="地図片2" />
+        <img id="piece3" class="mapPiece" src="map/mappiece3.png" alt="地図片3" />
+        <img id="piece4" class="mapPiece" src="map/mappiece4.png" alt="地図片4" />
+        <img id="piece5" class="mapPiece" src="map/mappiece5.png" alt="地図片5" />
+        <img id="piece6" class="mapPiece" src="map/mappiece6.png" alt="地図片6" />
+        <img id="piece7" class="mapPiece" src="map/mappiece7.png" alt="地図片7" />
+        <img id="piece8" class="mapPiece" src="map/mappiece8.png" alt="地図片8" />
       </div>
 
-      <div id="sealArea" class="hidden">
-        <a id="sealLinkBtn" class="sealBtn" href="#" target="_blank" rel="noopener">ごほうびを見る</a>
+      <div class="mapSheetButtons">
+        <button type="button" onclick="closeMapSheet()">閉じる</button>
+        <a id="sealBtn" class="sealBtn hidden" href="" target="_blank" rel="noopener noreferrer">
+          <strong><ruby>封印<rt>ふういん</rt></ruby>を解く</strong>
+        </a>
       </div>
     </div>
   </div>
