@@ -17,6 +17,21 @@
 </head>
 <body>
 
+
+  <!-- =========================
+       端末制限画面
+  ========================== -->
+  <div id="deviceGateScreen" class="hidden" aria-live="polite">
+    <div class="deviceGateCard">
+      <div class="deviceGateIcon">📱</div>
+      <div class="deviceGateTitle">このブラウザアプリはスマホ専用です</div>
+      <div class="deviceGateText">
+        パソコン・タブレットからは利用できません。<br>
+        スマホでアクセスしてください。
+      </div>
+    </div>
+  </div>
+
   <!-- =========================
        タイトル画面
   ========================== -->
@@ -258,90 +273,80 @@
 
           <div class="tutorialSlide">
             <img src="images/new.jpg" alt="チュートリアル画像3">
-            <h3>池の近くでヒミツがひらく</h3>
-            <p>スポットに近づくと、その場所のナゾにちょうせんできるよ。灰はまだヒミツ、青は見つけた、緑はクリア！</p>
+            <h3>池の近くまで行こう</h3>
+            <p>スポットに近づくとヒミツが見つかるよ。見つけたらタップして問題に挑戦しよう。</p>
           </div>
 
           <div class="tutorialSlide">
             <img src="images/new.jpg" alt="チュートリアル画像4">
-            <h3>正解して地図のかけらを手に入れよう</h3>
-            <p>正解すると、ふしぎな地図が少しずつ完成！ まちがえても何度でもちょうせんできるよ。全部集めると、最後のヒミツがひらく！</p>
+            <h3>地図のかけらを集めよう</h3>
+            <p>正解すると地図のかけらが1つもらえるよ。8つ集めてヒミツの地図を完成させよう。</p>
           </div>
         </div>
       </div>
 
       <div class="tutorialDots">
-        <span class="tutorialDot active" data-index="0"></span>
-        <span class="tutorialDot" data-index="1"></span>
-        <span class="tutorialDot" data-index="2"></span>
-        <span class="tutorialDot" data-index="3"></span>
+        <button class="tutorialDot active" onclick="goTutorialSlide(0)"></button>
+        <button class="tutorialDot" onclick="goTutorialSlide(1)"></button>
+        <button class="tutorialDot" onclick="goTutorialSlide(2)"></button>
+        <button class="tutorialDot" onclick="goTutorialSlide(3)"></button>
       </div>
 
-      <div class="tutorialButtons">
-        <button id="tutorialPrevBtn" onclick="prevTutorialSlide()">前へ</button>
-        <button id="tutorialNextBtn" class="primaryBtn" onclick="nextTutorialSlide()">次へ</button>
-        <button id="tutorialStartBtn" class="primaryBtn hidden" onclick="finishTutorial()">はじめる</button>
+      <div class="tutorialFooter">
+        <button id="tutorialPrevBtn" onclick="prevTutorial()" disabled>もどる</button>
+        <button id="tutorialNextBtn" class="primaryBtn" onclick="nextTutorial()">つぎへ</button>
       </div>
     </div>
   </div>
 
   <!-- =========================
-       地図片シート
+       地図シート
   ========================== -->
-  <div id="mapSheetBackdrop" onclick="closeMapSheet()"></div>
-
+  <div id="mapSheetBackdrop" onclick="closeMapSheetIfBackdrop(event)"></div>
   <div id="mapSheet">
     <div id="mapSheetInner">
       <div class="mapSheetHeader">
-        <h2 class="mapSheetTitle">
-          集めた地図
-          <span id="mapTitleCount" class="mapTitleCount">(0/8枚)</span>
-        </h2>
+        <div class="mapSheetTitle">ヒミツの地図</div>
+        <button onclick="closeMapSheet()">閉じる</button>
       </div>
 
       <div class="mapSheetLead">
-        ヒミツを見つけるたびに、古い地図が少しずつ目をさます。
+        8つの地図のかけらを集めて、ヒミツの地図を完成させよう！
       </div>
 
-      <div id="mapStage" class="mapStage">
-        <img src="map/base.png" alt="地図の土台" class="mapBase" />
-        <img id="piece1" class="mapPiece" src="map/mappiece1.png" alt="地図片1" />
-        <img id="piece2" class="mapPiece" src="map/mappiece2.png" alt="地図片2" />
-        <img id="piece3" class="mapPiece" src="map/mappiece3.png" alt="地図片3" />
-        <img id="piece4" class="mapPiece" src="map/mappiece4.png" alt="地図片4" />
-        <img id="piece5" class="mapPiece" src="map/mappiece5.png" alt="地図片5" />
-        <img id="piece6" class="mapPiece" src="map/mappiece6.png" alt="地図片6" />
-        <img id="piece7" class="mapPiece" src="map/mappiece7.png" alt="地図片7" />
-        <img id="piece8" class="mapPiece" src="map/mappiece8.png" alt="地図片8" />
+      <div id="pieceGrid" class="pieceGrid">
+        <div class="pieceCell" data-piece="1"><img src="map/mapicon1.png" alt="地図のかけら1"></div>
+        <div class="pieceCell" data-piece="2"><img src="map/mapicon2.png" alt="地図のかけら2"></div>
+        <div class="pieceCell" data-piece="3"><img src="map/mapicon3.png" alt="地図のかけら3"></div>
+        <div class="pieceCell" data-piece="4"><img src="map/mapicon4.png" alt="地図のかけら4"></div>
+        <div class="pieceCell" data-piece="5"><img src="map/mapicon5.png" alt="地図のかけら5"></div>
+        <div class="pieceCell" data-piece="6"><img src="map/mapicon6.png" alt="地図のかけら6"></div>
+        <div class="pieceCell" data-piece="7"><img src="map/mapicon7.png" alt="地図のかけら7"></div>
+        <div class="pieceCell" data-piece="8"><img src="map/mapicon8.png" alt="地図のかけら8"></div>
       </div>
 
-      <div class="mapSheetButtons">
-        <button onclick="closeMapSheet()">閉じる</button>
-        <a id="sealBtn" class="sealBtn hidden" href="" target="_blank" rel="noopener noreferrer">
-          <strong><ruby>封印<rt>ふういん</rt></ruby>を解く</strong>
-        </a>
+      <div id="sealArea" class="hidden">
+        <a id="sealLinkBtn" class="sealBtn" href="#" target="_blank" rel="noopener">ごほうびを見る</a>
       </div>
     </div>
   </div>
 
   <!-- =========================
-       スポットシート
+       スポット詳細シート
   ========================== -->
-  <div id="sheetBackdrop" onclick="closeSheet()"></div>
-
+  <div id="sheetBackdrop" onclick="closeSheetIfBackdrop(event)"></div>
   <div id="sheet">
     <div id="sheetInner">
-      <h2 id="spotTitle">スポット</h2>
+      <div class="sheetHeader">
+        <div id="spotTitle"></div>
+        <button onclick="closeSheet()">閉じる</button>
+      </div>
 
       <div id="spotDescription"></div>
 
       <div id="singleImageArea" class="hidden">
-        <div class="imgLabel">
-          <ruby>参考画像<rt>さんこうがぞう</rt></ruby>
-        </div>
-        <div class="singleImageWrap">
-          <img id="singleImg" alt="参考画像" src="" />
-        </div>
+        <div class="imgLabel">画像</div>
+        <img id="singleImage" class="singleImage" alt="スポット画像" src="" />
       </div>
 
       <div id="compareArea" class="hidden">
