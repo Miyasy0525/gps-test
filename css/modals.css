@@ -20,13 +20,6 @@
   z-index: 950;
 }
 
-#tutorialModal {
-  top: 50%;
-  transform: translate(-50%, -50%);
-  width: min(100vw - 20px, 560px);
-  max-height: min(92dvh, 760px);
-}
-
 #tutorialInner,
 #mapSheetInner,
 #sheetInner {
@@ -64,11 +57,19 @@
   color: #28548d;
   font-size: 15px;
   cursor: pointer;
+  flex-shrink: 0;
 }
 
 /* =========================
    チュートリアル
 ========================= */
+#tutorialModal {
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: min(100vw - 20px, 560px);
+  max-height: min(92dvh, 760px);
+}
+
 .tutorialViewport {
   overflow: hidden;
   width: 100%;
@@ -159,6 +160,13 @@
   top: 50%;
   transform: translate(-50%, -50%);
   width: min(100vw - 20px, 860px);
+  max-height: min(92dvh, 900px);
+}
+
+#mapSheetInner {
+  max-height: min(92dvh, 900px);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .mapSheetLead {
@@ -166,6 +174,14 @@
   font-size: 16px;
   line-height: 1.8;
   color: #31475e;
+}
+
+.mapSheetHeader {
+  align-items: flex-start;
+}
+
+.mapSheetTitle {
+  line-height: 1.35;
 }
 
 /* =========================
@@ -292,5 +308,36 @@
   .tutorialFooter button {
     min-height: 44px;
     font-size: 16px;
+  }
+
+  #mapSheet {
+    width: calc(100vw - 16px);
+    max-height: 92dvh;
+  }
+
+  #sheet {
+    top: 8px;
+    bottom: 8px;
+    width: calc(100vw - 16px);
+  }
+
+  #sheetInner {
+    height: calc(100vh - 16px);
+    height: calc(100dvh - 16px);
+  }
+
+  .tutorialTitle,
+  .mapSheetTitle,
+  #spotTitle,
+  .pinTitle {
+    font-size: 20px;
+  }
+
+  .tutorialSkipBtn,
+  .sheetHeader button,
+  .mapSheetHeader button {
+    min-height: 38px;
+    font-size: 14px;
+    padding: 0 12px;
   }
 }
