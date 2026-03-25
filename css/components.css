@@ -393,6 +393,47 @@
 }
 
 /* =========================
+   エフェクト用
+========================= */
+.flyingIcon {
+  position: fixed;
+  width: 88px;
+  height: 88px;
+  object-fit: contain;
+  pointer-events: none;
+  z-index: 1302;
+  transform: translate(-50%, -50%);
+  will-change: left, top, transform, opacity;
+}
+
+.sparkle {
+  position: fixed;
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  pointer-events: none;
+  z-index: 1305;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(255,255,220,1) 0%, rgba(255,215,90,0.95) 45%, rgba(255,215,90,0) 100%);
+  animation: sparkleFade 0.8s ease-out forwards;
+}
+
+@keyframes sparkleFade {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.4);
+  }
+  30% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.2);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.15);
+  }
+}
+
+/* =========================
    レスポンシブ
 ========================= */
 @media (max-width: 480px) {
@@ -446,5 +487,10 @@
   #spotDescription,
   #spotQuestion {
     font-size: 16px;
+  }
+
+  .flyingIcon {
+    width: 78px;
+    height: 78px;
   }
 }
