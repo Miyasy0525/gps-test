@@ -34,11 +34,15 @@
   <!-- =========================
        タイトル画面
   ========================== -->
-  <div id="titleScreen">
+  <section id="titleScreen" class="appScreenLayer">
     <div id="adminHotspot" aria-hidden="true"></div>
 
     <div class="titleHero">
-      <img id="titleHeroImage" src="images/topimage.png" alt="忍野八海 八大竜王と8つのヒミツ タイトル画像">
+      <img
+        id="titleHeroImage"
+        src="images/topimage.png"
+        alt="忍野八海 八大竜王と8つのヒミツ タイトル画像"
+      />
 
       <div class="titleOverlay">
         <div class="titleBottomArea">
@@ -48,7 +52,7 @@
         </div>
       </div>
     </div>
-  </div>
+  </section>
 
   <!-- =========================
        管理用PINモーダル
@@ -72,7 +76,7 @@
 
       <div class="pinButtons">
         <button id="pinSubmitBtn" class="primaryBtn" onclick="submitAdminPin()">決定</button>
-        <button onclick="closePinModal()">閉じる</button>
+        <button type="button" onclick="closePinModal()">閉じる</button>
       </div>
     </div>
   </div>
@@ -80,7 +84,7 @@
   <!-- =========================
        属性入力画面
   ========================== -->
-  <div id="startScreen" class="hidden">
+  <section id="startScreen" class="appScreenLayer hidden">
     <div class="startCard">
       <div class="startTitle">
         <ruby>忍野八海<rt>おしのはっかい</rt></ruby><br>
@@ -209,43 +213,44 @@
         4つえらぶと、<ruby>冒険<rt>ぼうけん</rt></ruby>スタート！
       </div>
     </div>
-  </div>
+  </section>
 
   <!-- =========================
        本編画面
   ========================== -->
-  <div id="appScreen" class="hidden">
-    <div id="map"></div>
+  <section id="appScreen" class="appScreenLayer hidden">
+    <div id="mapStage">
+      <div id="map"></div>
 
-    <div id="info">
-      <div class="top-row">
-        <button onclick="centerOnUser()">いまいる場所へ</button>
-      </div>
+      <button id="mapBtn" class="hidden" onclick="openMapSheet()" type="button">
+        <span class="mapBtnMain">ヒミツの地図</span>
+        <span id="mapBtnCount" class="mapBtnCount">地図のかけら 0/8</span>
+      </button>
 
-      <div id="legendRow" class="legendRow">
-        <div class="legendItem"><span class="legendDot gray"></span>まだヒミツ</div>
-        <div class="legendItem"><span class="legendDot blue"></span>見つけた！</div>
-        <div class="legendItem"><span class="legendDot green"></span>クリア！</div>
-        <div class="legendItem"><span class="legendDot current"></span>いまここ</div>
-      </div>
+      <div id="info">
+        <div class="top-row">
+          <button type="button" onclick="centerOnUser()">いまいる場所へ</button>
+        </div>
 
-      <div class="sectionTitle">見つけたヒミツ</div>
-      <div id="unlockedList">
-        <div style="color:#666; font-size:14px;">まだ見つかったヒミツはないよ。池の近くまで行ってみよう！</div>
+        <div id="legendRow" class="legendRow">
+          <div class="legendItem"><span class="legendDot gray"></span>まだヒミツ</div>
+          <div class="legendItem"><span class="legendDot blue"></span>見つけた！</div>
+          <div class="legendItem"><span class="legendDot green"></span>クリア！</div>
+          <div class="legendItem"><span class="legendDot current"></span>いまここ</div>
+        </div>
+
+        <div class="sectionTitle">見つけたヒミツ</div>
+        <div id="unlockedList">
+          <div style="color:#666; font-size:14px;">まだ見つかったヒミツはないよ。池の近くまで行ってみよう！</div>
+        </div>
       </div>
     </div>
-  </div>
 
-  <button id="mapBtn" class="hidden" onclick="openMapSheet()">
-    <span class="mapBtnMain">ヒミツの地図</span>
-    <span id="mapBtnCount" class="mapBtnCount">地図のかけら 0/8</span>
-  </button>
-
-  <div id="fxLayer"></div>
+    <div id="fxLayer"></div>
+  </section>
 
   <!-- =========================
        見つけたヒミツ カードテンプレート
-       ※ CSS / JSで使用予定
   ========================== -->
   <template id="spotRowTemplate">
     <button class="spotRow spotRowDragon" type="button">
@@ -275,7 +280,7 @@
         <div class="tutorialTitle">
           <ruby>冒険<rt>ぼうけん</rt></ruby>のしかた
         </div>
-        <button class="tutorialSkipBtn" onclick="skipTutorial()">あとで見る</button>
+        <button class="tutorialSkipBtn" type="button" onclick="skipTutorial()">あとで見る</button>
       </div>
 
       <div class="tutorialViewport">
@@ -307,15 +312,15 @@
       </div>
 
       <div class="tutorialDots">
-        <button class="tutorialDot active" onclick="goTutorialSlide(0)"></button>
-        <button class="tutorialDot" onclick="goTutorialSlide(1)"></button>
-        <button class="tutorialDot" onclick="goTutorialSlide(2)"></button>
-        <button class="tutorialDot" onclick="goTutorialSlide(3)"></button>
+        <button class="tutorialDot active" type="button" onclick="goTutorialSlide(0)"></button>
+        <button class="tutorialDot" type="button" onclick="goTutorialSlide(1)"></button>
+        <button class="tutorialDot" type="button" onclick="goTutorialSlide(2)"></button>
+        <button class="tutorialDot" type="button" onclick="goTutorialSlide(3)"></button>
       </div>
 
       <div class="tutorialFooter">
-        <button id="tutorialPrevBtn" onclick="prevTutorial()" disabled>もどる</button>
-        <button id="tutorialNextBtn" class="primaryBtn" onclick="nextTutorial()">つぎへ</button>
+        <button id="tutorialPrevBtn" type="button" onclick="prevTutorial()" disabled>もどる</button>
+        <button id="tutorialNextBtn" class="primaryBtn" type="button" onclick="nextTutorial()">つぎへ</button>
       </div>
     </div>
   </div>
@@ -328,7 +333,7 @@
     <div id="mapSheetInner">
       <div class="mapSheetHeader">
         <div class="mapSheetTitle">ヒミツの地図</div>
-        <button onclick="closeMapSheet()">閉じる</button>
+        <button type="button" onclick="closeMapSheet()">閉じる</button>
       </div>
 
       <div class="mapSheetLead">
@@ -360,7 +365,7 @@
     <div id="sheetInner">
       <div class="sheetHeader">
         <div id="spotTitle"></div>
-        <button onclick="closeSheet()">閉じる</button>
+        <button type="button" onclick="closeSheet()">閉じる</button>
       </div>
 
       <div id="spotDescription"></div>
@@ -383,7 +388,14 @@
           <div class="compareDivider"></div>
         </div>
 
-        <input id="compareRange" type="range" min="0" max="100" value="50" oninput="updateCompareSlider(this.value)" />
+        <input
+          id="compareRange"
+          type="range"
+          min="0"
+          max="100"
+          value="50"
+          oninput="updateCompareSlider(this.value)"
+        />
         <div class="compareHint">
           スライダーを動かすと、昔と今の画像を見くらべられるよ。
         </div>
@@ -400,8 +412,8 @@
       <div id="formMessage"></div>
 
       <div class="sheetButtons">
-        <button id="saveAnswerBtn" class="primaryBtn" onclick="saveAnswer()">こたえを決める</button>
-        <button onclick="closeSheet()">閉じる</button>
+        <button id="saveAnswerBtn" class="primaryBtn" type="button" onclick="saveAnswer()">こたえを決める</button>
+        <button type="button" onclick="closeSheet()">閉じる</button>
       </div>
     </div>
   </div>
