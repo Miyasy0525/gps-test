@@ -34,6 +34,7 @@ const HOTSPOT_HOLD_MS = 5000;
 
 /* =========================
    竜画像対応
+   PNG 前提
 ========================= */
 const dragonImageMap = {
   spot01: {
@@ -242,6 +243,7 @@ let sessionId = localStorage.getItem("sessionId") || "";
 let userProfile = JSON.parse(localStorage.getItem("userProfile") || "null");
 
 let currentSpot = null;
+let currentScreen = "title";
 const markers = {};
 let userMarker = null;
 let userCircle = null;
@@ -291,40 +293,14 @@ function isSmartphoneDevice() {
 
 function applyDeviceGate() {
   const gateScreen = document.getElementById("deviceGateScreen");
-  const titleScreen = document.getElementById("titleScreen");
-  const startScreen = document.getElementById("startScreen");
-  const appScreen = document.getElementById("appScreen");
-  const mapBtn = document.getElementById("mapBtn");
-  const tutorialBackdrop = document.getElementById("tutorialBackdrop");
-  const tutorialModal = document.getElementById("tutorialModal");
-  const mapSheetBackdrop = document.getElementById("mapSheetBackdrop");
-  const mapSheet = document.getElementById("mapSheet");
-  const sheetBackdrop = document.getElementById("sheetBackdrop");
-  const sheet = document.getElementById("sheet");
-  const pinBackdrop = document.getElementById("pinBackdrop");
-  const pinModal = document.getElementById("pinModal");
-  const fxLayer = document.getElementById("fxLayer");
 
   deviceAccessAllowed = isSmartphoneDevice();
 
   if (!deviceAccessAllowed) {
     document.body.classList.add("device-blocked");
     if (gateScreen) gateScreen.classList.remove("hidden");
-    if (titleScreen) titleScreen.classList.add("hidden");
-    if (startScreen) startScreen.classList.add("hidden");
-    if (appScreen) appScreen.classList.add("hidden");
-    if (mapBtn) mapBtn.classList.add("hidden");
-
-    if (tutorialBackdrop) tutorialBackdrop.style.display = "none";
-    if (tutorialModal) tutorialModal.style.display = "none";
-    if (mapSheetBackdrop) mapSheetBackdrop.style.display = "none";
-    if (mapSheet) mapSheet.style.display = "none";
-    if (sheetBackdrop) sheetBackdrop.style.display = "none";
-    if (sheet) sheet.style.display = "none";
-    if (pinBackdrop) pinBackdrop.classList.add("hidden");
-    if (pinModal) pinModal.classList.add("hidden");
-    if (fxLayer) fxLayer.innerHTML = "";
-
+    hideAllAppScreens();
+    hideAllFloatingUI();
     if (watchId !== null && navigator.geolocation) {
       navigator.geolocation.clearWatch(watchId);
       watchId = null;
@@ -334,7 +310,6 @@ function applyDeviceGate() {
 
   document.body.classList.remove("device-blocked");
   if (gateScreen) gateScreen.classList.add("hidden");
-  if (titleScreen) titleScreen.classList.remove("hidden");
   return true;
 }
 
@@ -349,16 +324,19 @@ document.addEventListener("DOMContentLoaded", () => {
   updateMapCollectionUI();
   renderUnlockedList();
   setupAdminHotspot();
+  routeOnLoad();
 });
 
 window.addEventListener("resize", () => {
   const wasAllowed = deviceAccessAllowed;
   const allowed = applyDeviceGate();
 
-  if (allowed && wasAllowed && map) {
+  if (!allowed) return;
+
+  if (wasAllowed && map) {
     setTimeout(() => {
       map.invalidateSize();
-    }, 100);
+    }, 120);
   }
 });
 
@@ -366,12 +344,86 @@ window.addEventListener("orientationchange", () => {
   const wasAllowed = deviceAccessAllowed;
   const allowed = applyDeviceGate();
 
-  if (allowed && wasAllowed && map) {
+  if (!allowed) return;
+
+  if (wasAllowed && map) {
     setTimeout(() => {
       map.invalidateSize();
-    }, 150);
+    }, 180);
   }
 });
+
+/* =========================
+   画面制御
+========================= */
+function hideAllAppScreens() {
+  const ids = ["titleScreen", "startScreen", "appScreen"];
+  ids.forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) el.classList.add("hidden");
+  });
+}
+
+function hideAllFloatingUI() {
+  const mapBtn = document.getElementById("mapBtn");
+  const tutorialBackdrop = document.getElementById("tutorialBackdrop");
+  const tutorialModal = document.getElementById("tutorialModal");
+  const mapSheetBackdrop = document.getElementById("mapSheetBackdrop");
+  const mapSheet = document.getElementById("mapSheet");
+  const sheetBackdrop = document.getElementById("sheetBackdrop");
+  const sheet = document.getElementById("sheet");
+  const pinBackdrop = document.getElementById("pinBackdrop");
+  const pinModal = document.getElementById("pinModal");
+  const fxLayer = document.getElementById("fxLayer");
+
+  if (mapBtn) mapBtn.classList.add("hidden");
+  if (tutorialBackdrop) tutorialBackdrop.style.display = "none";
+  if (tutorialModal) tutorialModal.style.display = "none";
+  if (mapSheetBackdrop) mapSheetBackdrop.style.display = "none";
+  if (mapSheet) mapSheet.style.display = "none";
+  if (sheetBackdrop) sheetBackdrop.style.display = "none";
+  if (sheet) sheet.style.display = "none";
+  if (pinBackdrop) pinBackdrop.classList.add("hidden");
+  if (pinModal) pinModal.classList.add("hidden");
+  if (fxLayer) fxLayer.innerHTML = "";
+}
+
+function setActiveScreen(screenName) {
+  hideAllAppScreens();
+
+  const titleScreen = document.getElementById("titleScreen");
+  const startScreen = document.getElementById("startScreen");
+  const appScreen = document.getElementById("appScreen");
+  const mapBtn = document.getElementById("mapBtn");
+
+  if (screenName === "title" && titleScreen) {
+    titleScreen.classList.remove("hidden");
+    if (mapBtn) mapBtn.classList.add("hidden");
+  }
+
+  if (screenName === "start" && startScreen) {
+    startScreen.classList.remove("hidden");
+    if (mapBtn) mapBtn.classList.add("hidden");
+  }
+
+  if (screenName === "app" && appScreen) {
+    appScreen.classList.remove("hidden");
+    if (mapBtn) mapBtn.classList.remove("hidden");
+  }
+
+  currentScreen = screenName;
+}
+
+function routeOnLoad() {
+  const hasSavedSession = !!(userProfile && sessionId);
+
+  if (hasSavedSession) {
+    resumeExperience(true);
+    return;
+  }
+
+  setActiveScreen("title");
+}
 
 /* =========================
    画面遷移
@@ -380,21 +432,21 @@ function goToProfileScreen() {
   if (!deviceAccessAllowed) return;
 
   if (userProfile && sessionId) {
-    resumeExperience();
+    resumeExperience(false);
     return;
   }
 
-  document.getElementById("titleScreen").classList.add("hidden");
-  document.getElementById("startScreen").classList.remove("hidden");
+  setActiveScreen("start");
   restoreProfileForm();
   updateStartButtonState();
 }
 
-function resumeExperience() {
-  document.getElementById("titleScreen").classList.add("hidden");
-  document.getElementById("startScreen").classList.add("hidden");
-  document.getElementById("appScreen").classList.remove("hidden");
-  document.getElementById("mapBtn").classList.remove("hidden");
+function resumeExperience(skipIntro) {
+  if (!deviceAccessAllowed) return;
+
+  setActiveScreen("app");
+  updateMapCollectionUI();
+  renderUnlockedList();
 
   if (!map) {
     initMap();
@@ -404,8 +456,9 @@ function resumeExperience() {
     }, 80);
   }
 
-  updateMapCollectionUI();
-  renderUnlockedList();
+  if (!skipIntro) {
+    // ここではチュートリアルは出さない方針
+  }
 }
 
 function restoreProfileForm() {
@@ -427,10 +480,7 @@ function showTitleScreen() {
     applyDeviceGate();
     return;
   }
-  document.getElementById("titleScreen").classList.remove("hidden");
-  document.getElementById("startScreen").classList.add("hidden");
-  document.getElementById("appScreen").classList.add("hidden");
-  document.getElementById("mapBtn").classList.add("hidden");
+  setActiveScreen("title");
 }
 
 /* =========================
@@ -530,10 +580,7 @@ async function startExperience() {
 
   sendSessionToSheet();
 
-  document.getElementById("startScreen").classList.add("hidden");
-  document.getElementById("appScreen").classList.remove("hidden");
-  document.getElementById("mapBtn").classList.remove("hidden");
-
+  setActiveScreen("app");
   initMap();
   updateMapCollectionUI();
   renderUnlockedList();
@@ -589,7 +636,12 @@ function sendAnswerToSheet(spotId, answerText) {
    地図初期化
 ========================= */
 function initMap() {
-  if (map) return;
+  if (map) {
+    setTimeout(() => {
+      map.invalidateSize();
+    }, 120);
+    return;
+  }
 
   map = L.map("map", {
     zoomControl: true,
@@ -617,7 +669,7 @@ function initMap() {
 
   setTimeout(() => {
     map.invalidateSize();
-  }, 100);
+  }, 150);
 
   startWatchingLocation();
 }
@@ -667,6 +719,7 @@ function isSpotAnsweredCorrectly(spotId) {
 ========================= */
 function startWatchingLocation() {
   if (!navigator.geolocation) return;
+  if (watchId !== null) return;
 
   watchId = navigator.geolocation.watchPosition(
     onLocationUpdate,
