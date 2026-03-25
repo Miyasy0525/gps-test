@@ -13,9 +13,18 @@ function pulseMapButton() {
 
   mapBtn.animate(
     [
-      { transform: "scale(1)", boxShadow: "0 12px 26px rgba(98, 74, 20, 0.28)" },
-      { transform: "scale(1.1)", boxShadow: "0 0 0 10px rgba(255, 205, 70, 0.18), 0 16px 34px rgba(98, 74, 20, 0.34)" },
-      { transform: "scale(1)", boxShadow: "0 12px 26px rgba(98, 74, 20, 0.28)" }
+      {
+        transform: "scale(1)",
+        boxShadow: "0 12px 26px rgba(98, 74, 20, 0.28)"
+      },
+      {
+        transform: "scale(1.12)",
+        boxShadow: "0 0 0 12px rgba(255, 205, 70, 0.20), 0 16px 34px rgba(98, 74, 20, 0.34)"
+      },
+      {
+        transform: "scale(1)",
+        boxShadow: "0 12px 26px rgba(98, 74, 20, 0.28)"
+      }
     ],
     {
       duration: 900,
@@ -29,16 +38,9 @@ function createSparkle(x, y) {
   if (!fxLayer) return;
 
   const s = document.createElement("div");
-  s.style.position = "fixed";
+  s.className = "sparkle";
   s.style.left = `${x}px`;
   s.style.top = `${y}px`;
-  s.style.width = "10px";
-  s.style.height = "10px";
-  s.style.borderRadius = "999px";
-  s.style.pointerEvents = "none";
-  s.style.zIndex = "1305";
-  s.style.background = "radial-gradient(circle, rgba(255,255,220,1) 0%, rgba(255,215,90,0.95) 45%, rgba(255,215,90,0) 100%)";
-  s.style.transform = "translate(-50%, -50%) scale(0.6)";
   fxLayer.appendChild(s);
 
   const dx = (Math.random() - 0.5) * 44;
@@ -83,14 +85,9 @@ async function animateIconToMap(spotId) {
   const icon = document.createElement("img");
   icon.src = iconSrc;
   icon.alt = "";
-  icon.style.position = "fixed";
+  icon.className = "flyingIcon";
   icon.style.left = `${startX}px`;
   icon.style.top = `${startY}px`;
-  icon.style.width = "88px";
-  icon.style.height = "88px";
-  icon.style.objectFit = "contain";
-  icon.style.pointerEvents = "none";
-  icon.style.zIndex = "1302";
   icon.style.transform = "translate(-50%, -50%) scale(1.15)";
   icon.style.opacity = "0";
   fxLayer.appendChild(icon);
