@@ -4,7 +4,6 @@ let collectedPieces = JSON.parse(localStorage.getItem("collectedPieces") || "{}"
 let sessionId = localStorage.getItem("sessionId") || "";
 let userProfile = JSON.parse(localStorage.getItem("userProfile") || "null");
 
-let currentSpot = null;
 let currentScreen = "title";
 let deviceAccessAllowed = false;
 
