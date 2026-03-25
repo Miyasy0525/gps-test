@@ -550,7 +550,6 @@ select:focus {
   box-shadow: 0 2px 6px rgba(32, 122, 77, 0.08);
 }
 
-/* 旧構造との互換用 */
 .spotRowLeft {
   min-width: 0;
 }
@@ -610,14 +609,14 @@ select:focus {
   display: none;
   position: fixed;
   left: 50%;
-  transform: translateX(-50%);
-  width: min(100vw - 20px, 860px);
   z-index: 950;
 }
 
 #tutorialModal {
   top: 50%;
   transform: translate(-50%, -50%);
+  width: min(100vw - 20px, 560px);
+  max-height: min(92dvh, 760px);
 }
 
 #tutorialInner,
@@ -667,14 +666,15 @@ select:focus {
 
 .tutorialTrack {
   display: flex;
-  width: 400%;
+  width: 100%;
   transition: transform 0.28s ease;
 }
 
 .tutorialSlide {
   width: 100%;
+  min-width: 100%;
   flex: 0 0 100%;
-  padding-right: 12px;
+  padding-right: 0;
 }
 
 .tutorialSlide img {
@@ -747,6 +747,7 @@ select:focus {
 #mapSheet {
   top: 50%;
   transform: translate(-50%, -50%);
+  width: min(100vw - 20px, 860px);
 }
 
 .mapSheetLead {
@@ -819,6 +820,7 @@ select:focus {
   top: 12px;
   bottom: 12px;
   transform: translateX(-50%);
+  width: min(100vw - 20px, 860px);
 }
 
 #sheetInner {
@@ -1181,5 +1183,28 @@ select:focus {
   .doneBadge {
     font-size: 12px;
     padding: 6px 10px;
+  }
+
+  #tutorialModal {
+    width: calc(100vw - 16px);
+    max-height: 92dvh;
+  }
+
+  .tutorialViewport {
+    padding: 12px;
+  }
+
+  .tutorialSlide h3 {
+    font-size: 18px;
+  }
+
+  .tutorialSlide p {
+    font-size: 15px;
+    line-height: 1.75;
+  }
+
+  .tutorialFooter button {
+    min-height: 44px;
+    font-size: 16px;
   }
 }
