@@ -229,7 +229,7 @@
   z-index: 3;
   pointer-events: none;
   opacity: 0;
-  background-image: url("../map/base.png");
+  background-image: url("../map/base.jpg");
   background-repeat: no-repeat;
   background-position: center center;
   background-size: contain;
