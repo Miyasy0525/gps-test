@@ -409,6 +409,11 @@ async function saveAnswer() {
   };
   localStorage.setItem("answers", JSON.stringify(answers));
 
+  if (isFirstCorrect) {
+    collectedPieces[currentSpot.spot_id] = true;
+    localStorage.setItem("collectedPieces", JSON.stringify(collectedPieces));
+  }
+
   sendAnswerToSheet(
     currentSpot.spot_id,
     `${selectedChoice.value}: ${selectedChoice.label} / ${isCorrect ? "正解" : "不正解"}`
