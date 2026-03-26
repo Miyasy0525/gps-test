@@ -1,52 +1,18 @@
-/* =========================
-   端末制限画面
-========================= */
-#deviceGateScreen {
-  position: fixed;
-  inset: 0;
-  min-height: 100vh;
-  min-height: 100dvh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
-  background:
-    radial-gradient(circle at top, rgba(123, 183, 255, 0.22), transparent 42%),
-    linear-gradient(180deg, #f7fbff 0%, #edf5ff 100%);
-  z-index: 3000;
-}
-
-body.device-blocked {
-  background: #edf5ff;
-}
-
-.deviceGateCard {
-  width: min(100%, 520px);
+.deviceGateInner {
+  width: min(100vw - 24px, 560px);
+  margin: auto;
   background: rgba(255, 255, 255, 0.96);
-  border: 3px solid #b8d7ff;
-  border-radius: 24px;
-  box-shadow: 0 16px 40px rgba(44, 96, 168, 0.16);
-  padding: 32px 24px;
+  border-radius: 22px;
+  padding: 22px 18px 24px;
+  box-shadow: 0 18px 40px rgba(22, 40, 67, 0.18);
   text-align: center;
 }
 
-.deviceGateIcon {
-  font-size: 56px;
-  line-height: 1;
-  margin-bottom: 14px;
-}
-
 .deviceGateTitle {
-  font-size: 26px;
-  line-height: 1.5;
-  color: #184f97;
-  margin-bottom: 14px;
-  font-weight: 800;
-  text-shadow:
-    0.55px 0 0 currentColor,
-    -0.55px 0 0 currentColor,
-    0 0.4px 0 currentColor,
-    0 -0.4px 0 currentColor;
+  font-size: 24px;
+  line-height: 1.6;
+  color: #1f4f8d;
+  margin-bottom: 10px;
 }
 
 .deviceGateText {
@@ -144,12 +110,19 @@ body.device-blocked {
 }
 
 .startCard {
+  position: relative;
   width: min(100%, 860px);
   margin: 0 auto;
-  background: rgba(255, 255, 255, 0.95);
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)),
+    url("../images/background1.png");
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
   border-radius: 22px;
   padding: 20px 16px 22px;
   box-shadow: 0 10px 30px rgba(66, 92, 124, 0.12);
+  overflow: hidden;
 }
 
 .startTitle {
@@ -170,7 +143,7 @@ body.device-blocked {
 
 .warnBox {
   margin: 18px 0 20px;
-  background: #fff6cc;
+  background: rgba(255, 246, 204, 0.94);
   border: 2px solid #f2d262;
   border-radius: 16px;
   padding: 14px 12px;
@@ -198,7 +171,7 @@ select {
   min-height: 48px;
   border: 2px solid #b7d6ef;
   border-radius: 14px;
-  background: #fff;
+  background: rgba(255, 255, 255, 0.96);
   padding: 10px 12px;
   font-size: 16px;
   color: #233344;
@@ -249,7 +222,12 @@ select:focus {
   right: 12px;
   bottom: calc(12px + env(safe-area-inset-bottom));
   z-index: 600;
-  background: rgba(255, 255, 255, 0.94);
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)),
+    url("../images/background2.png");
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
   border-radius: 22px;
   box-shadow: 0 10px 30px rgba(29, 58, 94, 0.18);
   padding: 12px;
@@ -271,7 +249,7 @@ select:focus {
   border: none;
   border-radius: 999px;
   padding: 0 16px;
-  background: #edf5ff;
+  background: rgba(237, 245, 255, 0.96);
   color: #174c92;
   font-size: 16px;
   cursor: pointer;
