@@ -83,15 +83,15 @@ function nextFrame() {
 }
 
 /* =========================
-   地図のかけら演出
-   mappiece を中央表示してから右上へ吸い込む
+   地図アイコン演出
+   mapicon を中央表示してから右上へ吸い込む
 ========================= */
 async function animateIconToMap(spotId) {
   const fxLayer = document.getElementById("fxLayer");
-  const pieceSrc = pieceEffectMap[spotId];
+  const iconSrc = iconMap[spotId];
   const mapBtn = document.getElementById("mapBtn");
 
-  if (!fxLayer || !pieceSrc || !mapBtn) return;
+  if (!fxLayer || !iconSrc || !mapBtn) return;
 
   const mapRect = mapBtn.getBoundingClientRect();
 
@@ -101,7 +101,7 @@ async function animateIconToMap(spotId) {
   const endY = mapRect.top + mapRect.height / 2;
 
   const icon = document.createElement("img");
-  icon.src = pieceSrc;
+  icon.src = iconSrc;
   icon.alt = "";
   icon.className = "flyingIcon";
   icon.style.left = `${centerX}px`;
