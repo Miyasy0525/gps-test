@@ -177,11 +177,11 @@
   margin: 16px auto 12px;
   border-radius: 20px;
   overflow: hidden;
-  background: linear-gradient(180deg, #f8fbff 0%, #edf5ff 100%);
-  border: 2px solid #cfe2ff;
+  background: transparent;
+  border: 2px solid #e8a64f;
   box-shadow:
-    inset 0 0 0 1px rgba(255, 255, 255, 0.55),
-    0 10px 24px rgba(43, 83, 136, 0.08);
+    inset 0 0 0 1px rgba(255, 225, 182, 0.55),
+    0 8px 18px rgba(173, 117, 29, 0.12);
 }
 
 .mapBase,
@@ -221,7 +221,7 @@
 }
 
 .mapStage.completed .mapBase {
-  opacity: 0.22;
+  opacity: 0.26;
 }
 
 .mapStage.completed .mapPiece {
@@ -236,7 +236,7 @@
   z-index: 3;
   pointer-events: none;
   opacity: 0;
-  background-image: url("map/base.png");
+  background-image: url("../map/base.png");
   background-repeat: no-repeat;
   background-position: center center;
   background-size: contain;
@@ -245,20 +245,21 @@
 }
 
 .mapStage.completedGlow {
-  border-color: #cfe2ff;
+  border-color: #ef9a31;
   box-shadow:
-    inset 0 0 0 1px rgba(255, 255, 255, 0.55),
-    0 10px 24px rgba(43, 83, 136, 0.08);
-  animation: none;
+    inset 0 0 0 1px rgba(255, 229, 191, 0.72),
+    0 0 0 2px rgba(255, 185, 80, 0.14),
+    0 10px 22px rgba(173, 117, 29, 0.12);
+  animation: mapStageBorderPulse 1.8s ease-in-out infinite;
 }
 
 .mapStage.completedGlow .mapBase {
-  opacity: 0.30;
+  opacity: 0.34;
   transform: scale(1.01);
   filter:
     grayscale(0)
-    saturate(1.06)
-    brightness(1.04);
+    saturate(1.08)
+    brightness(1.06);
 }
 
 .mapStage.completedGlow .mapPiece {
@@ -266,46 +267,72 @@
 }
 
 .mapStage.completedGlow::after {
-  opacity: 0.95;
+  opacity: 1;
   animation: treasureMapSparkle 1.7s ease-in-out infinite;
   filter:
-    brightness(1.45)
-    saturate(1.35)
-    drop-shadow(0 0 8px rgba(255, 233, 160, 0.72))
-    drop-shadow(0 0 18px rgba(255, 214, 105, 0.58))
-    drop-shadow(0 0 34px rgba(255, 196, 76, 0.42));
+    brightness(1.75)
+    saturate(1.55)
+    drop-shadow(0 0 10px rgba(255, 240, 188, 0.90))
+    drop-shadow(0 0 24px rgba(255, 222, 120, 0.82))
+    drop-shadow(0 0 46px rgba(255, 196, 76, 0.64))
+    drop-shadow(0 0 70px rgba(255, 196, 76, 0.38));
 }
 
 @keyframes treasureMapSparkle {
   0% {
-    opacity: 0.62;
+    opacity: 0.72;
     transform: scale(1);
     filter:
-      brightness(1.20)
-      saturate(1.18)
-      drop-shadow(0 0 6px rgba(255, 233, 160, 0.50))
-      drop-shadow(0 0 14px rgba(255, 214, 105, 0.34))
-      drop-shadow(0 0 24px rgba(255, 196, 76, 0.20));
+      brightness(1.35)
+      saturate(1.24)
+      drop-shadow(0 0 8px rgba(255, 233, 160, 0.56))
+      drop-shadow(0 0 18px rgba(255, 214, 105, 0.42))
+      drop-shadow(0 0 32px rgba(255, 196, 76, 0.28));
   }
   50% {
     opacity: 1;
-    transform: scale(1.02);
+    transform: scale(1.025);
     filter:
-      brightness(1.65)
-      saturate(1.42)
-      drop-shadow(0 0 10px rgba(255, 241, 188, 0.84))
-      drop-shadow(0 0 24px rgba(255, 219, 120, 0.70))
-      drop-shadow(0 0 42px rgba(255, 196, 76, 0.46));
+      brightness(2.05)
+      saturate(1.72)
+      drop-shadow(0 0 12px rgba(255, 246, 210, 0.98))
+      drop-shadow(0 0 28px rgba(255, 226, 132, 0.92))
+      drop-shadow(0 0 54px rgba(255, 196, 76, 0.72))
+      drop-shadow(0 0 88px rgba(255, 196, 76, 0.48));
   }
   100% {
-    opacity: 0.62;
+    opacity: 0.72;
     transform: scale(1);
     filter:
-      brightness(1.20)
-      saturate(1.18)
-      drop-shadow(0 0 6px rgba(255, 233, 160, 0.50))
-      drop-shadow(0 0 14px rgba(255, 214, 105, 0.34))
-      drop-shadow(0 0 24px rgba(255, 196, 76, 0.20));
+      brightness(1.35)
+      saturate(1.24)
+      drop-shadow(0 0 8px rgba(255, 233, 160, 0.56))
+      drop-shadow(0 0 18px rgba(255, 214, 105, 0.42))
+      drop-shadow(0 0 32px rgba(255, 196, 76, 0.28));
+  }
+}
+
+@keyframes mapStageBorderPulse {
+  0% {
+    border-color: #e8a64f;
+    box-shadow:
+      inset 0 0 0 1px rgba(255, 225, 182, 0.62),
+      0 0 0 0 rgba(255, 185, 80, 0.00),
+      0 8px 18px rgba(173, 117, 29, 0.10);
+  }
+  50% {
+    border-color: #f3b257;
+    box-shadow:
+      inset 0 0 0 1px rgba(255, 233, 202, 0.84),
+      0 0 0 6px rgba(255, 185, 80, 0.10),
+      0 12px 24px rgba(173, 117, 29, 0.16);
+  }
+  100% {
+    border-color: #e8a64f;
+    box-shadow:
+      inset 0 0 0 1px rgba(255, 225, 182, 0.62),
+      0 0 0 0 rgba(255, 185, 80, 0.00),
+      0 8px 18px rgba(173, 117, 29, 0.10);
   }
 }
 
@@ -397,6 +424,11 @@
       0 0 0 0 rgba(255, 109, 102, 0),
       inset 0 2px 0 rgba(255, 255, 255, 0.28);
   }
+}
+
+/* 右上の閉じるボタンは非表示 */
+.mapSheetHeader button {
+  display: none;
 }
 
 /* =========================
