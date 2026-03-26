@@ -61,16 +61,51 @@ function createSparkle(x, y) {
   setTimeout(() => s.remove(), 820);
 }
 
+function waitForImageReady(img) {
+  if (img.complete && img.naturalWidth > 0) {
+    return Promise.resolve();
+  }
+
+  return new Promise((resolve, reject) => {
+    const onLoad = () => {
+      cleanup();
+      resolve();
+    };
+
+    const onError = () => {
+      cleanup();
+      reject(new Error("image load failed"));
+    };
+
+    const cleanup = () => {
+      img.removeEventListener("load", onLoad);
+      img.removeEventListener("error", onError);
+    };
+
+    img.addEventListener("load", onLoad, { once: true });
+    img.addEventListener("error", onError, { once: true });
+  });
+}
+
+function nextFrame() {
+  return new Promise((resolve) => {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(resolve);
+    });
+  });
+}
+
 /* =========================
    地図のかけら演出
+   mappiece を中央表示してから右上へ吸い込む
 ========================= */
 async function animateIconToMap(spotId) {
   const fxLayer = document.getElementById("fxLayer");
-  const iconSrc = iconMap[spotId];
+  const pieceSrc = pieceEffectMap[spotId];
   const saveBtn = document.getElementById("saveAnswerBtn");
   const mapBtn = document.getElementById("mapBtn");
 
-  if (!fxLayer || !iconSrc || !saveBtn || !mapBtn) return;
+  if (!fxLayer || !pieceSrc || !saveBtn || !mapBtn) return;
 
   const saveRect = saveBtn.getBoundingClientRect();
   const mapRect = mapBtn.getBoundingClientRect();
@@ -83,25 +118,28 @@ async function animateIconToMap(spotId) {
   const endY = mapRect.top + mapRect.height / 2;
 
   const icon = document.createElement("img");
-  icon.src = iconSrc;
+  icon.src = pieceSrc;
   icon.alt = "";
   icon.className = "flyingIcon";
   icon.style.left = `${startX}px`;
   icon.style.top = `${startY}px`;
-  icon.style.transform = "translate(-50%, -50%) scale(1.15)";
+  icon.style.transform = "translate(-50%, -50%) scale(0.9)";
   icon.style.opacity = "0";
   icon.style.transition = "none";
   fxLayer.appendChild(icon);
 
-  /* 2フレーム待って、確実に描画に乗せる */
-  await new Promise((resolve) => {
-    requestAnimationFrame(() => {
-      requestAnimationFrame(resolve);
-    });
-  });
+  try {
+    await waitForImageReady(icon);
+  } catch (e) {
+    icon.remove();
+    return;
+  }
 
-  /* Step 1: 中央へ拡大移動 */
-  icon.style.transition = "left 0.65s ease, top 0.65s ease, transform 0.65s ease, opacity 0.2s ease";
+  await nextFrame();
+
+  /* Step 1: まず中央へ大きく表示 */
+  icon.style.transition =
+    "left 0.65s ease, top 0.65s ease, transform 0.65s ease, opacity 0.22s ease";
   icon.style.left = `${centerX}px`;
   icon.style.top = `${centerY}px`;
   icon.style.transform = "translate(-50%, -50%) scale(4.2)";
@@ -129,8 +167,9 @@ async function animateIconToMap(spotId) {
   clearInterval(sparkleTimer1);
   clearInterval(sparkleTimer2);
 
-  /* Step 3: 右上の地図ボタンへ吸い込み */
-  icon.style.transition = "left 0.8s ease-in, top 0.8s ease-in, transform 0.8s ease-in, opacity 0.8s ease-in";
+  /* Step 3: 右上のヒミツの地図へ吸い込み */
+  icon.style.transition =
+    "left 0.8s ease-in, top 0.8s ease-in, transform 0.8s ease-in, opacity 0.8s ease-in";
   icon.style.left = `${endX}px`;
   icon.style.top = `${endY}px`;
   icon.style.transform = "translate(-50%, -50%) scale(0.18)";
@@ -145,6 +184,6 @@ async function animateIconToMap(spotId) {
   clearInterval(flySparkleTimer);
   icon.remove();
 
-  /* Step 4: ボタンを光らせる */
+  /* Step 4: 右上ボタンを光らせる */
   pulseMapButton();
 }
