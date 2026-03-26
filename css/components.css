@@ -228,6 +228,22 @@
   filter: drop-shadow(0 2px 8px rgba(40, 72, 120, 0.08));
 }
 
+/* 完成時の“地図そのもの”発光レイヤー */
+.mapStage::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  opacity: 0;
+  background-image: url("map/base.png");
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: contain;
+  mix-blend-mode: screen;
+  transform: scale(1);
+}
+
 .mapStage.completedGlow {
   border-color: #cfe2ff;
   box-shadow:
@@ -237,55 +253,59 @@
 }
 
 .mapStage.completedGlow .mapBase {
-  opacity: 0.55;
-  transform: scale(1.015);
+  opacity: 0.30;
+  transform: scale(1.01);
   filter:
     grayscale(0)
-    saturate(1.2)
-    brightness(1.12)
-    drop-shadow(0 0 10px rgba(255, 230, 150, 0.55))
-    drop-shadow(0 0 22px rgba(255, 208, 92, 0.48))
-    drop-shadow(0 0 38px rgba(255, 196, 76, 0.34));
-  animation: mapBaseTreasureGlow 1.7s ease-in-out infinite;
+    saturate(1.06)
+    brightness(1.04);
 }
 
 .mapStage.completedGlow .mapPiece {
   filter: drop-shadow(0 2px 8px rgba(40, 72, 120, 0.08));
 }
 
-@keyframes mapBaseTreasureGlow {
+.mapStage.completedGlow::after {
+  opacity: 0.95;
+  animation: treasureMapSparkle 1.7s ease-in-out infinite;
+  filter:
+    brightness(1.45)
+    saturate(1.35)
+    drop-shadow(0 0 8px rgba(255, 233, 160, 0.72))
+    drop-shadow(0 0 18px rgba(255, 214, 105, 0.58))
+    drop-shadow(0 0 34px rgba(255, 196, 76, 0.42));
+}
+
+@keyframes treasureMapSparkle {
   0% {
-    opacity: 0.48;
+    opacity: 0.62;
     transform: scale(1);
     filter:
-      grayscale(0)
-      saturate(1.14)
-      brightness(1.08)
-      drop-shadow(0 0 8px rgba(255, 230, 150, 0.42))
-      drop-shadow(0 0 18px rgba(255, 208, 92, 0.34))
-      drop-shadow(0 0 28px rgba(255, 196, 76, 0.22));
+      brightness(1.20)
+      saturate(1.18)
+      drop-shadow(0 0 6px rgba(255, 233, 160, 0.50))
+      drop-shadow(0 0 14px rgba(255, 214, 105, 0.34))
+      drop-shadow(0 0 24px rgba(255, 196, 76, 0.20));
   }
   50% {
-    opacity: 0.72;
-    transform: scale(1.018);
+    opacity: 1;
+    transform: scale(1.02);
     filter:
-      grayscale(0)
-      saturate(1.24)
-      brightness(1.18)
-      drop-shadow(0 0 12px rgba(255, 236, 172, 0.70))
-      drop-shadow(0 0 28px rgba(255, 214, 105, 0.58))
-      drop-shadow(0 0 46px rgba(255, 196, 76, 0.40));
+      brightness(1.65)
+      saturate(1.42)
+      drop-shadow(0 0 10px rgba(255, 241, 188, 0.84))
+      drop-shadow(0 0 24px rgba(255, 219, 120, 0.70))
+      drop-shadow(0 0 42px rgba(255, 196, 76, 0.46));
   }
   100% {
-    opacity: 0.48;
+    opacity: 0.62;
     transform: scale(1);
     filter:
-      grayscale(0)
-      saturate(1.14)
-      brightness(1.08)
-      drop-shadow(0 0 8px rgba(255, 230, 150, 0.42))
-      drop-shadow(0 0 18px rgba(255, 208, 92, 0.34))
-      drop-shadow(0 0 28px rgba(255, 196, 76, 0.22));
+      brightness(1.20)
+      saturate(1.18)
+      drop-shadow(0 0 6px rgba(255, 233, 160, 0.50))
+      drop-shadow(0 0 14px rgba(255, 214, 105, 0.34))
+      drop-shadow(0 0 24px rgba(255, 196, 76, 0.20));
   }
 }
 
@@ -304,6 +324,15 @@
   align-items: stretch;
   gap: 12px;
   padding: 4px 16px 18px;
+}
+
+/* 封印を解くを上、閉じるを下へ */
+.mapSheetButtons > .sealBtn {
+  order: 1;
+}
+
+.mapSheetButtons > button {
+  order: 2;
 }
 
 .mapSheetButtons button,
