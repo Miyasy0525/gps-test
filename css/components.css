@@ -456,9 +456,9 @@
 
 .celebrateNote {
   position: fixed;
-  min-width: 240px;
-  max-width: min(78vw, 360px);
-  padding: 14px 18px;
+  min-width: 320px;
+  max-width: min(92vw, 520px);
+  padding: 16px 22px;
   border-radius: 22px;
   background:
     radial-gradient(circle at top, rgba(255,255,255,0.98) 0%, rgba(255,248,214,0.98) 46%, rgba(255,232,164,0.98) 100%);
@@ -478,12 +478,14 @@
   color: #8d5b00;
   line-height: 1.35;
   margin-bottom: 4px;
+  white-space: nowrap;
 }
 
 .celebrateNoteSub {
   font-size: 16px;
   color: #7b5e15;
   line-height: 1.5;
+  white-space: nowrap;
 }
 
 @keyframes sparkleFade {
@@ -590,9 +592,9 @@
   }
 
   .celebrateNote {
-    min-width: 220px;
-    max-width: 84vw;
-    padding: 12px 14px;
+    min-width: 300px;
+    max-width: 92vw;
+    padding: 14px 16px;
   }
 
   .celebrateNoteTitle {
