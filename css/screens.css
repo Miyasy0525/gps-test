@@ -115,7 +115,7 @@
   margin: 0 auto;
   background:
     linear-gradient(rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)),
-    url("../images/background1.png");
+    url("../images/background1.jpg");
   background-size: cover;
   background-position: center center;
   background-repeat: no-repeat;
@@ -224,7 +224,7 @@ select:focus {
   z-index: 600;
   background:
     linear-gradient(rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)),
-    url("../images/background2.png");
+    url("../images/background2.jpg");
   background-size: cover;
   background-position: center center;
   background-repeat: no-repeat;
