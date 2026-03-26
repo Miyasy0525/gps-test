@@ -65,7 +65,7 @@
   position: absolute;
   top: 0;
   right: 82px;
-  width: 152px;
+  width: 132px;
   height: 100%;
   display: flex;
   align-items: flex-end;
@@ -83,13 +83,13 @@
 .spotRowDragonImg {
   position: relative;
   z-index: 0;
-  width: 210px;
-  height: 210px;
+  width: 250px;
+  height: 250px;
   object-fit: contain;
   object-position: center bottom;
   display: block;
   opacity: 0.99;
-  transform: translateY(10px);
+  transform: translateY(0);
   filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.12));
 }
 
@@ -746,9 +746,9 @@
   }
 
   .spotRowDragonImg {
-    width: 185px;
-    height: 185px;
-    transform: translateY(10px);
+    width: 250px;
+    height: 250px;
+    transform: translateY(0);
   }
 
   .spotRowBadgeWrap {
