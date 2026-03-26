@@ -11,26 +11,13 @@ function pulseMapButton() {
   const mapBtn = document.getElementById("mapBtn");
   if (!mapBtn) return;
 
-  mapBtn.animate(
-    [
-      {
-        transform: "scale(1)",
-        boxShadow: "0 12px 26px rgba(98, 74, 20, 0.28)"
-      },
-      {
-        transform: "scale(1.12)",
-        boxShadow: "0 0 0 12px rgba(255, 205, 70, 0.20), 0 16px 34px rgba(98, 74, 20, 0.34)"
-      },
-      {
-        transform: "scale(1)",
-        boxShadow: "0 12px 26px rgba(98, 74, 20, 0.28)"
-      }
-    ],
-    {
-      duration: 900,
-      easing: "ease-out"
-    }
-  );
+  mapBtn.classList.remove("mapBtnPulse");
+  void mapBtn.offsetWidth;
+  mapBtn.classList.add("mapBtnPulse");
+
+  setTimeout(() => {
+    mapBtn.classList.remove("mapBtnPulse");
+  }, 900);
 }
 
 function createSparkle(x, y) {
@@ -102,16 +89,12 @@ function nextFrame() {
 async function animateIconToMap(spotId) {
   const fxLayer = document.getElementById("fxLayer");
   const pieceSrc = pieceEffectMap[spotId];
-  const saveBtn = document.getElementById("saveAnswerBtn");
   const mapBtn = document.getElementById("mapBtn");
 
-  if (!fxLayer || !pieceSrc || !saveBtn || !mapBtn) return;
+  if (!fxLayer || !pieceSrc || !mapBtn) return;
 
-  const saveRect = saveBtn.getBoundingClientRect();
   const mapRect = mapBtn.getBoundingClientRect();
 
-  const startX = saveRect.left + saveRect.width / 2;
-  const startY = saveRect.top + saveRect.height / 2;
   const centerX = window.innerWidth / 2;
   const centerY = window.innerHeight / 2;
   const endX = mapRect.left + mapRect.width / 2;
@@ -121,8 +104,8 @@ async function animateIconToMap(spotId) {
   icon.src = pieceSrc;
   icon.alt = "";
   icon.className = "flyingIcon";
-  icon.style.left = `${startX}px`;
-  icon.style.top = `${startY}px`;
+  icon.style.left = `${centerX}px`;
+  icon.style.top = `${centerY}px`;
   icon.style.transform = "translate(-50%, -50%) scale(0.9)";
   icon.style.opacity = "0";
   icon.style.transition = "none";
@@ -137,23 +120,21 @@ async function animateIconToMap(spotId) {
 
   await nextFrame();
 
-  /* Step 1: まず中央へ大きく表示 */
+  /* Step 1: 中央に大きく表示 */
   icon.style.transition =
-    "left 0.65s ease, top 0.65s ease, transform 0.65s ease, opacity 0.22s ease";
-  icon.style.left = `${centerX}px`;
-  icon.style.top = `${centerY}px`;
-  icon.style.transform = "translate(-50%, -50%) scale(4.2)";
+    "transform 0.4s ease, opacity 0.22s ease";
+  icon.style.transform = "translate(-50%, -50%) scale(3)";
   icon.style.opacity = "1";
 
   const sparkleTimer1 = setInterval(() => {
     createSparkle(centerX + (Math.random() - 0.5) * 70, centerY + (Math.random() - 0.5) * 70);
   }, 120);
 
-  await waitMs(700);
+  await waitMs(400);
 
   /* Step 2: 中央で約2秒見せる */
   icon.style.transition = "transform 0.45s ease";
-  icon.style.transform = "translate(-50%, -50%) scale(4.5)";
+  icon.style.transform = "translate(-50%, -50%) scale(3.15)";
 
   const sparkleTimer2 = setInterval(() => {
     createSparkle(centerX + (Math.random() - 0.5) * 90, centerY + (Math.random() - 0.5) * 90);
@@ -169,7 +150,7 @@ async function animateIconToMap(spotId) {
 
   /* Step 3: 右上のヒミツの地図へ吸い込み */
   icon.style.transition =
-    "left 0.8s ease-in, top 0.8s ease-in, transform 0.8s ease-in, opacity 0.8s ease-in";
+    "left 1.15s ease-in-out, top 1.15s ease-in-out, transform 1.15s ease-in-out, opacity 1.15s ease-in-out";
   icon.style.left = `${endX}px`;
   icon.style.top = `${endY}px`;
   icon.style.transform = "translate(-50%, -50%) scale(0.18)";
@@ -180,7 +161,7 @@ async function animateIconToMap(spotId) {
     createSparkle(rect.left + rect.width / 2, rect.top + rect.height / 2);
   }, 90);
 
-  await waitMs(820);
+  await waitMs(1170);
   clearInterval(flySparkleTimer);
   icon.remove();
 
