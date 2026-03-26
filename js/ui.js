@@ -202,6 +202,7 @@ function updateMapCollectionUI() {
   updateMapTitleCount();
   updateMapPieceLayers();
   updateSealArea();
+  updateCompletedMapEffects();
 }
 
 function updateMapBtnCount() {
@@ -247,10 +248,27 @@ function updateSealArea() {
   const count = Object.keys(collectedPieces).length;
   if (count >= 8 && SEAL_LINK) {
     sealBtn.classList.remove("hidden");
+    sealBtn.classList.add("sealReady");
     sealBtn.href = SEAL_LINK;
+    sealBtn.textContent = "封印を解く";
   } else {
     sealBtn.classList.add("hidden");
+    sealBtn.classList.remove("sealReady");
     sealBtn.href = "";
+  }
+}
+
+function updateCompletedMapEffects() {
+  const count = Object.keys(collectedPieces).length;
+  const mapStage = document.getElementById("mapStage");
+  const mapBtn = document.getElementById("mapBtn");
+
+  if (mapStage) {
+    mapStage.classList.toggle("completedGlow", count >= 8);
+  }
+
+  if (mapBtn) {
+    mapBtn.classList.toggle("mapBtnCompleted", count >= 8);
   }
 }
 
