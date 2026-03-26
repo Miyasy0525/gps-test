@@ -4,7 +4,13 @@ const OLD_URL = "https://miyasy0525.github.io/gps-test/images/old.jpg?v=6";
 const NEW_URL = "https://miyasy0525.github.io/gps-test/images/new.jpg?v=6";
 
 const DRINK_WATER_URL = NEW_URL;
-const SEAL_LINK = "";
+
+/*
+  動作確認用:
+  ここが空文字だと「封印を解く」ボタンは表示されません。
+  実運用時は本物の報酬URLに差し替えてください。
+*/
+const SEAL_LINK = "#";
 
 /* =========================
    MapTiler
