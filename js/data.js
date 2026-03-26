@@ -40,12 +40,41 @@ const HOTSPOT_HOLD_MS = 5000;
 
 /* =========================
    竜画像対応
-   PNG 前提
+   未クリア = A（シルエット）
+   クリア後 = B（カラー）
 ========================= */
 const dragonImageMap = {
   spot01: {
     locked: "images/1-A.png",
     unlocked: "images/1-B.png"
+  },
+  spot02: {
+    locked: "images/2-A.png",
+    unlocked: "images/2-B.png"
+  },
+  spot03: {
+    locked: "images/3-A.png",
+    unlocked: "images/3-B.png"
+  },
+  spot04: {
+    locked: "images/4-A.png",
+    unlocked: "images/4-B.png"
+  },
+  spot05: {
+    locked: "images/5-A.png",
+    unlocked: "images/5-B.png"
+  },
+  spot06: {
+    locked: "images/6-A.png",
+    unlocked: "images/6-B.png"
+  },
+  spot07: {
+    locked: "images/7-A.png",
+    unlocked: "images/7-B.png"
+  },
+  spot08: {
+    locked: "images/8-A.png",
+    unlocked: "images/8-B.png"
   }
 };
 
