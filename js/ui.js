@@ -1,6 +1,7 @@
 let tutorialIndex = 0;
 const TUTORIAL_TOTAL = 4;
 let currentSpot = null;
+let currentSheetMode = "quiz"; // "quiz" | "review"
 
 /* =========================
    竜画像ヘルパー
@@ -26,6 +27,92 @@ function setFormMessage(text, type = "") {
   if (type) {
     el.classList.add(type);
   }
+}
+
+/* =========================
+   正解済み解説モード用ヘルパー
+========================= */
+function getSpotCorrectAnswerLabel(spot) {
+  if (!spot || !spot.content || !spot.content.choices) return "";
+  const answer = spot.content.choices.find((c) => c.value === spot.content.correctValue);
+  if (!answer) return "";
+  return `${answer.value}：${answer.label}`;
+}
+
+function buildReviewContent(spot) {
+  const content = spot.content || {};
+  const correctAnswerLabel = getSpotCorrectAnswerLabel(spot);
+
+  return {
+    title: content.reviewTitle || `${spot.spot_name}　正解解説`,
+    description:
+      content.reviewLead ||
+      content.description ||
+      "",
+    question:
+      content.reviewAnswer
+        ? `${content.reviewAnswer}\n\n${content.reviewComment || ""}`.trim()
+        : `正解は「${correctAnswerLabel}」です。\n\n${content.reviewComment || "この問題はクリア済みです。現地のことをもう一度思い出してみよう！"}`
+  };
+}
+
+function setSheetMode(mode) {
+  currentSheetMode = mode;
+
+  const choicesBox = document.getElementById("choicesBox");
+  const saveBtn = document.getElementById("saveAnswerBtn");
+  const compareRange = document.getElementById("compareRange");
+  const formMessage = document.getElementById("formMessage");
+
+  if (mode === "review") {
+    if (choicesBox) choicesBox.classList.add("hidden");
+    if (saveBtn) saveBtn.classList.add("hidden");
+    if (compareRange && !compareRange.classList.contains("hidden")) {
+      compareRange.classList.remove("hidden");
+    }
+    if (formMessage) formMessage.classList.add("hidden");
+  } else {
+    if (choicesBox) choicesBox.classList.remove("hidden");
+    if (saveBtn) saveBtn.classList.remove("hidden");
+    if (formMessage) formMessage.classList.remove("hidden");
+  }
+}
+
+function openReviewSpotSheet(spot) {
+  currentSpot = spot;
+  setSheetMode("review");
+
+  document.getElementById("sheetBackdrop").style.display = "block";
+  document.getElementById("sheet").style.display = "block";
+  document.getElementById("imageError").textContent = "";
+  setFormMessage("");
+
+  const review = buildReviewContent(spot);
+
+  document.getElementById("spotTitle").textContent = review.title;
+  document.getElementById("spotDescription").textContent = review.description;
+  document.getElementById("spotQuestion").textContent = review.question;
+
+  renderHintAndTip(spot, true);
+  renderImageArea(spot);
+}
+
+function openQuizSpotSheet(spot) {
+  currentSpot = spot;
+  setSheetMode("quiz");
+
+  document.getElementById("sheetBackdrop").style.display = "block";
+  document.getElementById("sheet").style.display = "block";
+
+  document.getElementById("spotTitle").textContent = spot.spot_name;
+  document.getElementById("spotDescription").textContent = spot.content.description || "";
+  document.getElementById("spotQuestion").textContent = spot.content.question || "";
+  setFormMessage("");
+  document.getElementById("imageError").textContent = "";
+
+  renderHintAndTip(spot, false);
+  renderImageArea(spot);
+  renderChoices(spot);
 }
 
 /* =========================
@@ -293,25 +380,33 @@ function closeMapSheetIfBackdrop(event) {
    スポットシート
 ========================= */
 function openSpotSheet(spot) {
-  currentSpot = spot;
+  const alreadyCorrect = answers[spot.spot_id] && answers[spot.spot_id].isCorrect;
 
-  document.getElementById("sheetBackdrop").style.display = "block";
-  document.getElementById("sheet").style.display = "block";
-
-  document.getElementById("spotTitle").textContent = spot.spot_name;
-  document.getElementById("spotDescription").textContent = spot.content.description || "";
-  document.getElementById("spotQuestion").textContent = spot.content.question || "";
-  setFormMessage("");
-  document.getElementById("imageError").textContent = "";
-
-  renderHintAndTip(spot);
-  renderImageArea(spot);
-  renderChoices(spot);
+  if (alreadyCorrect) {
+    openReviewSpotSheet(spot);
+  } else {
+    openQuizSpotSheet(spot);
+  }
 }
 
-function renderHintAndTip(spot) {
+function renderHintAndTip(spot, isReviewMode = false) {
   const hintEl = document.getElementById("spotHint");
   const tipEl = document.getElementById("spotTip");
+
+  if (isReviewMode) {
+    hintEl.textContent = "";
+    hintEl.classList.add("hidden");
+
+    const correctAnswerLabel = getSpotCorrectAnswerLabel(spot);
+    if (correctAnswerLabel) {
+      tipEl.textContent = `正解：${correctAnswerLabel}`;
+      tipEl.classList.remove("hidden");
+    } else {
+      tipEl.textContent = "";
+      tipEl.classList.add("hidden");
+    }
+    return;
+  }
 
   if (spot.content.hint) {
     hintEl.textContent = spot.content.hint;
@@ -392,6 +487,7 @@ function updateCompareSlider(value) {
 function closeSheet() {
   document.getElementById("sheetBackdrop").style.display = "none";
   document.getElementById("sheet").style.display = "none";
+  currentSheetMode = "quiz";
 }
 
 function getSelectedChoice() {
@@ -401,7 +497,7 @@ function getSelectedChoice() {
 }
 
 async function saveAnswer() {
-  if (!currentSpot || effectRunning) return;
+  if (!currentSpot || effectRunning || currentSheetMode !== "quiz") return;
 
   const alreadyCorrect = answers[currentSpot.spot_id] && answers[currentSpot.spot_id].isCorrect;
   if (alreadyCorrect) {
