@@ -16,6 +16,18 @@ function hasDragonImage(spotId) {
   return !!(config && config.locked && config.unlocked);
 }
 
+function setFormMessage(text, type = "") {
+  const el = document.getElementById("formMessage");
+  if (!el) return;
+
+  el.innerText = text || "";
+  el.classList.remove("messageSuccess", "messageError", "messageInfo");
+
+  if (type) {
+    el.classList.add(type);
+  }
+}
+
 /* =========================
    見つけたヒミツ一覧
 ========================= */
@@ -35,7 +47,16 @@ function renderUnlockedList() {
   list.innerHTML = "";
 
   unlockedSpots.forEach((spot) => {
-    const correct = isSpotAnsweredCorrectly(spot.spot_id);
+    const answer = answers[spot.spot_id];
+    const correct = !!(answer && answer.isCorrect);
+    const triedWrong = !!(answer && !answer.isCorrect);
+
+    let metaText = "まだ問題に答えていないよ";
+    if (correct) {
+      metaText = "問題クリア済み";
+    } else if (triedWrong) {
+      metaText = "前回はちがったよ。もう一度チャレンジ！";
+    }
 
     if (template) {
       const fragment = template.content.cloneNode(true);
@@ -47,9 +68,16 @@ function renderUnlockedList() {
       const dragonImg = fragment.querySelector(".spotRowDragonImg");
 
       titleEl.textContent = spot.spot_name;
-      metaEl.textContent = correct ? "問題クリア済み" : "まだ問題に答えていないよ";
+      metaEl.textContent = metaText;
+
+      badgeEl.classList.remove("retryBadge");
 
       if (correct) {
+        badgeEl.textContent = "クリア！";
+        badgeEl.classList.remove("hidden");
+      } else if (triedWrong) {
+        badgeEl.textContent = "もう一度トライ";
+        badgeEl.classList.add("retryBadge");
         badgeEl.classList.remove("hidden");
       } else {
         badgeEl.classList.add("hidden");
@@ -73,15 +101,21 @@ function renderUnlockedList() {
       return;
     }
 
+    const badgeHtml = correct
+      ? `<div class="doneBadge">クリア！</div>`
+      : triedWrong
+        ? `<div class="doneBadge retryBadge">もう一度トライ</div>`
+        : "";
+
     const button = document.createElement("button");
     button.className = "spotRow";
     button.type = "button";
     button.innerHTML = `
       <div class="spotRowLeft">
         <div class="spotRowTitle">${spot.spot_name}</div>
-        <div class="spotRowMeta">${correct ? "問題クリア済み" : "まだ問題に答えていないよ"}</div>
+        <div class="spotRowMeta">${metaText}</div>
       </div>
-      ${correct ? `<div class="doneBadge">クリア！</div>` : ``}
+      ${badgeHtml}
     `;
     button.addEventListener("click", () => openSpotSheet(spot));
     list.appendChild(button);
@@ -249,7 +283,7 @@ function openSpotSheet(spot) {
   document.getElementById("spotTitle").textContent = spot.spot_name;
   document.getElementById("spotDescription").textContent = spot.content.description || "";
   document.getElementById("spotQuestion").textContent = spot.content.question || "";
-  document.getElementById("formMessage").textContent = "";
+  setFormMessage("");
   document.getElementById("imageError").textContent = "";
 
   renderHintAndTip(spot);
@@ -353,14 +387,14 @@ async function saveAnswer() {
 
   const alreadyCorrect = answers[currentSpot.spot_id] && answers[currentSpot.spot_id].isCorrect;
   if (alreadyCorrect) {
-    document.getElementById("formMessage").innerText = "このスポットは発見済みです。";
+    setFormMessage("このスポットはもうクリア済みだよ。", "messageInfo");
     return;
   }
 
   const selectedValue = getSelectedChoice();
 
   if (!selectedValue) {
-    document.getElementById("formMessage").innerText = "選択肢を1つ選んでください。";
+    setFormMessage("選択肢を1つ選んでください。", "messageInfo");
     return;
   }
 
@@ -380,14 +414,6 @@ async function saveAnswer() {
     `${selectedChoice.value}: ${selectedChoice.label} / ${isCorrect ? "正解" : "不正解"}`
   );
 
-  document.getElementById("formMessage").innerText =
-    `${isCorrect ? "正解です！ 地図のかけらを手に入れたよ。" : "ちがうかも。もう一回ちょうせん！"}\nあなたの回答：${selectedChoice.value}（${selectedChoice.label}）`;
-
-  if (isFirstCorrect) {
-    collectedPieces[currentSpot.spot_id] = true;
-    localStorage.setItem("collectedPieces", JSON.stringify(collectedPieces));
-  }
-
   updateProgress();
   updateMarker(currentSpot);
   renderUnlockedList();
@@ -399,12 +425,21 @@ async function saveAnswer() {
     await animateIconToMap(currentSpot.spot_id);
     updateMapCollectionUI();
     effectRunning = false;
-  } else {
+    return;
+  }
+
+  if (isCorrect) {
+    setFormMessage("正解です！ このスポットはクリア済みだよ。", "messageSuccess");
     updateMapCollectionUI();
+
     setTimeout(() => {
       closeSheet();
-    }, 200);
+    }, 1100);
+    return;
   }
+
+  setFormMessage("ちがうみたい。もう一度トライしてみよう！", "messageError");
+  updateMapCollectionUI();
 }
 
 /* =========================
