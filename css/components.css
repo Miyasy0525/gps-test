@@ -433,6 +433,33 @@
   }
 }
 
+#mapBtn.mapBtnPulse {
+  animation: mapBtnPulse 0.9s ease-out 1;
+}
+
+@keyframes mapBtnPulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 12px 26px rgba(98, 74, 20, 0.28);
+  }
+  25% {
+    transform: scale(1.08);
+    box-shadow:
+      0 0 0 0 rgba(255, 196, 76, 0.52),
+      0 16px 34px rgba(98, 74, 20, 0.34);
+  }
+  55% {
+    transform: scale(1.14);
+    box-shadow:
+      0 0 0 16px rgba(255, 196, 76, 0),
+      0 18px 38px rgba(98, 74, 20, 0.38);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 12px 26px rgba(98, 74, 20, 0.28);
+  }
+}
+
 /* =========================
    レスポンシブ
 ========================= */
