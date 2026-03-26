@@ -225,6 +225,49 @@
   filter: drop-shadow(0 4px 12px rgba(255, 196, 77, 0.18));
 }
 
+.mapStage.completedGlow {
+  border-color: rgba(255, 205, 84, 0.98);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 248, 215, 0.78),
+    0 0 0 4px rgba(255, 215, 105, 0.12),
+    0 0 34px rgba(255, 205, 84, 0.34),
+    0 14px 30px rgba(191, 141, 19, 0.22);
+  animation: completedMapGlow 1.8s ease-in-out infinite;
+}
+
+.mapStage.completedGlow .mapPiece {
+  filter:
+    drop-shadow(0 0 10px rgba(255, 230, 153, 0.52))
+    drop-shadow(0 0 20px rgba(255, 199, 66, 0.30));
+}
+
+@keyframes completedMapGlow {
+  0% {
+    transform: scale(1);
+    box-shadow:
+      inset 0 0 0 1px rgba(255, 248, 215, 0.78),
+      0 0 0 4px rgba(255, 215, 105, 0.12),
+      0 0 24px rgba(255, 205, 84, 0.24),
+      0 14px 30px rgba(191, 141, 19, 0.16);
+  }
+  50% {
+    transform: scale(1.01);
+    box-shadow:
+      inset 0 0 0 1px rgba(255, 248, 215, 0.88),
+      0 0 0 8px rgba(255, 215, 105, 0.10),
+      0 0 44px rgba(255, 205, 84, 0.42),
+      0 16px 34px rgba(191, 141, 19, 0.24);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow:
+      inset 0 0 0 1px rgba(255, 248, 215, 0.78),
+      0 0 0 4px rgba(255, 215, 105, 0.12),
+      0 0 24px rgba(255, 205, 84, 0.24),
+      0 14px 30px rgba(191, 141, 19, 0.16);
+  }
+}
+
 .mapTitleCount {
   display: inline-block;
   margin-left: 8px;
@@ -235,21 +278,67 @@
 
 .mapSheetButtons {
   display: flex;
+  flex-direction: column;
   justify-content: center;
-  align-items: center;
+  align-items: stretch;
   gap: 12px;
   padding: 4px 16px 18px;
 }
 
-.mapSheetButtons button {
-  min-height: 46px;
+.mapSheetButtons button,
+.mapSheetButtons .sealBtn {
+  min-height: 48px;
   border: none;
   border-radius: 999px;
   padding: 0 18px;
-  background: #eef4fa;
-  color: #37506b;
   font-size: 16px;
   cursor: pointer;
+}
+
+.mapSheetButtons button {
+  background: #eef4fa;
+  color: #37506b;
+}
+
+.sealBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  background: linear-gradient(180deg, #ff6a63 0%, #d93a34 100%);
+  color: #fff;
+  box-shadow:
+    0 12px 24px rgba(185, 44, 36, 0.28),
+    inset 0 2px 0 rgba(255, 255, 255, 0.28);
+  border: 2px solid rgba(255, 214, 214, 0.58);
+}
+
+.sealBtn.sealReady {
+  animation: sealReadyPulse 1.2s ease-in-out infinite;
+}
+
+@keyframes sealReadyPulse {
+  0% {
+    transform: scale(1);
+    box-shadow:
+      0 12px 24px rgba(185, 44, 36, 0.28),
+      0 0 0 0 rgba(255, 109, 102, 0.40),
+      inset 0 2px 0 rgba(255, 255, 255, 0.28);
+  }
+  60% {
+    transform: scale(1.03);
+    box-shadow:
+      0 16px 30px rgba(185, 44, 36, 0.34),
+      0 0 0 12px rgba(255, 109, 102, 0),
+      inset 0 2px 0 rgba(255, 255, 255, 0.28);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow:
+      0 12px 24px rgba(185, 44, 36, 0.28),
+      0 0 0 0 rgba(255, 109, 102, 0),
+      inset 0 2px 0 rgba(255, 255, 255, 0.28);
+  }
 }
 
 /* =========================
@@ -507,6 +596,10 @@
   animation: mapBtnPulse 0.9s ease-out 1;
 }
 
+#mapBtn.mapBtnCompleted {
+  animation: mapBtnCompleted 1.4s ease-in-out infinite;
+}
+
 @keyframes mapBtnPulse {
   0% {
     transform: scale(1);
@@ -527,6 +620,27 @@
   100% {
     transform: scale(1);
     box-shadow: 0 12px 26px rgba(98, 74, 20, 0.28);
+  }
+}
+
+@keyframes mapBtnCompleted {
+  0% {
+    transform: scale(1);
+    box-shadow:
+      0 12px 26px rgba(98, 74, 20, 0.28),
+      0 0 0 0 rgba(255, 205, 84, 0.36);
+  }
+  50% {
+    transform: scale(1.08);
+    box-shadow:
+      0 16px 34px rgba(98, 74, 20, 0.34),
+      0 0 0 14px rgba(255, 205, 84, 0);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow:
+      0 12px 26px rgba(98, 74, 20, 0.28),
+      0 0 0 0 rgba(255, 205, 84, 0);
   }
 }
 
@@ -571,7 +685,6 @@
   }
 
   .mapSheetButtons {
-    flex-direction: column;
     gap: 10px;
   }
 
