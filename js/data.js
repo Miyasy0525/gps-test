@@ -45,36 +45,36 @@ const HOTSPOT_HOLD_MS = 5000;
 ========================= */
 const dragonImageMap = {
   spot01: {
-    locked: "images/1-A.jpg",
-    unlocked: "images/1-B.jpg"
+    locked: "images/1-A.png",
+    unlocked: "images/1-B.png"
   },
   spot02: {
-    locked: "images/2-A.jpg",
-    unlocked: "images/2-B.jpg"
+    locked: "images/2-A.png",
+    unlocked: "images/2-B.png"
   },
   spot03: {
-    locked: "images/3-A.jpg",
-    unlocked: "images/3-B.jpg"
+    locked: "images/3-A.png",
+    unlocked: "images/3-B.png"
   },
   spot04: {
-    locked: "images/4-A.jpg",
-    unlocked: "images/4-B.jpg"
+    locked: "images/4-A.png",
+    unlocked: "images/4-B.png"
   },
   spot05: {
-    locked: "images/5-A.jpg",
-    unlocked: "images/5-B.jpg"
+    locked: "images/5-A.png",
+    unlocked: "images/5-B.png"
   },
   spot06: {
-    locked: "images/6-A.jpg",
-    unlocked: "images/6-B.jpg"
+    locked: "images/6-A.png",
+    unlocked: "images/6-B.png"
   },
   spot07: {
-    locked: "images/7-A.jpg",
-    unlocked: "images/7-B.jpg"
+    locked: "images/7-A.png",
+    unlocked: "images/7-B.png"
   },
   spot08: {
-    locked: "images/8-A.jpg",
-    unlocked: "images/8-B.jpg"
+    locked: "images/8-A.png",
+    unlocked: "images/8-B.png"
   }
 };
 
@@ -94,26 +94,26 @@ const pieceMap = {
 
 /* 右上アイコン用 */
 const iconMap = {
-  spot01: "map/mapicon1.jpg",
-  spot02: "map/mapicon2.jpg",
-  spot03: "map/mapicon3.jpg",
-  spot04: "map/mapicon4.jpg",
-  spot05: "map/mapicon5.jpg",
-  spot06: "map/mapicon6.jpg",
-  spot07: "map/mapicon7.jpg",
-  spot08: "map/mapicon8.jpg"
+  spot01: "map/mapicon1.png",
+  spot02: "map/mapicon2.png",
+  spot03: "map/mapicon3.png",
+  spot04: "map/mapicon4.png",
+  spot05: "map/mapicon5.png",
+  spot06: "map/mapicon6.png",
+  spot07: "map/mapicon7.png",
+  spot08: "map/mapicon8.png"
 };
 
 /* 飛行エフェクト用 */
 const pieceEffectMap = {
-  spot01: "map/mappiece1.jpg",
-  spot02: "map/mappiece2.jpg",
-  spot03: "map/mappiece3.jpg",
-  spot04: "map/mappiece4.jpg",
-  spot05: "map/mappiece5.jpg",
-  spot06: "map/mappiece6.jpg",
-  spot07: "map/mappiece7.jpg",
-  spot08: "map/mappiece8.jpg"
+  spot01: "map/mappiece1.png",
+  spot02: "map/mappiece2.png",
+  spot03: "map/mappiece3.png",
+  spot04: "map/mappiece4.png",
+  spot05: "map/mappiece5.png",
+  spot06: "map/mappiece6.png",
+  spot07: "map/mappiece7.png",
+  spot08: "map/mappiece8.png"
 };
 
 const spots = [
