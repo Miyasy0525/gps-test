@@ -394,16 +394,17 @@ async function saveAnswer() {
 
   if (isFirstCorrect) {
     effectRunning = true;
+    closeSheet();
+    await waitMs(120);
     await animateIconToMap(currentSpot.spot_id);
     updateMapCollectionUI();
     effectRunning = false;
   } else {
     updateMapCollectionUI();
+    setTimeout(() => {
+      closeSheet();
+    }, 200);
   }
-
-  setTimeout(() => {
-    closeSheet();
-  }, 200);
 }
 
 /* =========================
