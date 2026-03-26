@@ -48,6 +48,18 @@ function createSparkle(x, y) {
   setTimeout(() => s.remove(), 820);
 }
 
+function createCelebrateNote(x, y) {
+  const note = document.createElement("div");
+  note.className = "celebrateNote";
+  note.style.left = `${x}px`;
+  note.style.top = `${y}px`;
+  note.innerHTML = `
+    <div class="celebrateNoteTitle">おめでとう！ 正解！</div>
+    <div class="celebrateNoteSub">地図のかけらを てにいれたよ！</div>
+  `;
+  return note;
+}
+
 function waitForImageReady(img) {
   if (img.complete && img.naturalWidth > 0) {
     return Promise.resolve();
@@ -118,6 +130,10 @@ async function animateIconToMap(spotId) {
     return;
   }
 
+  const noteY = Math.min(window.innerHeight - 90, centerY + 170);
+  const note = createCelebrateNote(centerX, noteY);
+  fxLayer.appendChild(note);
+
   await nextFrame();
 
   /* Step 1: 中央に大きく表示 */
@@ -125,6 +141,10 @@ async function animateIconToMap(spotId) {
     "transform 0.4s ease, opacity 0.22s ease";
   icon.style.transform = "translate(-50%, -50%) scale(3)";
   icon.style.opacity = "1";
+
+  note.style.transition = "opacity 0.28s ease, transform 0.28s ease";
+  note.style.opacity = "1";
+  note.style.transform = "translate(-50%, -50%) scale(1)";
 
   const sparkleTimer1 = setInterval(() => {
     createSparkle(centerX + (Math.random() - 0.5) * 70, centerY + (Math.random() - 0.5) * 70);
@@ -143,7 +163,13 @@ async function animateIconToMap(spotId) {
     }
   }, 140);
 
-  await waitMs(2000);
+  await waitMs(1650);
+
+  note.style.transition = "opacity 0.22s ease, transform 0.22s ease";
+  note.style.opacity = "0";
+  note.style.transform = "translate(-50%, -50%) scale(0.94)";
+
+  await waitMs(200);
 
   clearInterval(sparkleTimer1);
   clearInterval(sparkleTimer2);
@@ -164,6 +190,7 @@ async function animateIconToMap(spotId) {
   await waitMs(1170);
   clearInterval(flySparkleTimer);
   icon.remove();
+  note.remove();
 
   /* Step 4: 右上ボタンを光らせる */
   pulseMapButton();
