@@ -221,7 +221,7 @@
 }
 
 .mapStage.completed .mapBase {
-  opacity: 0.18;
+  opacity: 0.22;
 }
 
 .mapStage.completed .mapPiece {
@@ -229,53 +229,63 @@
 }
 
 .mapStage.completedGlow {
-  border-color: rgba(255, 205, 84, 0.98);
+  border-color: #cfe2ff;
   box-shadow:
-    inset 0 0 0 1px rgba(255, 248, 215, 0.78),
-    0 0 0 4px rgba(255, 215, 105, 0.12),
-    0 0 34px rgba(255, 205, 84, 0.34),
-    0 14px 30px rgba(191, 141, 19, 0.22);
-  animation: completedMapGlow 1.8s ease-in-out infinite;
+    inset 0 0 0 1px rgba(255, 255, 255, 0.55),
+    0 10px 24px rgba(43, 83, 136, 0.08);
+  animation: none;
 }
 
 .mapStage.completedGlow .mapBase {
-  opacity: 0.36;
-  transform: scale(1.01);
+  opacity: 0.55;
+  transform: scale(1.015);
   filter:
     grayscale(0)
-    saturate(1.08)
-    drop-shadow(0 0 12px rgba(255, 227, 134, 0.55))
-    drop-shadow(0 0 28px rgba(255, 197, 70, 0.38));
+    saturate(1.2)
+    brightness(1.12)
+    drop-shadow(0 0 10px rgba(255, 230, 150, 0.55))
+    drop-shadow(0 0 22px rgba(255, 208, 92, 0.48))
+    drop-shadow(0 0 38px rgba(255, 196, 76, 0.34));
+  animation: mapBaseTreasureGlow 1.7s ease-in-out infinite;
 }
 
 .mapStage.completedGlow .mapPiece {
   filter: drop-shadow(0 2px 8px rgba(40, 72, 120, 0.08));
 }
 
-@keyframes completedMapGlow {
+@keyframes mapBaseTreasureGlow {
   0% {
+    opacity: 0.48;
     transform: scale(1);
-    box-shadow:
-      inset 0 0 0 1px rgba(255, 248, 215, 0.78),
-      0 0 0 4px rgba(255, 215, 105, 0.12),
-      0 0 24px rgba(255, 205, 84, 0.24),
-      0 14px 30px rgba(191, 141, 19, 0.16);
+    filter:
+      grayscale(0)
+      saturate(1.14)
+      brightness(1.08)
+      drop-shadow(0 0 8px rgba(255, 230, 150, 0.42))
+      drop-shadow(0 0 18px rgba(255, 208, 92, 0.34))
+      drop-shadow(0 0 28px rgba(255, 196, 76, 0.22));
   }
   50% {
-    transform: scale(1.01);
-    box-shadow:
-      inset 0 0 0 1px rgba(255, 248, 215, 0.88),
-      0 0 0 8px rgba(255, 215, 105, 0.10),
-      0 0 44px rgba(255, 205, 84, 0.42),
-      0 16px 34px rgba(191, 141, 19, 0.24);
+    opacity: 0.72;
+    transform: scale(1.018);
+    filter:
+      grayscale(0)
+      saturate(1.24)
+      brightness(1.18)
+      drop-shadow(0 0 12px rgba(255, 236, 172, 0.70))
+      drop-shadow(0 0 28px rgba(255, 214, 105, 0.58))
+      drop-shadow(0 0 46px rgba(255, 196, 76, 0.40));
   }
   100% {
+    opacity: 0.48;
     transform: scale(1);
-    box-shadow:
-      inset 0 0 0 1px rgba(255, 248, 215, 0.78),
-      0 0 0 4px rgba(255, 215, 105, 0.12),
-      0 0 24px rgba(255, 205, 84, 0.24),
-      0 14px 30px rgba(191, 141, 19, 0.16);
+    filter:
+      grayscale(0)
+      saturate(1.14)
+      brightness(1.08)
+      drop-shadow(0 0 8px rgba(255, 230, 150, 0.42))
+      drop-shadow(0 0 18px rgba(255, 208, 92, 0.34))
+      drop-shadow(0 0 28px rgba(255, 196, 76, 0.22));
   }
 }
 
