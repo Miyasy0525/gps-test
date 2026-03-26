@@ -43,6 +43,9 @@ const dragonImageMap = {
   }
 };
 
+/* =========================
+   地図ピース対応
+========================= */
 const pieceMap = {
   spot01: 1,
   spot02: 2,
@@ -54,6 +57,7 @@ const pieceMap = {
   spot08: 8
 };
 
+/* 右上アイコン用 */
 const iconMap = {
   spot01: "map/mapicon1.png",
   spot02: "map/mapicon2.png",
@@ -63,6 +67,18 @@ const iconMap = {
   spot06: "map/mapicon6.png",
   spot07: "map/mapicon7.png",
   spot08: "map/mapicon8.png"
+};
+
+/* 飛行エフェクト用 */
+const pieceEffectMap = {
+  spot01: "map/mappiece1.png",
+  spot02: "map/mappiece2.png",
+  spot03: "map/mappiece3.png",
+  spot04: "map/mappiece4.png",
+  spot05: "map/mappiece5.png",
+  spot06: "map/mappiece6.png",
+  spot07: "map/mappiece7.png",
+  spot08: "map/mappiece8.png"
 };
 
 const spots = [
