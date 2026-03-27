@@ -124,7 +124,7 @@ const spots = [
     longitude: 138.744967,
     radius_m: 100,
     mediaMode: "single",
-    images: { single: Q1-A.jpg },
+    images: { single: "images/Q1-A.jpg" },
     content: {
       description: "この場所では、富士山から流れてきた湧き水を飲むことができます。",
       question: "この水は、どれくらいの時間をかけてここに湧き出しているでしょうか？",
@@ -149,7 +149,7 @@ const spots = [
     longitude: 138.74504,
     radius_m: 100,
     mediaMode: "single",
-    images: { single: Q2-A.jpg },
+    images: { single: "images/Q2-A.jpg" },
     content: {
       description: "富士山を対象にした信仰について考えてみましょう。",
       question: "富士山を対象にし、江戸時代に流行した信仰とその開祖で正しい組み合わせは？",
@@ -174,7 +174,7 @@ const spots = [
     longitude: 138.74512,
     radius_m: 100,
     mediaMode: "single",
-    images: { single: Q3-A.jpg },
+    images: { single: "images/Q3-A.jpg" },
     content: {
       description: "東圓寺を中心として、忍野八海の整備に関わった人物と講中について考えましょう。",
       question: "（a）は、東圓寺を中心として（b）を立ち上げ、忍野八海を整備しました。",
@@ -199,7 +199,7 @@ const spots = [
     longitude: 138.7452,
     radius_m: 100,
     mediaMode: "single",
-    images: { single: Q4-A.jpg },
+    images: { single: "images/Q4-A.jpg" },
     content: {
       description: "村の人々が困っていた時代を想像しながら考えてみましょう。",
       question: "忍野八海は、（a）で困窮した忍草村を（b）するために整備された。",
@@ -224,7 +224,7 @@ const spots = [
     longitude: 138.74528,
     radius_m: 100,
     mediaMode: "single",
-    images: { single: Q5-A.jpg },
+    images: { single: "images/Q5-A.jpg" },
     content: {
       description: "富士講と忍野八海の違いを考えてみましょう。",
       question: "大我講は（a）ではなく、（b）に管理されていました。",
@@ -249,7 +249,7 @@ const spots = [
     longitude: 138.74536,
     radius_m: 100,
     mediaMode: "single",
-    images: { single: Q6-A.jpg },
+    images: { single: "images/Q6-A.jpg" },
     content: {
       description: "忍野八海は、星の並びになぞらえて造られたともいわれています。",
       question: "忍野八海はある星座に基づいて造られています。ひしゃくの形の星座と、夜空でほとんど動かない明るい星の組み合わせとして正しいものはどれでしょうか？",
@@ -274,7 +274,7 @@ const spots = [
     longitude: 138.74544,
     radius_m: 100,
     mediaMode: "single",
-    images: { single: Q7-A.jpg },
+    images: { single: "images/Q7-A.jpg" },
     content: {
       description: "昔の取り組みが、今の観光につながっていることを考えてみましょう。",
       question: "忍草村にある、水が湧き出す池を（a）、現代の（b）の仕組みを作り、（c）を目指す村おこし事業だった。",
@@ -299,7 +299,7 @@ const spots = [
     longitude: 138.74552,
     radius_m: 100,
     mediaMode: "single",
-    images: { single: Q8-A.jpg },
+    images: { single: "images/Q8-A.jpg" },
     content: {
       description: "あなたの近くにある石碑を見つけてください。",
       question: "この石碑は、（A）という意味を伝えていて、このような石碑は忍野八海に（B）あります。",
