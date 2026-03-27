@@ -281,9 +281,9 @@ const spots = [
       hint: "ヒント：今、あなたの周りにどんな人がたくさんいるか考えてみましょう。",
       tip: "",
       choices: [
-        { value: "A", label: "（a）選んで　（b）投資　（c）移住と拡大" },
+        { value: "A", label: "（a）繋げて　（b）投資　（c）移住と拡大" },
         { value: "B", label: "（a）埋め立て　（b）M＆A　（c）人口増と景観保全" },
-        { value: "C", label: "（a）繋げて　（b）クラウドファンディング　（c）観光誘致と地域の向上" }
+        { value: "C", label: "（a）選んで　（b）クラウドファンディング　（c）観光誘致と地域の向上" }
       ],
       correctValue: "C",
       reviewTitle: "第7問　村おこしのしくみ　正解解説",
