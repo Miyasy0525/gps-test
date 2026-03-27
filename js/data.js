@@ -124,7 +124,7 @@ const spots = [
     longitude: 138.744967,
     radius_m: 100,
     mediaMode: "single",
-    images: { single: "Q1-A.jpg" },
+    images: { single: Q1-A.jpg },
     content: {
       description: "この場所では、富士山から流れてきた湧き水を飲むことができます。",
       question: "この水は、どれくらいの時間をかけてここに湧き出しているでしょうか？",
