@@ -45,14 +45,10 @@ function buildReviewContent(spot) {
 
   return {
     title: content.reviewTitle || `${spot.spot_name}　正解解説`,
-    description:
-      content.reviewLead ||
-      content.description ||
-      "",
-    question:
-      content.reviewAnswer
-        ? `${content.reviewAnswer}\n\n${content.reviewComment || ""}`.trim()
-        : `正解は「${correctAnswerLabel}」です。\n\n${content.reviewComment || "この問題はクリア済みです。現地のことをもう一度思い出してみよう！"}`
+    description: content.reviewLead || content.description || "",
+    question: content.reviewAnswer
+      ? `${content.reviewAnswer}\n\n${content.reviewComment || ""}`.trim()
+      : `正解は「${correctAnswerLabel}」です。\n\n${content.reviewComment || "この問題はクリア済みです。現地のことをもう一度思い出してみよう！"}`
   };
 }
 
@@ -437,23 +433,42 @@ function renderImageArea(spot) {
   compareArea.classList.add("hidden");
   imageError.textContent = "";
 
-  if (spot.mediaMode === "single" && spot.images && spot.images.single) {
+  const isReview = currentSheetMode === "review";
+
+  // 単画像モード
+  const singleSrc = isReview
+    ? (spot.images && (spot.images.review || spot.images.quiz || spot.images.single))
+    : (spot.images && (spot.images.quiz || spot.images.single));
+
+  if (spot.mediaMode === "single" && singleSrc) {
     singleArea.classList.remove("hidden");
-    singleImage.src = spot.images.single;
     singleImage.onerror = () => {
       imageError.textContent = "画像の読み込みに失敗しました。";
     };
-  } else if (spot.mediaMode === "compare" && spot.images && spot.images.old && spot.images.new) {
+    singleImage.src = singleSrc;
+    return;
+  }
+
+  // 比較画像モード
+  const oldSrc = isReview
+    ? (spot.images && (spot.images.reviewOld || spot.images.old))
+    : (spot.images && (spot.images.quizOld || spot.images.old));
+
+  const newSrc = isReview
+    ? (spot.images && (spot.images.reviewNew || spot.images.new))
+    : (spot.images && (spot.images.quizNew || spot.images.new));
+
+  if (spot.mediaMode === "compare" && oldSrc && newSrc) {
     compareArea.classList.remove("hidden");
-    oldImg.src = spot.images.old;
-    newImg.src = spot.images.new;
-    updateCompareSlider(50);
     oldImg.onerror = () => {
       imageError.textContent = "昔の画像の読み込みに失敗しました。";
     };
     newImg.onerror = () => {
       imageError.textContent = "今の画像の読み込みに失敗しました。";
     };
+    oldImg.src = oldSrc;
+    newImg.src = newSrc;
+    updateCompareSlider(50);
   }
 }
 
