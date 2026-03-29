@@ -118,9 +118,9 @@
           </label>
           <select id="genderSelect" onchange="updateStartButtonState()">
             <option value="">選択してください</option>
-            <option value="女性">女性</option>
-            <option value="男性">男性</option>
-            <option value="その他">その他</option>
+            <option value="女性"><ruby>女性<rt>じょせい</rt></ruby></option>
+            <option value="男性"><ruby>男性<rt>だんせい</rt></ruby></option>
+            <option value="その他">その<ruby>他<rt>た</rt></ruby></option>
           </select>
         </div>
 
@@ -230,23 +230,23 @@
       <div id="map"></div>
 
       <button id="mapBtn" class="hidden" onclick="openMapSheet()" type="button">
-        <span class="mapBtnMain">ヒミツの地図</span>
-        <span id="mapBtnCount" class="mapBtnCount">地図のかけら 0/8</span>
+        <span class="mapBtnMain">ヒミツの<ruby>地図<rt>ちず</rt></ruby></span>
+        <span id="mapBtnCount" class="mapBtnCount"><ruby>地図<rt>ちず</rt></ruby>のかけら 0/8</span>
       </button>
 
       <div id="info">
         <div class="top-row">
-          <button type="button" onclick="centerOnUser()">いまいる場所へ</button>
+          <button type="button" onclick="centerOnUser()">いまいる<ruby>場所<rt>ばしょ</rt></ruby>へ</button>
         </div>
 
         <div id="legendRow" class="legendRow">
           <div class="legendItem"><span class="legendDot gray"></span>まだヒミツ</div>
-          <div class="legendItem"><span class="legendDot blue"></span>見つけた！</div>
+          <div class="legendItem"><span class="legendDot blue"></span><ruby>見<rt>み</rt></ruby>つけた！</div>
           <div class="legendItem"><span class="legendDot green"></span>クリア！</div>
           <div class="legendItem"><span class="legendDot current"></span>いまここ</div>
         </div>
 
-        <div class="sectionTitle">見つけたヒミツ</div>
+        <div class="sectionTitle"><ruby>見<rt>み</rt></ruby>つけたヒミツ</div>
         <div id="unlockedList">
           <div style="color:#666; font-size:14px;">まだ見つかったヒミツはないよ。池の近くまで行ってみよう！</div>
         </div>
