@@ -107,7 +107,7 @@
       </div>
 
       <div class="warnBox">
-        この<ruby>冒険<rt>ぼうけん</rt></ruby>では、いまいる<ruby>場所<rt>ばしょ</rt></ruby>が<ruby>大事<rt>だじ</rt></ruby>だよ。<br>
+        この<ruby>冒険<rt>ぼうけん</rt></ruby>では、いまいる<ruby>場所<rt>ばしょ</rt></ruby>が<ruby>大事<rt>だいじ</rt></ruby>だよ。<br>
         スタートする<ruby>前<rt>まえ</rt></ruby>に、<ruby>位置情報<rt>いちじょうほう</rt></ruby>をONにしてね。
       </div>
 
@@ -301,7 +301,7 @@
           <div class="tutorialSlide">
             <img src="images/E-2.jpg" alt="チュートリアル画像2">
             <h3>いまいる<ruby>場所<rt>ばしょ</rt></ruby>を<ruby>見<rt>み</rt></ruby>てみよう</h3>
-            <p>きみの<ruby>場所<rt>ばしょ</rt></ruby>は<ruby>地図<rt>ちず</rt></ruby>に出るよ。<ruby>出<<rt>で</rt></ruby>ないときは、<ruby>位置情報<rt>いちじょうほう</rt></ruby>をONにしよう。</p>
+            <p>きみの<ruby>場所<rt>ばしょ</rt></ruby>は<ruby>地図<rt>ちず</rt></ruby>に出るよ。<ruby>出<rt>で</rt></ruby>ないときは、<ruby>位置情報<rt>いちじょうほう</rt></ruby>をONにしよう。</p>
           </div>
 
           <div class="tutorialSlide">
@@ -334,7 +334,6 @@
 
   <!-- =========================
        地図シート
-       ※ 完成地図の上に透過ピースを重ねる旧方式
   ========================== -->
   <div id="mapSheetBackdrop" onclick="closeMapSheetIfBackdrop(event)"></div>
   <div id="mapSheet">
@@ -361,13 +360,44 @@
         <img id="piece6" class="mapPiece" src="map/mappiece6.png" alt="地図片6" />
         <img id="piece7" class="mapPiece" src="map/mappiece7.png" alt="地図片7" />
         <img id="piece8" class="mapPiece" src="map/mappiece8.png" alt="地図片8" />
+
+        <!-- 動画表示レイヤー -->
+        <div id="sealVideoOverlay" class="sealVideoOverlay hidden" aria-hidden="true">
+          <div class="sealVideoGlow"></div>
+          <div class="sealVideoFlash"></div>
+
+          <video
+            id="sealVideo"
+            class="sealVideo"
+            playsinline
+            preload="metadata"
+            controls
+          >
+            お使いのブラウザは動画再生に対応していません。
+          </video>
+
+          <button
+            id="sealVideoCloseBtn"
+            class="sealVideoCloseBtn"
+            type="button"
+            onclick="closeSealVideo()"
+          >
+            閉じる
+          </button>
+        </div>
       </div>
 
       <div class="mapSheetButtons">
-        <button type="button" onclick="closeMapSheet()">閉じる</button>
-        <a id="sealBtn" class="sealBtn hidden" href="" target="_blank" rel="noopener noreferrer">
+        <button
+          id="sealBtn"
+          class="sealBtn hidden"
+          type="button"
+          onclick="openSealVideo()"
+        >
           <strong><ruby>封印<rt>ふういん</rt></ruby>を解く</strong>
-        </a>
+        </button>
+
+        <button type="button" onclick="closeMapSheet()">閉じる</button>
       </div>
     </div>
   </div>
@@ -412,7 +442,7 @@
           oninput="updateCompareSlider(this.value)"
         />
         <div class="compareHint">
-          スライダーを<ruby>動<rt>うご</rt></ruby>かすと、<ruby>昔<rt>むかし</rt></ruby>と<ruby>今<rt>いま</rt></ruby>のruby<画像<rtがぞう</rt></ruby>を<ruby>見<rt>み</rt></ruby>くらべられるよ。
+          スライダーを<ruby>動<rt>うご</rt></ruby>かすと、<ruby>昔<rt>むかし</rt></ruby>と<ruby>今<rt>いま</rt></ruby>の<ruby>画像<rt>がぞう</rt></ruby>を<ruby>見<rt>み</rt></ruby>くらべられるよ。
         </div>
       </div>
 
