@@ -162,7 +162,7 @@
 }
 
 /* =========================
-   ヒミツの地図（完成地図の上に重ねる方式）
+   ヒミツの地図
 ========================= */
 .mapStage {
   position: relative;
@@ -269,6 +269,195 @@
     drop-shadow(0 0 24px rgba(255, 222, 120, 0.82))
     drop-shadow(0 0 46px rgba(255, 196, 76, 0.64))
     drop-shadow(0 0 70px rgba(255, 196, 76, 0.38));
+}
+
+/* =========================
+   封印動画オーバーレイ
+========================= */
+.sealVideoOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 12;
+  display: flex;
+  align-items: stretch;
+  justify-content: stretch;
+  border-radius: inherit;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at center, rgba(255, 250, 224, 0.18) 0%, rgba(255, 214, 116, 0.10) 38%, rgba(0, 0, 0, 0.70) 100%);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.35s ease;
+}
+
+.sealVideoOverlay.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.sealVideoOverlay.revealing {
+  animation: sealVideoReveal 0.95s ease forwards;
+}
+
+.sealVideoGlow,
+.sealVideoFlash {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+.sealVideoGlow {
+  z-index: 1;
+  opacity: 0;
+  background:
+    radial-gradient(circle at center, rgba(255, 248, 218, 0.95) 0%, rgba(255, 225, 140, 0.72) 22%, rgba(255, 204, 90, 0.30) 40%, rgba(255, 204, 90, 0) 72%);
+  mix-blend-mode: screen;
+}
+
+.sealVideoFlash {
+  z-index: 2;
+  opacity: 0;
+  background:
+    radial-gradient(circle at center, rgba(255,255,255,0.98) 0%, rgba(255,245,210,0.92) 12%, rgba(255,232,166,0.56) 28%, rgba(255,214,120,0.18) 44%, rgba(255,214,120,0) 70%);
+  mix-blend-mode: screen;
+}
+
+.sealVideoOverlay.revealing .sealVideoGlow {
+  animation: sealVideoGlowPulse 0.95s ease forwards;
+}
+
+.sealVideoOverlay.revealing .sealVideoFlash {
+  animation: sealVideoFlashBurst 0.95s ease forwards;
+}
+
+.sealVideo {
+  position: relative;
+  z-index: 4;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: #000;
+  opacity: 0;
+  transform: scale(1.04);
+  transition:
+    opacity 0.35s ease,
+    transform 0.45s ease;
+}
+
+.sealVideoOverlay.show .sealVideo {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.sealVideoCloseBtn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 6;
+  min-height: 40px;
+  border: none;
+  border-radius: 999px;
+  padding: 0 14px;
+  background: rgba(19, 31, 48, 0.82);
+  color: #fff9ef;
+  font-size: 15px;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.22);
+  backdrop-filter: blur(4px);
+  opacity: 0;
+  transform: translateY(-4px);
+  transition:
+    opacity 0.25s ease,
+    transform 0.25s ease,
+    background 0.2s ease;
+}
+
+.sealVideoOverlay.show .sealVideoCloseBtn {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.sealVideoCloseBtn:active {
+  background: rgba(28, 44, 66, 0.92);
+}
+
+.mapStage.videoPlaying {
+  border-color: #f2bc67;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 233, 202, 0.82),
+    0 0 0 3px rgba(255, 211, 120, 0.16),
+    0 14px 30px rgba(173, 117, 29, 0.20);
+}
+
+.mapStage.videoPlaying .mapBase,
+.mapStage.videoPlaying .mapPiece {
+  opacity: 0;
+  transition:
+    opacity 0.38s ease,
+    transform 0.45s ease,
+    filter 0.45s ease;
+}
+
+.mapStage.videoPlaying::after {
+  opacity: 0;
+}
+
+@keyframes sealVideoReveal {
+  0% {
+    opacity: 0;
+    background:
+      radial-gradient(circle at center, rgba(255, 250, 224, 0.00) 0%, rgba(255, 214, 116, 0.00) 32%, rgba(0, 0, 0, 0.00) 100%);
+  }
+  30% {
+    opacity: 1;
+    background:
+      radial-gradient(circle at center, rgba(255, 250, 224, 0.22) 0%, rgba(255, 214, 116, 0.12) 30%, rgba(0, 0, 0, 0.12) 100%);
+  }
+  100% {
+    opacity: 1;
+    background:
+      radial-gradient(circle at center, rgba(255, 250, 224, 0.14) 0%, rgba(255, 214, 116, 0.10) 38%, rgba(0, 0, 0, 0.70) 100%);
+  }
+}
+
+@keyframes sealVideoGlowPulse {
+  0% {
+    opacity: 0;
+    transform: scale(0.78);
+    filter:
+      blur(2px)
+      brightness(1.0);
+  }
+  35% {
+    opacity: 1;
+    transform: scale(1.04);
+    filter:
+      blur(0px)
+      brightness(1.28);
+  }
+  100% {
+    opacity: 0.24;
+    transform: scale(1.22);
+    filter:
+      blur(2px)
+      brightness(1.08);
+  }
+}
+
+@keyframes sealVideoFlashBurst {
+  0% {
+    opacity: 0;
+    transform: scale(0.65);
+  }
+  28% {
+    opacity: 1;
+    transform: scale(1.06);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.32);
+  }
 }
 
 @keyframes treasureMapSparkle {
@@ -774,6 +963,14 @@
   .mapSheetButtons .sealBtn {
     width: 100%;
     justify-content: center;
+  }
+
+  .sealVideoCloseBtn {
+    top: 10px;
+    right: 10px;
+    min-height: 36px;
+    padding: 0 12px;
+    font-size: 14px;
   }
 
   #spotDescription,
