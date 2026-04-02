@@ -2,6 +2,7 @@ let tutorialIndex = 0;
 const TUTORIAL_TOTAL = 4;
 let currentSpot = null;
 let currentSheetMode = "quiz"; // "quiz" | "review"
+let sealVideoOpening = false;
 
 /* =========================
    竜画像ヘルパー
@@ -278,7 +279,6 @@ function goTutorialSlide(index) {
 
 /* =========================
    ヒミツの地図 UI
-   完成地図の上に透過ピースを重ねる方式
 ========================= */
 function updateMapCollectionUI() {
   updateMapBtnCount();
@@ -332,12 +332,10 @@ function updateSealArea() {
   if (count >= 8 && SEAL_LINK) {
     sealBtn.classList.remove("hidden");
     sealBtn.classList.add("sealReady");
-    sealBtn.href = SEAL_LINK;
-    sealBtn.textContent = "封印を解く";
   } else {
     sealBtn.classList.add("hidden");
     sealBtn.classList.remove("sealReady");
-    sealBtn.href = "";
+    closeSealVideo(true);
   }
 }
 
@@ -362,6 +360,7 @@ function openMapSheet() {
 }
 
 function closeMapSheet() {
+  closeSealVideo(true);
   document.getElementById("mapSheetBackdrop").style.display = "none";
   document.getElementById("mapSheet").style.display = "none";
 }
@@ -370,6 +369,94 @@ function closeMapSheetIfBackdrop(event) {
   if (event.target.id === "mapSheetBackdrop") {
     closeMapSheet();
   }
+}
+
+/* =========================
+   封印動画
+========================= */
+function getSealVideoElements() {
+  return {
+    mapStage: document.getElementById("mapStage"),
+    overlay: document.getElementById("sealVideoOverlay"),
+    video: document.getElementById("sealVideo"),
+    closeBtn: document.getElementById("sealVideoCloseBtn")
+  };
+}
+
+function prepareSealVideo() {
+  const { video } = getSealVideoElements();
+  if (!video) return false;
+  if (!SEAL_LINK) return false;
+
+  if (!video.getAttribute("src")) {
+    video.src = SEAL_LINK;
+    video.load();
+  }
+  return true;
+}
+
+async function openSealVideo() {
+  if (sealVideoOpening) return;
+
+  const count = Object.keys(collectedPieces).length;
+  if (count < 8) return;
+
+  const { mapStage, overlay, video } = getSealVideoElements();
+  if (!mapStage || !overlay || !video) return;
+  if (!prepareSealVideo()) return;
+
+  sealVideoOpening = true;
+
+  overlay.classList.remove("hidden");
+  overlay.classList.remove("show", "revealing");
+  mapStage.classList.remove("videoPlaying");
+
+  video.pause();
+  video.currentTime = 0;
+
+  void overlay.offsetWidth;
+
+  overlay.classList.add("show", "revealing");
+  mapStage.classList.add("videoPlaying");
+
+  await waitMs(760);
+
+  try {
+    await video.play();
+  } catch (e) {
+    /* 自動再生制限などで失敗しても、controls から手動再生できる */
+  }
+
+  setTimeout(() => {
+    overlay.classList.remove("revealing");
+  }, 980);
+
+  sealVideoOpening = false;
+}
+
+function closeSealVideo(forceImmediate = false) {
+  const { mapStage, overlay, video } = getSealVideoElements();
+  if (!mapStage || !overlay || !video) return;
+
+  sealVideoOpening = false;
+
+  video.pause();
+
+  if (forceImmediate) {
+    overlay.classList.remove("show", "revealing");
+    overlay.classList.add("hidden");
+    mapStage.classList.remove("videoPlaying");
+    return;
+  }
+
+  overlay.classList.remove("revealing", "show");
+  mapStage.classList.remove("videoPlaying");
+
+  setTimeout(() => {
+    if (!overlay.classList.contains("show")) {
+      overlay.classList.add("hidden");
+    }
+  }, 220);
 }
 
 /* =========================
@@ -435,7 +522,6 @@ function renderImageArea(spot) {
 
   const isReview = currentSheetMode === "review";
 
-  // 単画像モード
   const singleSrc = isReview
     ? (spot.images && (spot.images.review || spot.images.quiz || spot.images.single))
     : (spot.images && (spot.images.quiz || spot.images.single));
@@ -449,7 +535,6 @@ function renderImageArea(spot) {
     return;
   }
 
-  // 比較画像モード
   const oldSrc = isReview
     ? (spot.images && (spot.images.reviewOld || spot.images.old))
     : (spot.images && (spot.images.quizOld || spot.images.old));
