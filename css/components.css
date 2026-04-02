@@ -336,7 +336,8 @@
   z-index: 4;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
+  object-position: center center;
   background: #000;
   opacity: 0;
   transform: scale(1.04);
@@ -558,25 +559,32 @@
   color: #37506b;
 }
 
+/* 封印を解くボタンは赤＋白文字で固定 */
 .sealBtn {
-  display: inline-flex;
+  display: inline-flex !important;
   align-items: center;
   justify-content: center;
   text-decoration: none;
   font-family: "Yomogi", cursive !important;
   font-weight: 800;
   letter-spacing: 0.03em;
-  background: linear-gradient(180deg, #ff6a63 0%, #d93a34 100%);
-  color: #fff;
+  background: linear-gradient(180deg, #ff6a63 0%, #d93a34 100%) !important;
+  color: #ffffff !important;
   box-shadow:
     0 12px 24px rgba(185, 44, 36, 0.28),
     inset 0 2px 0 rgba(255, 255, 255, 0.28);
   border: 2px solid rgba(255, 214, 214, 0.58);
   text-shadow:
-    0.5px 0 0 currentColor,
-    -0.5px 0 0 currentColor,
-    0 0.4px 0 currentColor,
-    0 -0.4px 0 currentColor;
+    0.5px 0 0 rgba(255,255,255,0.95),
+    -0.5px 0 0 rgba(255,255,255,0.95),
+    0 0.4px 0 rgba(255,255,255,0.95),
+    0 -0.4px 0 rgba(255,255,255,0.95);
+}
+
+.sealBtn strong,
+.sealBtn ruby,
+.sealBtn rt {
+  color: #ffffff !important;
 }
 
 .sealBtn.sealReady {
