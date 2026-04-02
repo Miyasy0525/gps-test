@@ -3,6 +3,7 @@ const TUTORIAL_TOTAL = 4;
 let currentSpot = null;
 let currentSheetMode = "quiz"; // "quiz" | "review"
 let sealVideoOpening = false;
+let sealCompletionTimer = null;
 
 /* =========================
    竜画像ヘルパー
@@ -361,6 +362,7 @@ function openMapSheet() {
 
 function closeMapSheet() {
   closeSealVideo(true);
+  hideSealCompletionMessage(true);
   document.getElementById("mapSheetBackdrop").style.display = "none";
   document.getElementById("mapSheet").style.display = "none";
 }
@@ -392,6 +394,8 @@ function prepareSealVideo() {
     video.src = SEAL_LINK;
     video.load();
   }
+
+  video.onended = handleSealVideoEnded;
   return true;
 }
 
@@ -404,6 +408,8 @@ async function openSealVideo() {
   const { mapStage, overlay, video } = getSealVideoElements();
   if (!mapStage || !overlay || !video) return;
   if (!prepareSealVideo()) return;
+
+  hideSealCompletionMessage(true);
 
   sealVideoOpening = true;
 
@@ -424,7 +430,7 @@ async function openSealVideo() {
   try {
     await video.play();
   } catch (e) {
-    /* 自動再生制限などで失敗しても、controls から手動再生できる */
+    /* 自動再生制限があっても controls から手動再生可 */
   }
 
   setTimeout(() => {
@@ -439,7 +445,6 @@ function closeSealVideo(forceImmediate = false) {
   if (!mapStage || !overlay || !video) return;
 
   sealVideoOpening = false;
-
   video.pause();
 
   if (forceImmediate) {
@@ -457,6 +462,100 @@ function closeSealVideo(forceImmediate = false) {
       overlay.classList.add("hidden");
     }
   }, 220);
+}
+
+function handleSealVideoEnded() {
+  closeSealVideo();
+  setTimeout(() => {
+    showSealCompletionMessage();
+  }, 260);
+}
+
+/* =========================
+   封印完了メッセージ
+========================= */
+function hideSealCompletionMessage(immediate = false) {
+  clearTimeout(sealCompletionTimer);
+
+  const fxLayer = document.getElementById("fxLayer");
+  if (!fxLayer) return;
+
+  const existing = document.getElementById("sealCompletionNote");
+  if (!existing) return;
+
+  if (immediate) {
+    existing.remove();
+    return;
+  }
+
+  existing.style.transition = "opacity 0.28s ease, transform 0.28s ease";
+  existing.style.opacity = "0";
+  existing.style.transform = "translate(-50%, -50%) scale(0.96)";
+
+  setTimeout(() => {
+    existing.remove();
+  }, 300);
+}
+
+function showSealCompletionMessage() {
+  const fxLayer = document.getElementById("fxLayer");
+  if (!fxLayer) return;
+
+  hideSealCompletionMessage(true);
+
+  const note = document.createElement("div");
+  note.id = "sealCompletionNote";
+  note.className = "celebrateNote";
+  note.style.left = "50%";
+  note.style.top = "50%";
+  note.style.minWidth = "min(92vw, 640px)";
+  note.style.maxWidth = "min(92vw, 640px)";
+  note.style.padding = "22px 20px";
+  note.style.borderRadius = "24px";
+  note.style.zIndex = "1310";
+  note.style.pointerEvents = "none";
+  note.style.opacity = "0";
+  note.style.transform = "translate(-50%, -50%) scale(0.92)";
+  note.style.background =
+    "radial-gradient(circle at top, rgba(255,255,255,0.99) 0%, rgba(255,248,214,0.99) 42%, rgba(255,233,170,0.99) 100%)";
+  note.style.border = "2px solid rgba(245, 197, 74, 0.96)";
+  note.style.boxShadow =
+    "0 18px 40px rgba(184, 138, 22, 0.24), 0 0 26px rgba(255, 219, 116, 0.40)";
+
+  note.innerHTML = `
+    <div style="font-size:30px; line-height:1.35; color:#8d5b00; margin-bottom:10px;">
+      おめでとう！
+    </div>
+    <div style="font-size:20px; line-height:1.8; color:#6e5314;">
+      きみは<br>
+      <ruby>忍野八海<rt>おしのはっかい</rt></ruby>の<br>
+      8つのヒミツを見つけて、<br>
+      その<ruby>秘密<rt>ひみつ</rt></ruby>を<br>
+      ときあかしたよ！
+    </div>
+  `;
+
+  fxLayer.appendChild(note);
+
+  requestAnimationFrame(() => {
+    note.style.transition = "opacity 0.34s ease, transform 0.34s ease";
+    note.style.opacity = "1";
+    note.style.transform = "translate(-50%, -50%) scale(1)";
+  });
+
+  const sparkleCount = 18;
+  const centerX = window.innerWidth / 2;
+  const centerY = window.innerHeight / 2;
+
+  for (let i = 0; i < sparkleCount; i += 1) {
+    setTimeout(() => {
+      createSparkle(centerX + (Math.random() - 0.5) * 260, centerY + (Math.random() - 0.5) * 180);
+    }, i * 55);
+  }
+
+  sealCompletionTimer = setTimeout(() => {
+    hideSealCompletionMessage();
+  }, 5200);
 }
 
 /* =========================
