@@ -337,7 +337,7 @@ function updateSealArea() {
   } else {
     sealBtn.classList.add("hidden");
     sealBtn.classList.remove("sealReady");
-    closeSealVideo(true);
+    closeSealVideo(true, false);
   }
 }
 
@@ -362,7 +362,7 @@ function openMapSheet() {
 }
 
 function closeMapSheet() {
-  closeSealVideo(true);
+  closeSealVideo(true, false);
   hideSealCompletionMessage(true);
   document.getElementById("mapSheetBackdrop").style.display = "none";
   document.getElementById("mapSheet").style.display = "none";
@@ -445,7 +445,7 @@ async function openSealVideo() {
   sealVideoOpening = false;
 }
 
-function closeSealVideo(forceImmediate = false, showCompletion = false) {
+function closeSealVideo(forceImmediate = false, showCompletion = !forceImmediate) {
   const { mapStage, overlay, video } = getSealVideoElements();
   if (!mapStage || !overlay || !video) return;
 
