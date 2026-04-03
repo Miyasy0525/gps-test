@@ -119,9 +119,9 @@ const spots = [
   {
     spot_id: "spot01",
     spot_name: "第1問　富士山の水",
-    latitude: 35.506855,
-    longitude: 138.744967,
-    radius_m: 100,
+    latitude: 35.46018,
+    longitude: 138.832773,
+    radius_m: 15000,
     mediaMode: "single",
     images: {
       quiz: "images/Q1-A.jpg",
@@ -147,9 +147,9 @@ const spots = [
   {
     spot_id: "spot02",
     spot_name: "第2問　富士講",
-    latitude: 35.50693,
-    longitude: 138.74504,
-    radius_m: 100,
+    latitude: 35.459654,
+    longitude: 138.8309,
+    radius_m: 15000,
     mediaMode: "single",
     images: {
       quiz: "images/Q2-A.jpg",
@@ -175,9 +175,9 @@ const spots = [
   {
     spot_id: "spot03",
     spot_name: "第3問　誰が整備した？",
-    latitude: 35.50701,
-    longitude: 138.74512,
-    radius_m: 100,
+    latitude: 35.459666,
+    longitude: 138.832191,
+    radius_m: 15000,
     mediaMode: "single",
     images: {
       quiz: "images/Q3-A.jpg",
@@ -203,9 +203,9 @@ const spots = [
   {
     spot_id: "spot04",
     spot_name: "第4問　なぜ整備された？",
-    latitude: 35.50709,
-    longitude: 138.7452,
-    radius_m: 100,
+    latitude: 35.460346,
+    longitude: 138.832498,
+    radius_m: 15000,
     mediaMode: "single",
     images: {
       quiz: "images/Q4-A.jpg",
@@ -231,9 +231,9 @@ const spots = [
   {
     spot_id: "spot05",
     spot_name: "第5問　誰が管理した？",
-    latitude: 35.50717,
-    longitude: 138.74528,
-    radius_m: 100,
+    latitude: 35.460925,
+    longitude: 138.833233,
+    radius_m: 15000,
     mediaMode: "single",
     images: {
       quiz: "images/Q5-A.jpg",
@@ -259,9 +259,9 @@ const spots = [
   {
     spot_id: "spot06",
     spot_name: "第6問　星と池",
-    latitude: 35.50725,
-    longitude: 138.74536,
-    radius_m: 100,
+    latitude: 35.46137,
+    longitude: 138.834315,
+    radius_m: 15000,
     mediaMode: "single",
     images: {
       quiz: "images/Q6-A.jpg",
@@ -287,9 +287,9 @@ const spots = [
   {
     spot_id: "spot07",
     spot_name: "第7問　村おこしのしくみ",
-    latitude: 35.50733,
-    longitude: 138.74544,
-    radius_m: 100,
+    latitude: 35.45878,
+    longitude: 138.833206,
+    radius_m: 15000,
     mediaMode: "single",
     images: {
       quiz: "images/Q7-A.jpg",
@@ -315,9 +315,9 @@ const spots = [
   {
     spot_id: "spot08",
     spot_name: "第8問　石碑のことば",
-    latitude: 35.50741,
-    longitude: 138.74552,
-    radius_m: 100,
+    latitude: 35.453828,
+    longitude: 138.836776,
+    radius_m: 15000,
     mediaMode: "single",
     images: {
       quiz: "images/Q8-A.jpg",
