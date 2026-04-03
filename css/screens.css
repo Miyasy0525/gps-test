@@ -78,7 +78,7 @@
 }
 
 .titleBottomArea {
-  padding: 0 20px calc(34px + env(safe-area-inset-bottom));
+  padding: 0 20px calc(120px + env(safe-area-inset-bottom));
   display: flex;
   justify-content: center;
 }
