@@ -47,11 +47,15 @@
   position: relative;
   width: 100%;
   height: 100%;
+  overflow: hidden;
 }
 
 #titleHeroImage {
+  position: absolute;
+  left: 0;
+  top: 0;
   width: 100%;
-  height: 100%;
+  height: calc(100% + 24px);
   object-fit: cover;
   object-position: center top;
   display: block;
