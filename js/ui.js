@@ -4,6 +4,7 @@ let currentSpot = null;
 let currentSheetMode = "quiz"; // "quiz" | "review"
 let sealVideoOpening = false;
 let sealCompletionTimer = null;
+let sealVideoEndedBound = false;
 
 /* =========================
    竜画像ヘルパー
@@ -395,7 +396,11 @@ function prepareSealVideo() {
     video.load();
   }
 
-  video.onended = handleSealVideoEnded;
+  if (!sealVideoEndedBound) {
+    video.addEventListener("ended", handleSealVideoEnded);
+    sealVideoEndedBound = true;
+  }
+
   return true;
 }
 
@@ -440,7 +445,7 @@ async function openSealVideo() {
   sealVideoOpening = false;
 }
 
-function closeSealVideo(forceImmediate = false) {
+function closeSealVideo(forceImmediate = false, showCompletion = false) {
   const { mapStage, overlay, video } = getSealVideoElements();
   if (!mapStage || !overlay || !video) return;
 
@@ -451,6 +456,12 @@ function closeSealVideo(forceImmediate = false) {
     overlay.classList.remove("show", "revealing");
     overlay.classList.add("hidden");
     mapStage.classList.remove("videoPlaying");
+
+    if (showCompletion) {
+      setTimeout(() => {
+        showSealCompletionMessage();
+      }, 60);
+    }
     return;
   }
 
@@ -461,14 +472,14 @@ function closeSealVideo(forceImmediate = false) {
     if (!overlay.classList.contains("show")) {
       overlay.classList.add("hidden");
     }
+    if (showCompletion) {
+      showSealCompletionMessage();
+    }
   }, 220);
 }
 
 function handleSealVideoEnded() {
-  closeSealVideo();
-  setTimeout(() => {
-    showSealCompletionMessage();
-  }, 260);
+  closeSealVideo(false, true);
 }
 
 /* =========================
@@ -527,6 +538,7 @@ function showSealCompletionMessage() {
       おめでとう！
     </div>
     <div style="font-size:20px; line-height:1.8; color:#6e5314;">
+      あそんでくれてありがとう！<br>
       きみは<br>
       <ruby>忍野八海<rt>おしのはっかい</rt></ruby>の<br>
       8つのヒミツを見つけて、<br>
