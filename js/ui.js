@@ -488,8 +488,8 @@ function handleSealVideoEnded() {
 function hideSealCompletionMessage(immediate = false) {
   clearTimeout(sealCompletionTimer);
 
-  const fxLayer = document.getElementById("fxLayer");
-  if (!fxLayer) return;
+  const mapStage = document.getElementById("mapStage");
+  if (!mapStage) return;
 
   const existing = document.getElementById("sealCompletionNote");
   if (!existing) return;
@@ -509,8 +509,64 @@ function hideSealCompletionMessage(immediate = false) {
 }
 
 function showSealCompletionMessage() {
-  alert("おめでとう！ 達成メッセージの呼び出しまでは来ています。");
-}
+  const mapStage = document.getElementById("mapStage");
+  if (!mapStage) return;
+
+  hideSealCompletionMessage(true);
+
+  const note = document.createElement("div");
+  note.id = "sealCompletionNote";
+  note.style.position = "absolute";
+  note.style.left = "50%";
+  note.style.top = "50%";
+  note.style.transform = "translate(-50%, -50%) scale(0.92)";
+  note.style.width = "min(92%, 560px)";
+  note.style.maxWidth = "92%";
+  note.style.padding = "22px 18px";
+  note.style.borderRadius = "24px";
+  note.style.zIndex = "30";
+  note.style.pointerEvents = "none";
+  note.style.opacity = "0";
+  note.style.textAlign = "center";
+  note.style.background =
+    "radial-gradient(circle at top, rgba(255,255,255,0.99) 0%, rgba(255,248,214,0.99) 42%, rgba(255,233,170,0.99) 100%)";
+  note.style.border = "2px solid rgba(245, 197, 74, 0.96)";
+  note.style.boxShadow =
+    "0 18px 40px rgba(184, 138, 22, 0.24), 0 0 26px rgba(255, 219, 116, 0.40)";
+
+  note.innerHTML = `
+    <div style="font-size:30px; line-height:1.35; color:#8d5b00; margin-bottom:10px;">
+      おめでとう！
+    </div>
+    <div style="font-size:20px; line-height:1.8; color:#6e5314;">
+      あそんでくれてありがとう！<br>
+      きみは<br>
+      <ruby>忍野八海<rt>おしのはっかい</rt></ruby>の<br>
+      8つのヒミツを見つけて、<br>
+      その<ruby>秘密<rt>ひみつ</rt></ruby>を<br>
+      ときあかしたよ！
+    </div>
+  `;
+
+  mapStage.appendChild(note);
+
+  requestAnimationFrame(() => {
+    note.style.transition = "opacity 0.34s ease, transform 0.34s ease";
+    note.style.opacity = "1";
+    note.style.transform = "translate(-50%, -50%) scale(1)";
+  });
+
+  const rect = mapStage.getBoundingClientRect();
+  const sparkleCount = 16;
+
+  for (let i = 0; i < sparkleCount; i += 1) {
+    setTimeout(() => {
+      createSparkle(
+        rect.left + rect.width / 2 + (Math.random() - 0.5) * Math.min(rect.width * 0.7, 220),
+        rect.top + rect.height / 2 + (Math.random() - 0.5) * Math.min(rect.height * 0.5, 160)
+      );
+    }, i * 55);
+  }
 
   sealCompletionTimer = setTimeout(() => {
     hideSealCompletionMessage();
